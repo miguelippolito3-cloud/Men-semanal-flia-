@@ -105,6 +105,38 @@ en tu Drive, y actualizaciones automáticas desde el repo.
 Desde ahí el archivo vive en la unidad compartida: sobrevive a cambios de
 cuenta, y cualquier miembro de la unidad puede verlo y respaldarlo.
 
+## 🤖 Telegram: recordatorio nocturno de la cena de mañana
+
+1. En Telegram hablale a **@BotFather** → `/newbot` → nombralo (ej: MenuFam)
+   → copiá el **token**.
+2. Agregá el bot al grupo familiar de Telegram (o habale directo) y mandá
+   cualquier mensaje. Después abrí en el navegador:
+   `https://api.telegram.org/botTU_TOKEN/getUpdates` y copiá el `chat.id`
+   (los grupos son números negativos).
+3. En el proyecto de Apps Script pegá el `Code-autoupdate.gs` nuevo y completá
+   arriba `TELEGRAM_TOKEN` y `TELEGRAM_CHAT_ID`.
+4. Probá: ejecutá la función `probarTelegram` desde el editor (▶). Tiene que
+   llegar el saludo al grupo.
+5. Activador nocturno: menú **⏰ Activadores → Añadir activador** →
+   función `recordatorioDiario` → Según tiempo → **Temporizador diario →
+   19:00 a 20:00** → Guardar.
+
+Cada noche llega: la cena de mañana, la vianda del cole, y el aviso de
+descongelar 🧊 si el principal es carne/pollo/pescado.
+
+## 📅 Calendario "MenuFam" (separado de las agendas personales)
+
+El botón «📅 Al calendario» de la app crea (una sola vez) un calendario
+llamado **MenuFam** en la cuenta del dueño y carga la semana como eventos de
+día completo. Para que lo vea la familia: Google Calendar → MenuFam →
+Configuración → **Compartir con determinadas personas** → agregá a Xime y
+listo (cada uno puede mostrarlo u ocultarlo sin tocar su agenda).
+
+> Ambas funciones requieren actualizar el `Código.gs` del proyecto con el
+> `apps-script/Code-autoupdate.gs` de este repo y publicar **nueva versión**
+> (Administrar implementaciones → ✏️ → Nueva versión). La primera vez va a
+> pedir autorizar los permisos nuevos (Calendar y llamadas externas).
+
 ## Para actualizar la app más adelante
 
 1. Reemplazá el contenido del archivo `index` con el `index.html` nuevo.

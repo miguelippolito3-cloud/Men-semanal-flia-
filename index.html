@@ -396,6 +396,64 @@
   .wheel-result { text-align: center; font-size: 16px; font-weight: 800; min-height: 26px; margin: 10px 0 6px; }
   .wheel-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
 
+  /* ── Tarjeta ¿cómo estuvo? ── */
+  .rate-card {
+    display: flex; align-items: center; gap: 11px;
+    margin: 10px 16px 0; padding: 11px 13px;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  .rate-card .rc-emoji { font-size: 30px; }
+  .rate-card .rc-q { margin: 0; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .rate-card .rc-dish { margin: 1px 0 0; font-size: 14.5px; font-weight: 800; }
+  .rc-heart { font-size: 26px; background: none; border: none; padding: 6px; }
+  .rc-heart.on { animation: pop .35s ease; }
+  @keyframes pop { 50% { transform: scale(1.5); } }
+
+  /* ── Desafío semanal ── */
+  .desafio {
+    display: flex; align-items: center; gap: 11px;
+    margin: 10px 16px 0; padding: 11px 13px;
+    background: var(--card); border: 1px dashed var(--stat); border-radius: var(--radius);
+  }
+  .desafio .d-lbl { margin: 0; font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--stat); }
+  .desafio .d-txt { margin: 1px 0 0; font-size: 13.5px; font-weight: 700; }
+  .desafio.done { border-style: solid; opacity: 0.8; }
+
+  /* ── Secciones extra plegables ── */
+  details.extra {
+    margin: 12px 16px 0; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  }
+  details.extra > summary { cursor: pointer; padding: 12px 14px; font-size: 14.5px; font-weight: 800; list-style: none; }
+  details.extra > summary::before { content: "▸ "; color: var(--stat); }
+  details.extra[open] > summary::before { content: "▾ "; }
+  details.finde-box { border-color: var(--stat); background: color-mix(in srgb, var(--stat) 8%, var(--card)); }
+  .finde-box .row { border-color: var(--stat); }
+  .tip {
+    display: flex; gap: 9px; align-items: flex-start;
+    margin: 10px 0 0; padding: 9px 12px; font-size: 13px;
+    background: var(--card); border-left: 3px solid var(--stat); border-radius: 0 10px 10px 0;
+  }
+  .batch-item, .hist-item { display: flex; align-items: center; gap: 9px; padding: 6px 0; font-size: 13.5px; border-bottom: 1px dashed var(--line); }
+  .batch-item input { accent-color: var(--stat); width: 17px; height: 17px; flex: none; }
+  .batch-item .done { text-decoration: line-through; color: var(--muted); }
+  .hist-item { flex-wrap: wrap; }
+  .hist-item .h-when { font-weight: 800; }
+  .hist-item .h-sum { flex: 1 1 100%; font-size: 12px; color: var(--muted); }
+  .hist-item .h-rep { color: var(--like); font-weight: 800; font-size: 12.5px; }
+
+  /* ── Logros ── */
+  dialog#badgesModal { border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink); padding: 18px; width: 400px; max-width: 94vw; max-height: 84dvh; overflow-y: auto; }
+  dialog#badgesModal::backdrop { background: rgba(0,0,0,0.6); }
+  .badges { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+  .badge { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 11px; text-align: center; }
+  .badge .b-emoji { font-size: 28px; }
+  .badge h5 { margin: 4px 0 2px; font-size: 12.5px; }
+  .badge p { margin: 0; font-size: 11px; color: var(--muted); }
+  .badge.off { opacity: 0.45; filter: grayscale(1); }
+
+  /* ── Grilla imprimible (heladera) ── */
+  #printSheet { display: none; }
+
   /* ── Panel admin ── */
   .admin-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; padding: 0 16px; }
   .acard { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 11px 13px; }
@@ -451,11 +509,21 @@
   }
 
   @media print {
-    nav.tabbar, .sheet, .sheet-back, header.top, .export-bar, .conf, .stories, .hero, #tab-descubrir { display: none !important; }
-    body, #app { background: #fff; color: #000; box-shadow: none; }
-    .tab { display: block !important; }
-    #tab-compras, #tab-recetario { display: none !important; }
-    .row { border-color: #999; }
+    body * { visibility: hidden; }
+    #app, nav.tabbar, .sheet, .sheet-back, dialog { display: none !important; }
+    #printSheet, #printSheet * { visibility: visible; }
+    #printSheet {
+      display: block !important; position: absolute; inset: 0;
+      background: #fff; color: #1c2a1e; font-family: Georgia, serif; padding: 20px;
+    }
+    #printSheet h1 { font-size: 22px; margin: 0 0 2px; }
+    #printSheet .sub { font-size: 12px; color: #667; margin: 0 0 12px; }
+    #printSheet table { width: 100%; border-collapse: collapse; }
+    #printSheet th { background: #DDE7D3; border: 1px solid #9aa88f; padding: 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; }
+    #printSheet td { border: 1px solid #9aa88f; padding: 8px 7px; font-size: 12.5px; vertical-align: top; background: #F2F5EC; }
+    #printSheet td .pn { font-weight: 700; }
+    #printSheet td .ps { font-size: 11px; color: #556; }
+    #printSheet .foot { margin-top: 10px; font-size: 11px; color: #667; }
   }
 </style>
 </head>
@@ -465,6 +533,7 @@
     <h1 class="logo">MenuFam</h1>
     <span class="streak" id="streakBadge" hidden>🔥 <span id="streakN"></span></span>
     <span class="spacer"></span>
+    <button class="avatar" id="badgesBtn" title="Logros de la familia">🏅</button>
     <button class="avatar" id="helpBtn" title="Ayuda: preguntale a Menú cómo funciona la app">💬</button>
     <button class="avatar" id="adminBtn" title="Panel de uso de la app (solo Mike)" hidden>📊</button>
     <button class="avatar" id="themeBtn" title="Cambiar tema (oscuro / claro / psicodélico)">🌙</button>
@@ -479,6 +548,24 @@
         <p class="h-label" id="heroLabel"></p>
         <div class="h-row"><span class="h-emoji" id="heroCenaEmoji"></span><div><p class="h-kind">Cena</p><p class="h-name" id="heroCenaName"></p></div></div>
         <div class="h-row"><span class="h-emoji" id="heroViandaEmoji"></span><div><p class="h-kind">Vianda</p><p class="h-name" id="heroViandaName"></p></div></div>
+      </div>
+
+      <div class="rate-card" id="rateCard" hidden>
+        <span class="rc-emoji" id="rateEmoji"></span>
+        <div style="flex:1;min-width:0">
+          <p class="rc-q" id="rateQ"></p>
+          <p class="rc-dish" id="rateDish"></p>
+        </div>
+        <button class="rc-heart" id="rateBtn" aria-label="Me gustó">🤍</button>
+      </div>
+
+      <div class="desafio" id="desafioCard">
+        <span style="font-size:22px">🎯</span>
+        <div style="flex:1;min-width:0">
+          <p class="d-lbl">Desafío de la semana</p>
+          <p class="d-txt" id="desafioTxt"></p>
+        </div>
+        <button id="desafioBtn" class="pill"></button>
       </div>
 
       <div class="conf">
@@ -501,9 +588,28 @@
       <h2 class="sec pad">🧺 Viandas chicos <button class="mini" data-regen="viandas">🎲</button></h2>
       <div class="rows" id="rowsViandas"></div>
 
+      <details class="extra finde-box">
+        <summary>🌞 Finde (opcional) — asado, salidas o libre</summary>
+        <div class="rows" id="rowsFinde" style="padding:10px 12px 12px"></div>
+      </details>
+
+      <div class="pad" id="tipsBox"></div>
+
+      <details class="extra">
+        <summary>👨‍🍳 Batch cooking del domingo — dejá media semana lista</summary>
+        <div id="batchBox" style="padding:4px 14px 12px"></div>
+      </details>
+
+      <details class="extra">
+        <summary>📚 Semanas pasadas</summary>
+        <div id="histBox" style="padding:4px 14px 12px"></div>
+      </details>
+
       <div class="export-bar">
         <button id="btnWhatsApp" class="grad">💬 Mandar al grupo</button>
         <button id="btnWhatsAppTodo">📲 Menú + compras</button>
+        <button id="btnPDF">🖨️ PDF heladera</button>
+        <button id="btnCalendar" hidden>📅 Al calendario</button>
         <button id="btnCopyCenas">📋 Cenas</button>
         <button id="btnCopyViandas">📋 Viandas</button>
         <button id="btnDone">✅ ¡Semana lista!</button>
@@ -603,6 +709,14 @@
   </div>
   <div id="sheetBody"></div>
 </div>
+
+<dialog id="badgesModal">
+  <p class="wheel-head">🏅 Logros de la familia</p>
+  <div class="badges" id="badgesGrid"></div>
+  <div class="wheel-actions" style="margin-top:12px"><button id="badgesClose" class="ghost">Cerrar</button></div>
+</dialog>
+
+<div id="printSheet" aria-hidden="true"></div>
 
 <dialog id="helpModal">
   <div class="help-head">
@@ -899,7 +1013,7 @@ function nextMonday() {
   return d.toISOString().slice(0, 10);
 }
 function freshWeek() {
-  return { monday: nextMonday(), cenas: Array(5).fill(null), viandas: Array(5).fill(null), sides: Array(5).fill(null), obs: Array(5).fill(""), shopChecked: [] };
+  return { monday: nextMonday(), cenas: Array(5).fill(null), viandas: Array(5).fill(null), sides: Array(5).fill(null), obs: Array(5).fill(""), obsVoz: Array(5).fill(null), shopChecked: [], batchChecked: [], finde: { sab: null, dom: null }, desafioOk: false };
 }
 function migrate(s) {
   for (const d of s.recetario) {
@@ -915,7 +1029,56 @@ function migrate(s) {
   s.catalogoOcultos = s.catalogoOcultos || [];
   s.noNosGusta = s.noNosGusta || ["aceitunas", "roquefort", "queso azul"];
   s.usage = s.usage || { u: {}, ev: [] };
+  s.week.obsVoz = s.week.obsVoz || Array(5).fill(null);
+  s.week.batchChecked = s.week.batchChecked || [];
+  s.week.finde = s.week.finde || { sab: null, dom: null };
+  s.week.desafioOk = s.week.desafioOk || false;
+  s.ratings = s.ratings || {};
+  s.kid = s.kid || { active: null, pin: null };
+  s.kidLikes = s.kidLikes || { date: null, kid: null, n: 0 };
+  s.historial = s.historial || [];
+  s.precios = s.precios || {};
+  s.desafiosDone = s.desafiosDone || 0;
   return s;
+}
+
+// ── Desafío semanal (determinístico según la semana) ──
+const DESAFIOS = [
+  "🐟 Prueben una receta de pescado que nunca hicieron",
+  "🇦🇷 Sumen 2 recetas argentinas nuevas esta semana",
+  "🥬 Segunda ensalada en al menos 3 cenas",
+  "🎡 Que los chicos elijan una cena con la ruleta",
+  "📷 Pónganle foto a 3 platos del recetario",
+  "❤️ Que los 5 voten al menos un favorito esta semana",
+  "🥘 Una cena nueva en la Essen (que no sea Kansas chicken)",
+  "🍲 Recuperen un plato que hace mucho no comen"
+];
+function desafioSemana() {
+  const dias = Math.floor(new Date(state.week.monday + "T12:00:00").getTime() / 86400000);
+  return DESAFIOS[Math.floor(dias / 7) % DESAFIOS.length];
+}
+
+// ── Precios estimados (ARS, editables tocándolos en Compras) ──
+const PRECIOS_BASE = {
+  "lomo": 16000, "bifes de lomo": 15000, "bife de chorizo": 12000, "carne picada": 7500,
+  "carne para estofado": 8000, "carne para fajitas": 9000, "carne": 8500, "milanesas de carne": 9500,
+  "milanesas de pollo": 7000, "supremas de pollo": 7500, "pollo": 6500, "pata y muslo de pollo": 5500,
+  "carré de cerdo": 9000, "trucha": 12000, "salmón": 18000, "merluza": 6000, "bastoncitos de merluza": 4500,
+  "medallones de merluza": 5000, "pescado": 8000, "empanadas": 6000, "tapas de empanadas": 1800,
+  "papa": 1500, "batata": 1800, "boniato": 1800, "calabaza": 1600, "zanahoria": 1200, "tomate": 2500,
+  "tomate cherry": 2800, "cebolla": 1200, "morrón": 3000, "palta": 3500, "limón": 1500, "choclo": 1800,
+  "hojas verdes": 2200, "lechuga": 1800, "rúcula": 2000, "espinaca": 2000, "zapallito": 1600,
+  "fideos": 1800, "fideos verdes": 2500, "ravioles": 4500, "ñoquis": 3500, "arroz": 1900, "polenta": 1500,
+  "harina": 1200, "pan de hamburguesa": 2500, "pan blanco": 2000, "tapas de tarta": 2000,
+  "queso rallado": 3500, "queso": 5000, "mozzarella": 6000, "crema": 2500, "jamón": 4500,
+  "jamón crudo": 8000, "burrata": 7500, "queso parmesano": 7000, "huevo": 3500, "manteca": 2800,
+  "salsa de tomate": 1800, "lentejas": 2200, "fruta": 3000
+};
+function precioDe(item) {
+  if (state.precios[item] !== undefined) return state.precios[item];
+  if (PRECIOS_BASE[item] !== undefined) return PRECIOS_BASE[item];
+  const k = Object.keys(PRECIOS_BASE).find(p => item.includes(p));
+  return k ? PRECIOS_BASE[k] : null;
 }
 
 // ── "No nos gusta": ingredientes inaceptables para la familia ──
@@ -955,7 +1118,8 @@ const ACC_LABEL = {
   ruleta_ok: "Aplicó la ruleta", like: "Dio un ❤️", veto: "Vetó un plato",
   whatsapp: "Compartió el menú", compras: "Tildó compras", semana: "Completó la semana",
   plato: "Agregó un plato", edito: "Editó un plato", receta: "Leyó una receta", foto: "Subió una foto",
-  ayuda: "Consultó la ayuda"
+  ayuda: "Consultó la ayuda", voto_cena: "Votó la cena de ayer", desafio: "Cumplió el desafío",
+  repetir: "Repitió una semana", pdf: "Imprimió la grilla", calendario: "Mandó al calendario", voz: "Grabó nota de voz"
 };
 function logEvent(a) {
   const u = state.currentUser || "?";
@@ -1094,8 +1258,36 @@ function casaDay(tipo, i) {
 // ── Render ──
 const $ = sel => document.querySelector(sel);
 
+const ADULTOS = ["mike", "xime"];
+const NINOS = ["fran", "luca", "martu"];
+function pedirPin(msj) {
+  const p = prompt(msj || "PIN de adulto:");
+  return p !== null && p === state.kid.pin;
+}
 function renderProfiles() {
   const box = $("#profiles"); box.innerHTML = "";
+  if (state.kid.active) {
+    // 🧒 modo niño: solo su avatar + candado para que salga un adulto
+    const m = FAMILIA.find(f => f.k === state.kid.active);
+    const b = document.createElement("button");
+    b.className = "avatar active";
+    b.textContent = m.label;
+    b.title = `Modo niño: ${m.title}`;
+    box.appendChild(b);
+    const lock = document.createElement("button");
+    lock.className = "avatar"; lock.textContent = "🔒";
+    lock.title = "Salir del modo niño (PIN de adulto)";
+    lock.addEventListener("click", () => {
+      if (pedirPin("PIN de adulto para salir del modo niño:")) {
+        state.kid.active = null;
+        state.currentUser = "mike";
+        save(); render();
+        toast("🔓 Modo niño desactivado");
+      } else toast("PIN incorrecto 🙅");
+    });
+    box.appendChild(lock);
+    return;
+  }
   for (const m of FAMILIA) {
     const b = document.createElement("button");
     b.className = "avatar" + (state.currentUser === m.k ? " active" : "");
@@ -1108,6 +1300,40 @@ function renderProfiles() {
     });
     box.appendChild(b);
   }
+  // 🧒 activar modo niño (solo adultos)
+  if (ADULTOS.includes(state.currentUser)) {
+    const kid = document.createElement("button");
+    kid.className = "avatar"; kid.textContent = "🧒";
+    kid.title = "Modo niño: le prestás el teléfono a uno de los chicos";
+    kid.addEventListener("click", () => {
+      const quien = (prompt("¿Quién lo va a usar? (fran / luca / martu)") || "").trim().toLowerCase();
+      if (!NINOS.includes(quien)) { if (quien) toast("Escribí fran, luca o martu"); return; }
+      if (!state.kid.pin) {
+        const pin = prompt("Creá un PIN de adulto (4 números) para poder salir del modo niño:");
+        if (!pin || !/^\d{4}$/.test(pin.trim())) { toast("El PIN tienen que ser 4 números"); return; }
+        state.kid.pin = pin.trim();
+      }
+      state.kid.active = quien;
+      state.currentUser = quien;
+      save(); render();
+      toast(`🧒 Modo niño: ahora vota ${FAMILIA.find(f => f.k === quien).title} (máx. 3 ❤️ por día)`);
+    });
+    box.appendChild(kid);
+  }
+}
+// límite de 3 ❤️ por día en modo niño
+function kidPuedeLikear() {
+  if (!state.kid.active) return true;
+  const hoy = new Date().toISOString().slice(0, 10);
+  if (state.kidLikes.date !== hoy || state.kidLikes.kid !== state.kid.active) {
+    state.kidLikes = { date: hoy, kid: state.kid.active, n: 0 };
+  }
+  if (state.kidLikes.n >= 3) {
+    toast("Ya usaste tus 3 ❤️ de hoy 😄 mañana hay más");
+    return false;
+  }
+  state.kidLikes.n++;
+  return true;
 }
 
 function todayIndex() {
@@ -1218,7 +1444,8 @@ function render() {
   if (activeTab === "compras") renderShop();
   if (activeTab === "recetario") renderRecetario();
   if (activeTab === "admin") renderAdmin();
-  $("#adminBtn").hidden = !ADMIN_USERS.includes(state.currentUser);
+  renderRate(); renderDesafio(); renderFinde(); renderTips(); renderBatch(); renderHistorial();
+  $("#adminBtn").hidden = !ADMIN_USERS.includes(state.currentUser) || !!state.kid.active;
   if (sheetDay !== null) renderSheet();
 }
 
@@ -1238,7 +1465,7 @@ const HELP_KB = [
   { k: /compra|super|súper|changuito|lista/, a: "La pestaña 🛒 Compras arma la lista sola con los ingredientes de todo lo elegido esa semana, agrupada por carnicería, verdulería, lácteos y almacén. Tildá lo que ya tenés y «Copiar lo que falta» manda al súper solo lo pendiente." },
   { k: /whatsapp|compartir|mandar|grupo|enviar/, a: "En Semana está «💬 Mandar al grupo»: arma el mensaje con el formato de siempre (días en negrita, emojis, keto de Mike incluido) y abre WhatsApp directo. También podés copiar cenas y viandas por separado." },
   { k: /foto|imagen|nano banana|gemini|📷/, a: "En el Recetario, cada plato tiene 📷 para ponerle foto — podés generarlas con Gemini/Nano Banana y subirlas. La foto queda de fondo en el feed y en las tarjetas. Se guardan en el dispositivo." },
-  { k: /tema|color|oscuro|claro|psicodelico|psicodélico|🌈|modo/, a: "El botón junto a los perfiles cambia el tema: 🌙 oscuro, ☀️ claro y 🌈 psicodélico (con colores que giran, groovy). Queda guardado para la próxima." },
+  { k: /tema|color|oscuro|claro|psicodelico|psicodélico|🌈/, a: "El botón junto a los perfiles cambia el tema: 🌙 oscuro, ☀️ claro y 🌈 psicodélico (con colores que giran, groovy). Queda guardado para la próxima." },
   { k: /guarda|datos|sincroniz|drive|nube|donde vive|dónde vive|compartido/, a: "El menú vive en un archivo (menufam-data.json) en el Drive de Mike: todos ven y editan EL MISMO menú desde cualquier celular. Cada teléfono guarda además una copia local, así funciona sin internet y sincroniza al volver." },
   { k: /racha|semana lista|confeti|🔥/, a: "Cuando la semana está completa (5 cenas + 5 viandas), tocá «✅ ¡Semana lista!»: confeti 🎉 y suma a la racha 🔥 de semanas organizadas que se ve arriba." },
   { k: /admin|estadistica|estadística|uso|panel|📊/, a: "El panel 📊 (solo lo ve Mike) muestra el uso de la app por persona: cuántas acciones hizo cada uno, la actividad de los últimos 14 días, los platos más queridos y los últimos movimientos." },
@@ -1246,6 +1473,17 @@ const HELP_KB = [
   { k: /editar|modificar|cambiar plato|lapiz|lápiz|✏/, a: "En el Recetario, el ✏️ de cada plato abre el formulario con todo cargado: nombre, acompañamiento, variante de los chicos, keto, ingredientes, nutrición y receta. Guardás y listo." },
   { k: /nutricion|nutrición|caloria|caloría|kcal|proteina|proteína|grasa/, a: "Cada plato muestra su info nutricional estimada por porción: 🔥 calorías, 💪 proteínas, 🍞 carbos y 🥑 grasas. Son estimaciones caseras — no reemplazan al nutricionista 😄." },
   { k: /nueva semana|archivar|semana que viene|lunes/, a: "«🗓️ Nueva semana» archiva el menú actual y arranca una limpia. El generador recuerda la semana archivada para no repetir los mismos platos." },
+  { k: /telegram|recordatorio|descongel|aviso/, a: "Todas las noches el bot de Telegram avisa la cena de mañana y si hay que descongelar 🧊 (lo configura papá en el backend, es gratis). Además, la app te muestra cada mañana «¿Cómo estuvo la cena de ayer?» para votar con ❤️." },
+  { k: /finde|sabado|sábado|domingo|asado/, a: "Abajo de las viandas está «🌞 Finde (opcional)»: sábado y domingo con opciones rápidas (asado, salimos, libre, empanadas) o cualquier plato del recetario. No entra en el sorteo — el finde es sagrado 😄." },
+  { k: /historial|semanas pasadas|repetir semana|archivo/, a: "En «📚 Semanas pasadas» quedan todas las semanas archivadas con sus ❤️ (la mejor tiene 🏆). El botón «🔁 Repetir» carga ese menú en la semana actual." },
+  { k: /presupuesto|precio|plata|cuanto sale|cuánto sale/, a: "En Compras, cada ítem tiene su precio estimado y arriba se ve el total de la semana. Los precios son estimaciones editables: tocá cualquier precio para corregirlo con lo que viste en el súper." },
+  { k: /batch|domingo cocina|adelantar|freezer|frizar/, a: "En «👨‍🍳 Batch cooking del domingo» la app arma sola el plan: empanar todas las milanesas juntas, puré doble, la salsa de la semana… Tildá lo que vayas haciendo." },
+  { k: /nino|niño|modo martu|prestar|chicos solos|pin/, a: "Modo niño 🧒: desde el perfil de Mike o Xime, tocá 🧒 y elegí quién usa el teléfono. El nene puede votar la cena y dar hasta 3 ❤️ por día, y no puede cambiar de perfil ni generar menús. Para salir hace falta el PIN de adulto 🔒." },
+  { k: /logro|medalla|premio|🏅/, a: "Tocá el 🏅 del header: medallas por rachas, recetas nuevas probadas, corazones dados, fotos, desafíos cumplidos y más. ¡A destrabarlas en familia!" },
+  { k: /desafio|desafío|🎯/, a: "Cada semana hay un desafío nuevo (probar un pescado, sumar ensaladas, que elijan los chicos…). Cuando lo logran, tóquenle «Marcar cumplido»: suma confeti y medallas." },
+  { k: /voz|audio|microfono|micrófono|🎤/, a: "En las observaciones de cada vianda está el 🎤: grabás la nota (máx. 20 s), se guarda el audio para escuchar con ▶️ y la transcripción queda escrita en la observación. Ideal para la Xime apurada a la mañana 😄." },
+  { k: /calendario|calendar|agenda/, a: "El botón «📅 Al calendario» crea el calendario «MenuFam» en Google Calendar (separado de sus agendas) y carga la semana como eventos de día completo. Cada uno lo activa o esconde desde su Google Calendar." },
+  { k: /pdf|imprimir|heladera|grilla/, a: "«🖨️ PDF heladera» arma la grilla de la semana estilo papel (como la de Éxito que usaban 😉) lista para imprimir o guardar como PDF y pegar en la heladera." },
   { k: /hola|buenas|che|hey/, a: "¡Hola! 👋 Soy Menucito, el ayudante de MenuFam. Preguntame lo que quieras sobre la app: la ruleta, los votos, las viandas, las compras… o tocá una de las preguntas de abajo." },
   { k: /gracias|genial|joya|barbaro|bárbaro/, a: "¡De nada! 🍽️ Que aproveche. Si se traban con algo, acá estoy." }
 ];
@@ -1388,6 +1626,256 @@ $("#adminBtn").addEventListener("click", () => {
   document.querySelectorAll(".tabbar [data-tab]").forEach(x => x.classList.remove("on"));
   document.querySelectorAll(".tab").forEach(sec => sec.classList.toggle("active", sec.id === "tab-admin"));
   renderAdmin();
+});
+
+// ── ¿Cómo estuvo la cena de ayer? (voto tipo like de Instagram) ──
+function ayerInfo() {
+  const dow = new Date().getDay();
+  const idx = dow >= 2 && dow <= 6 ? dow - 2 : null; // mar→lun ... sáb→vie
+  if (idx === null) return null;
+  const e = state.week.cenas[idx];
+  if (!e) return null;
+  const d = new Date(state.week.monday + "T12:00:00");
+  d.setDate(d.getDate() + idx);
+  return { idx, entry: e, dish: entryDish(e), fecha: d.toISOString().slice(0, 10) };
+}
+function renderRate() {
+  const card = $("#rateCard");
+  const info = ayerInfo();
+  if (!info || !entryName(info.entry)) { card.hidden = true; return; }
+  card.hidden = false;
+  const r = state.ratings[info.fecha] = state.ratings[info.fecha] || { cenaId: info.entry.id || null, likes: [] };
+  const yo = r.likes.includes(state.currentUser);
+  $("#rateEmoji").textContent = entryEmoji(info.entry);
+  $("#rateQ").textContent = `¿Cómo estuvo la cena de ${DIAS[info.idx].toLowerCase()}?`;
+  $("#rateDish").textContent = entryName(info.entry) + (r.likes.length ? ` · ❤️ ${r.likes.length}` : "");
+  const btn = $("#rateBtn");
+  btn.textContent = yo ? "❤️" : "🤍";
+  btn.className = "rc-heart" + (yo ? " on" : "");
+  btn.onclick = () => {
+    if (yo) return;
+    r.likes.push(state.currentUser);
+    if (info.dish) info.dish.fans = [...new Set([...info.dish.fans, state.currentUser])];
+    logEvent("voto_cena");
+    save(); render();
+    toast("❤️ ¡Anotado! El generador aprende de esto");
+  };
+}
+
+// ── Desafío semanal ──
+function renderDesafio() {
+  $("#desafioTxt").textContent = desafioSemana();
+  const b = $("#desafioBtn");
+  b.textContent = state.week.desafioOk ? "✅ ¡Cumplido!" : "Marcar cumplido";
+  $("#desafioCard").classList.toggle("done", state.week.desafioOk);
+  b.onclick = () => {
+    if (state.week.desafioOk) return;
+    state.week.desafioOk = true;
+    state.desafiosDone++;
+    logEvent("desafio");
+    save(); render();
+    confetti(80);
+    toast("🎯 ¡Desafío cumplido! Van " + state.desafiosDone);
+  };
+}
+
+// ── Finde opcional 🌞 ──
+const FINDE_PRESETS = ["🥩 Asado", "🍕 Salimos / pedimos", "🆓 Libre", "🥟 Empanadas", "🍝 Pastas del domingo"];
+function findeRow(key, label) {
+  const e = state.week.finde[key];
+  const row = document.createElement("div");
+  row.className = "row";
+  row.style.cursor = "default";
+  const name = e ? (e.custom || entryName(e)) : "";
+  row.innerHTML = `
+    <span class="r-emoji" style="background:var(--card-2)">${e ? ((name.match(/🥩|🍕|🆓|🥟|🍝/) || [entryEmoji(e) || "🌞"])[0]) : "🌞"}</span>
+    <span class="r-main"><p class="r-day">${label}</p></span>`;
+  const sel = document.createElement("select");
+  sel.className = "dish";
+  sel.style.maxWidth = "58%";
+  sel.appendChild(new Option("— libre —", ""));
+  for (const p of FINDE_PRESETS) sel.appendChild(new Option(p, "p:" + p));
+  for (const d of pool("cena")) sel.appendChild(new Option(`${emojiFor(d)} ${d.nombre}`, d.id));
+  sel.appendChild(new Option("✍️ Otro…", "__custom"));
+  if (e && e.custom) { const o = new Option(`✍️ ${e.custom}`, "__cur"); o.selected = true; sel.insertBefore(o, sel.firstChild); }
+  else if (e && e.id) sel.value = e.id;
+  sel.addEventListener("change", () => {
+    if (sel.value === "__custom") {
+      const t = prompt("¿Qué hacemos el " + label.toLowerCase() + "?");
+      state.week.finde[key] = t ? { custom: t.trim() } : null;
+    } else if (sel.value.startsWith("p:")) state.week.finde[key] = { custom: sel.value.slice(2) };
+    else if (sel.value && sel.value !== "__cur") state.week.finde[key] = { id: sel.value };
+    else if (!sel.value) state.week.finde[key] = null;
+    save(); render();
+  });
+  row.appendChild(sel);
+  return row;
+}
+function renderFinde() {
+  const box = $("#rowsFinde"); box.innerHTML = "";
+  box.appendChild(findeRow("sab", "Sábado"));
+  box.appendChild(findeRow("dom", "Domingo"));
+}
+
+// ── Tips de porciones inteligentes 💡 ──
+const BASE_TOKENS = ["milanesa", "pollo", "carne", "arroz", "puré", "pure", "fideos", "hamburgues", "merluza", "pescado", "tarta"];
+function tipsSemana() {
+  const tips = [];
+  for (let i = 0; i < 4; i++) {
+    const cena = entryDish(state.week.cenas[i]);
+    const via = entryDish(state.week.viandas[i + 1]);
+    if (!cena || !via) continue;
+    const a = norm(cena.nombre + " " + (cena.ing || ""));
+    const b = norm(via.nombre);
+    const tok = BASE_TOKENS.find(t => a.includes(t) && b.includes(t));
+    if (tok) tips.push(`💡 Cociná de más el ${DIAS[i].toLowerCase()}: la cena (${cena.nombre}) sirve de base para la vianda del ${DIAS[i + 1].toLowerCase()} (${via.nombre}).`);
+  }
+  return tips;
+}
+function renderTips() {
+  const box = $("#tipsBox"); box.innerHTML = "";
+  for (const t of tipsSemana()) {
+    const div = document.createElement("div");
+    div.className = "tip"; div.textContent = t;
+    box.appendChild(div);
+  }
+}
+
+// ── Batch cooking del domingo 👨‍🍳 ──
+function planBatch() {
+  const dishes = [...state.week.cenas, ...state.week.viandas].map(entryDish).filter(Boolean);
+  const has = (rx, arr) => arr.filter(d => rx.test(norm(d.nombre + " " + (d.ing || ""))));
+  const tareas = [];
+  const mila = has(/milanesa/, dishes);
+  if (mila.length >= 2) tareas.push({ k: "mila", t: `Empaná todas las milanesas juntas (${mila.length} comidas) y frizá en tandas` });
+  const pure = dishes.filter(d => /pur[eé]/.test(norm((d.lados || "") + " " + d.nombre)));
+  if (pure.length >= 2) tareas.push({ k: "pure", t: `Puré doble de una vez (va en ${pure.length} comidas)` });
+  const salsa = has(/tuco|salsa de tomate|napolitana|bolognesa/, dishes);
+  if (salsa.length >= 2) tareas.push({ k: "salsa", t: `Una olla grande de salsa de tomate (rinde para ${salsa.length} comidas)` });
+  const arroz = has(/arroz/, dishes);
+  if (arroz.length >= 2) tareas.push({ k: "arroz", t: `Cociná el arroz de la semana de una vez (${arroz.length} comidas)` });
+  const pollo = has(/pollo|suprema|kansas/, dishes);
+  if (pollo.length >= 2) tareas.push({ k: "pollo", t: `Horneá pollo de más: lo usás en ${pollo.length} comidas` });
+  const tarta = has(/tarta/, dishes);
+  if (tarta.length) tareas.push({ k: "tarta", t: "Dejá las tartas armadas en la heladera (se hornean en el día)" });
+  const huevo = state.week.sides.some(x => x && (x.ens2 === "s6" || x.ens2 === "s7"));
+  if (huevo) tareas.push({ k: "huevo", t: "Herví huevos para las ensaladas de la semana" });
+  tareas.push({ k: "verde", t: "Lavá y secá las hojas verdes: ensalada lista toda la semana" });
+  return tareas;
+}
+function renderBatch() {
+  const box = $("#batchBox"); box.innerHTML = "";
+  const done = new Set(state.week.batchChecked);
+  for (const t of planBatch()) {
+    const div = document.createElement("label");
+    div.className = "batch-item";
+    const cb = document.createElement("input");
+    cb.type = "checkbox"; cb.checked = done.has(t.k);
+    const sp = document.createElement("span");
+    sp.textContent = t.t;
+    if (cb.checked) sp.className = "done";
+    cb.addEventListener("change", () => {
+      if (cb.checked) done.add(t.k); else done.delete(t.k);
+      state.week.batchChecked = [...done];
+      save(); renderBatch();
+    });
+    div.appendChild(cb); div.appendChild(sp);
+    box.appendChild(div);
+  }
+}
+
+// ── Historial de semanas 📚 (con repercusiones ❤️) ──
+function repercusionesDe(h) { return h.likes || 0; }
+function renderHistorial() {
+  const box = $("#histBox"); box.innerHTML = "";
+  if (!state.historial.length) { box.innerHTML = "<p class='hint'>Cuando toques «Nueva semana», la actual se archiva acá.</p>"; return; }
+  const best = Math.max(...state.historial.map(repercusionesDe));
+  [...state.historial].reverse().forEach(h => {
+    const div = document.createElement("div");
+    div.className = "hist-item";
+    div.innerHTML = `<span class="h-when">Semana del ${fmtDate(h.monday)}</span>
+      <span class="h-rep">❤️ ${repercusionesDe(h)}${repercusionesDe(h) === best && best > 0 ? " 🏆" : ""}</span>`;
+    const rep = document.createElement("button");
+    rep.className = "pill"; rep.textContent = "🔁 Repetir";
+    rep.addEventListener("click", () => {
+      if (!confirm(`¿Cargar el menú de la semana del ${fmtDate(h.monday)} en la semana actual?`)) return;
+      state.week.cenas = h.entries.cenas.map(e => e && e.id && byId(e.id) ? { id: e.id } : (e ? { custom: e.nombre || e.custom || "?" } : null));
+      state.week.viandas = h.entries.viandas.map(e => e && e.id && byId(e.id) ? { id: e.id } : (e ? { custom: e.nombre || e.custom || "?" } : null));
+      if (h.entries.sides) state.week.sides = h.entries.sides;
+      logEvent("repetir");
+      save(); render();
+      confetti(60);
+      toast("🔁 Semana repetida — ajustá lo que quieras");
+    });
+    div.appendChild(rep);
+    const sum = document.createElement("span");
+    sum.className = "h-sum";
+    sum.textContent = "🍽 " + h.resumen.cenas.filter(Boolean).join(" · ");
+    div.appendChild(sum);
+    box.appendChild(div);
+  });
+}
+
+// ── Logros 🏅 ──
+function calcBadges() {
+  const totalFans = state.recetario.reduce((a, d) => a + d.fans.length, 0);
+  const fotos = state.recetario.filter(d => d.img).length;
+  const importadas = state.recetario.filter(d => d.src).length;
+  const todosVotaron = FAMILIA.every(m => state.recetario.some(d => d.fans.includes(m.k)));
+  return [
+    { e: "🔥", n: "En racha", d: `${state.streak.count} semanas planificadas`, ok: state.streak.count >= 1, meta: "Planificá 1 semana" },
+    { e: "🏆", n: "Mes ordenado", d: "4 semanas seguidas", ok: state.streak.count >= 4, meta: `${state.streak.count}/4 semanas` },
+    { e: "🇦🇷", n: "Exploradores", d: `${importadas} recetas nuevas probadas`, ok: importadas >= 5, meta: `${importadas}/5 recetas` },
+    { e: "🧭", n: "Gourmets", d: "10 recetas nuevas", ok: importadas >= 10, meta: `${importadas}/10 recetas` },
+    { e: "❤️", n: "Fanáticos", d: `${totalFans} corazones dados`, ok: totalFans >= 10, meta: `${totalFans}/10 corazones` },
+    { e: "🗳️", n: "Democracia total", d: "Los 5 votaron", ok: todosVotaron, meta: "Falta que voten todos" },
+    { e: "📷", n: "Food bloggers", d: `${fotos} platos con foto`, ok: fotos >= 3, meta: `${fotos}/3 fotos` },
+    { e: "🎯", n: "Desafiantes", d: `${state.desafiosDone} desafíos cumplidos`, ok: state.desafiosDone >= 1, meta: "Cumplí un desafío" },
+    { e: "📚", n: "Archivistas", d: `${state.historial.length} semanas en el archivo`, ok: state.historial.length >= 4, meta: `${state.historial.length}/4 semanas` },
+    { e: "🌞", n: "Finde resuelto", d: "Planificaron un finde", ok: !!(state.week.finde.sab || state.week.finde.dom), meta: "Cargá el finde" }
+  ];
+}
+$("#badgesBtn").addEventListener("click", () => {
+  const grid = $("#badgesGrid"); grid.innerHTML = "";
+  for (const b of calcBadges()) {
+    const div = document.createElement("div");
+    div.className = "badge" + (b.ok ? "" : " off");
+    div.innerHTML = `<div class="b-emoji">${b.e}</div><h5>${b.n}</h5><p>${b.ok ? b.d : b.meta}</p>`;
+    grid.appendChild(div);
+  }
+  $("#badgesModal").showModal();
+});
+$("#badgesClose").addEventListener("click", () => $("#badgesModal").close());
+
+// ── PDF heladera 🖨️ ──
+function buildPrint() {
+  const filas = ["Cena", "Ensaladas y +", "Vianda"];
+  let html = `<h1>🍽️ MenuFam — Semana del ${fmtDate(state.week.monday)}</h1>
+    <p class="sub">Fran (8) · Luca (6) · Martu (2) — pegar en la heladera</p>
+    <table><tr><th></th>${DIAS.map(d => `<th>${d}</th>`).join("")}</tr>`;
+  html += `<tr><th>Cena</th>` + state.week.cenas.map((e, i) => {
+    const d = entryDish(e);
+    return `<td><span class="pn">${entryName(e) || "—"}</span>${d && d.lados ? `<br><span class="ps">${d.lados}</span>` : ""}</td>`;
+  }).join("") + "</tr>";
+  html += `<tr><th>Ensaladas y +</th>` + state.week.sides.map((x, i) => {
+    if (!state.week.cenas[i]) return "<td>—</td>";
+    return `<td><span class="ps">🥬 ${saladLine(x)}${compName(x) ? `<br>➕ ${compName(x)}` : ""}</span></td>`;
+  }).join("") + "</tr>";
+  html += `<tr><th>Vianda</th>` + state.week.viandas.map((e, i) => {
+    const obs = state.week.obs[i] || (entryDish(e) && entryDish(e).obs) || "";
+    return `<td><span class="pn">${entryName(e) || "—"}</span>${obs ? `<br><span class="ps">📝 ${obs}</span>` : ""}</td>`;
+  }).join("") + "</tr></table>";
+  const f = state.week.finde;
+  if (f.sab || f.dom) {
+    html += `<p class="foot">🌞 Finde: ${f.sab ? "Sáb: " + (f.sab.custom || entryName(f.sab)) : ""} ${f.dom ? " · Dom: " + (f.dom.custom || entryName(f.dom)) : ""}</p>`;
+  }
+  html += `<p class="foot">Hecho con MenuFam ❤️</p>`;
+  $("#printSheet").innerHTML = html;
+}
+$("#btnPDF").addEventListener("click", () => {
+  buildPrint();
+  logEvent("pdf");
+  window.print();
 });
 
 // ── Tabs ──
@@ -1551,13 +2039,78 @@ function mealBlock(tipo, i) {
     box.appendChild(compRow);
   }
   if (tipo === "vianda") {
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:7px;align-items:center;margin-top:6px";
     const obs = document.createElement("input");
     obs.type = "text"; obs.className = "obs"; obs.placeholder = "📝 Observaciones…";
+    obs.style.flex = "1";
     obs.value = state.week.obs[i] || (dish && dish.obs) || "";
     obs.addEventListener("change", () => { state.week.obs[i] = obs.value; save(); });
-    box.appendChild(obs);
+    row.appendChild(obs);
+    const mic = document.createElement("button");
+    mic.className = "pill"; mic.textContent = "🎤";
+    mic.title = "Grabar nota de voz (se guarda el audio y la transcripción)";
+    mic.addEventListener("click", () => grabarNota(i, mic));
+    row.appendChild(mic);
+    if (state.week.obsVoz[i] && state.week.obsVoz[i].audio) {
+      const play = document.createElement("button");
+      play.className = "pill"; play.textContent = "▶️";
+      play.title = "Escuchar la nota de voz";
+      play.addEventListener("click", () => new Audio(state.week.obsVoz[i].audio).play());
+      row.appendChild(play);
+    }
+    box.appendChild(row);
   }
   return box;
+}
+
+// ── Nota de voz: graba hasta 20 s y transcribe con el reconocimiento del navegador ──
+let recActivo = null;
+async function grabarNota(i, btn) {
+  if (recActivo) { recActivo.stop(); return; }
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (e) {
+    toast("El navegador bloqueó el micrófono 😢 (probá desde Chrome)");
+    return;
+  }
+  const rec = new MediaRecorder(stream);
+  recActivo = rec;
+  btn.textContent = "⏹️"; btn.style.background = "var(--like)";
+  const chunks = [];
+  let transcript = "";
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let sr = null;
+  if (SR) {
+    sr = new SR();
+    sr.lang = "es-AR"; sr.continuous = true; sr.interimResults = false;
+    sr.onresult = ev => { for (const r of ev.results) if (r.isFinal) transcript += r[0].transcript + " "; };
+    try { sr.start(); } catch (e) { sr = null; }
+  }
+  rec.ondataavailable = ev => chunks.push(ev.data);
+  rec.onstop = () => {
+    recActivo = null;
+    btn.textContent = "🎤"; btn.style.background = "";
+    stream.getTracks().forEach(t => t.stop());
+    if (sr) try { sr.stop(); } catch (e) {}
+    setTimeout(() => {
+      const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+      if (blob.size > 900 * 1024) { toast("La nota es muy larga 😅 probá con una más corta"); return; }
+      const reader = new FileReader();
+      reader.onload = () => {
+        state.week.obsVoz[i] = { audio: reader.result, text: transcript.trim() };
+        if (transcript.trim()) state.week.obs[i] = transcript.trim();
+        logEvent("voz");
+        save(); render();
+        toast(transcript.trim() ? `🎤 Guardado: "${transcript.trim().slice(0, 60)}"` : "🎤 Audio guardado (sin transcripción)");
+      };
+      reader.readAsDataURL(blob);
+    }, 600); // le da tiempo al reconocedor a cerrar la última frase
+  };
+  rec.start();
+  toast("🎤 Grabando… tocá ⏹️ para terminar (máx. 20 s)");
+  setTimeout(() => { if (recActivo === rec) rec.stop(); }, 20000);
 }
 
 function renderSheet() {
@@ -1714,6 +2267,7 @@ function heartBurst(card, ev) {
 function toggleLike(d, card, ev) {
   const me = state.currentUser;
   const on = d.fans.includes(me);
+  if (!on && !kidPuedeLikear()) return;
   d.fans = on ? d.fans.filter(k => k !== me) : [...d.fans, me];
   if (!on) { heartBurst(card, ev); logEvent("like"); }
   save();
@@ -2131,7 +2685,7 @@ function listaCompras() {
 function renderShop() {
   const cols = $("#shopCols"); cols.innerHTML = "";
   const checked = new Set(state.week.shopChecked);
-  let total = 0, done = 0;
+  let total = 0, done = 0, plata = 0, sinPrecio = 0;
   for (const [cat, arr] of listaCompras()) {
     if (!arr.length) continue;
     const div = document.createElement("div");
@@ -2140,12 +2694,15 @@ function renderShop() {
     for (const { it, n } of arr) {
       total++;
       if (checked.has(it)) done++;
+      const precio = precioDe(it);
+      if (precio !== null) plata += precio; else sinPrecio++;
       const li = document.createElement("li");
       const lab = document.createElement("label");
       const cb = document.createElement("input");
       cb.type = "checkbox"; cb.checked = checked.has(it);
       const sp = document.createElement("span");
       sp.textContent = n > 1 ? `${it} (×${n})` : it;
+      sp.style.flex = "1";
       if (cb.checked) sp.className = "done";
       cb.addEventListener("change", () => {
         if (cb.checked) checked.add(it); else checked.delete(it);
@@ -2153,13 +2710,28 @@ function renderShop() {
         logEvent("compras");
         renderShop();
       });
-      lab.appendChild(cb); lab.appendChild(sp); li.appendChild(lab); ul.appendChild(li);
+      const pr = document.createElement("button");
+      pr.className = "pill";
+      pr.style.fontSize = "11px";
+      pr.textContent = precio !== null ? "$" + precio.toLocaleString("es-AR") : "$ ?";
+      pr.title = "Tocá para corregir el precio estimado";
+      pr.addEventListener("click", ev => {
+        ev.preventDefault();
+        const v = prompt(`Precio estimado de "${it}" ($):`, precio !== null ? precio : "");
+        if (v === null) return;
+        const num = parseInt(v.replace(/\D/g, ""), 10);
+        if (!isNaN(num)) { state.precios[it] = num; save(); renderShop(); }
+      });
+      lab.appendChild(cb); lab.appendChild(sp); lab.appendChild(pr);
+      li.appendChild(lab); ul.appendChild(li);
     }
     div.appendChild(ul); cols.appendChild(div);
   }
   if (!total) cols.innerHTML = "<p class='hint' style='padding:0 2px'>Todavía no hay platos elegidos esta semana. Generá el menú con el 🎲 de abajo.</p>";
   $("#shopBar").style.width = total ? Math.round(done / total * 100) + "%" : "0%";
-  $("#shopMeta").textContent = total ? `${done}/${total} en el changuito ${done === total && total > 0 ? "🎉 ¡listo!" : ""}` : "";
+  $("#shopMeta").textContent = total
+    ? `${done}/${total} en el changuito ${done === total && total > 0 ? "🎉 ¡listo!" : ""} · 💰 Presupuesto estimado: $${plata.toLocaleString("es-AR")}${sinPrecio ? ` (+${sinPrecio} sin precio)` : ""} — tocá un precio para corregirlo`
+    : "";
   if (total > 0 && done === total) confetti(50);
 }
 function textoCompras() {
@@ -2177,6 +2749,7 @@ function textoCompras() {
 
 // ── Eventos globales ──
 $("#btnGenerate").addEventListener("click", () => {
+  if (state.kid.active) { toast("Pedile a mamá o papá que genere el menú 😄"); return; }
   state.week.cenas = generateWeek("cena");
   state.week.viandas = generateWeek("vianda");
   state.week.sides = genSides();
@@ -2198,7 +2771,27 @@ document.querySelectorAll("[data-regen]").forEach(b => b.addEventListener("click
   save(); render();
 }));
 $("#btnNewWeek").addEventListener("click", () => {
+  if (state.kid.active) { toast("Solo mamá o papá pueden cambiar de semana 😄"); return; }
   if (!confirm("¿Archivar esta semana y arrancar una nueva? El generador va a evitar repetir estos platos.")) return;
+  // repercusiones: corazones que juntaron las cenas de esta semana
+  let likes = 0;
+  for (let i = 0; i < 5; i++) {
+    const d = new Date(state.week.monday + "T12:00:00");
+    d.setDate(d.getDate() + i);
+    const r = state.ratings[d.toISOString().slice(0, 10)];
+    if (r) likes += r.likes.length;
+  }
+  state.historial.push({
+    monday: state.week.monday,
+    likes,
+    resumen: { cenas: state.week.cenas.map(entryName), viandas: state.week.viandas.map(entryName) },
+    entries: {
+      cenas: state.week.cenas.map(e => e ? { ...e, nombre: entryName(e) } : null),
+      viandas: state.week.viandas.map(e => e ? { ...e, nombre: entryName(e) } : null),
+      sides: state.week.sides
+    }
+  });
+  if (state.historial.length > 26) state.historial.shift();
   state.lastWeek = {
     cenas: state.week.cenas.filter(e => e && e.id).map(e => e.id),
     viandas: state.week.viandas.filter(e => e && e.id).map(e => e.id)
@@ -2350,6 +2943,16 @@ try {
   google.script.run.withSuccessHandler(email => {
     if (email) toast(`👋 Conectados como ${email} — todos ven el mismo menú`);
   }).getUserEmail();
+  const calBtn = document.getElementById("btnCalendar");
+  calBtn.hidden = false;
+  calBtn.addEventListener("click", () => {
+    calBtn.disabled = true;
+    toast("📅 Mandando la semana al calendario MenuFam…");
+    google.script.run
+      .withSuccessHandler(msg => { calBtn.disabled = false; toast(msg || "📅 ¡Semana en el calendario MenuFam!"); logEvent("calendario"); })
+      .withFailureHandler(e => { calBtn.disabled = false; toast("No pude escribir el calendario: actualizá el Código.gs (ver DEPLOY.md)"); })
+      .sincronizarCalendario();
+  });
 })();
 </script>
 </body>
