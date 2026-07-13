@@ -1,0 +1,700 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menú Semanal — Familia</title>
+<style>
+  :root {
+    --paper: #F6F4EC;
+    --card: #FFFFFF;
+    --cell: #E9EDDE;
+    --ink: #262A1F;
+    --muted: #6E7361;
+    --line: #DBDCCB;
+    --accent: #3D6A47;
+    --accent-soft: #E1EAE0;
+    --accent-ink: #FFFFFF;
+    --tomato: #B84A33;
+    --tomato-soft: #F4E2DC;
+    --chip-pollo: #C98E2B; --chip-carne: #B84A33; --chip-cerdo: #A56A8C;
+    --chip-pescado: #3E7A96; --chip-pasta: #8C7B2F; --chip-tarta: #7A6A50; --chip-veggie: #4E8A4E;
+    --radius: 10px;
+    --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #14170F; --card: #1D2117; --cell: #232919;
+      --ink: #E8E6D6; --muted: #A3A88F; --line: #32372A;
+      --accent: #8FBC93; --accent-soft: #26301F; --accent-ink: #14170F;
+      --tomato: #E08A6E; --tomato-soft: #362119;
+      --chip-pollo: #E0B45C; --chip-carne: #E08A6E; --chip-cerdo: #CC98B8;
+      --chip-pescado: #7FB6CE; --chip-pasta: #C4B45E; --chip-tarta: #B3A084; --chip-veggie: #85BF85;
+    }
+  }
+  :root[data-theme="light"] {
+    --paper: #F6F4EC; --card: #FFFFFF; --cell: #E9EDDE;
+    --ink: #262A1F; --muted: #6E7361; --line: #DBDCCB;
+    --accent: #3D6A47; --accent-soft: #E1EAE0; --accent-ink: #FFFFFF;
+    --tomato: #B84A33; --tomato-soft: #F4E2DC;
+    --chip-pollo: #C98E2B; --chip-carne: #B84A33; --chip-cerdo: #A56A8C;
+    --chip-pescado: #3E7A96; --chip-pasta: #8C7B2F; --chip-tarta: #7A6A50; --chip-veggie: #4E8A4E;
+  }
+  :root[data-theme="dark"] {
+    --paper: #14170F; --card: #1D2117; --cell: #232919;
+    --ink: #E8E6D6; --muted: #A3A88F; --line: #32372A;
+    --accent: #8FBC93; --accent-soft: #26301F; --accent-ink: #14170F;
+    --tomato: #E08A6E; --tomato-soft: #362119;
+    --chip-pollo: #E0B45C; --chip-carne: #E08A6E; --chip-cerdo: #CC98B8;
+    --chip-pescado: #7FB6CE; --chip-pasta: #C4B45E; --chip-tarta: #B3A084; --chip-veggie: #85BF85;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.45;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 16px 14px 80px; }
+
+  header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin: 8px 0 4px; }
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(26px, 5vw, 36px);
+    font-weight: 600; letter-spacing: -0.01em;
+    margin: 0; text-wrap: balance;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+
+  .toolbar {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 10px 12px; margin-bottom: 20px;
+  }
+  .toolbar label.week { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
+  input[type="date"] {
+    font: inherit; color: var(--ink); background: var(--paper);
+    border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px;
+  }
+  .spacer { flex: 1; }
+
+  button {
+    font: inherit; font-size: 14px; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--card); color: var(--ink);
+    padding: 7px 12px;
+  }
+  button:hover { border-color: var(--accent); }
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 1px;
+  }
+  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  button.ghost { background: transparent; }
+  button.icon { padding: 6px 9px; line-height: 1; }
+
+  .switch { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; cursor: pointer; user-select: none; }
+  .switch input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  section.block { margin-bottom: 28px; }
+  .block-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
+  .block-head h2 {
+    font-family: var(--font-display); font-size: 22px; font-weight: 600; margin: 0;
+  }
+  .block-head .hint { color: var(--muted); font-size: 13px; }
+  .block-head button { margin-left: auto; }
+
+  .week-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  @media (max-width: 760px) { .week-grid { grid-template-columns: 1fr; } }
+
+  .day-card {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .day-name {
+    background: var(--cell); padding: 6px 10px;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .day-name .reroll { border: none; background: none; padding: 0 2px; font-size: 14px; cursor: pointer; }
+  .day-body { padding: 10px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+
+  select.dish {
+    font: inherit; font-size: 14px; font-weight: 600; color: var(--ink);
+    width: 100%; background: var(--paper); border: 1px solid var(--line);
+    border-radius: 8px; padding: 6px 8px;
+  }
+  .chip {
+    align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 99px;
+    color: var(--paper); background: var(--muted);
+  }
+  .chip.pollo { background: var(--chip-pollo); } .chip.carne { background: var(--chip-carne); }
+  .chip.cerdo { background: var(--chip-cerdo); } .chip.pescado { background: var(--chip-pescado); }
+  .chip.pasta { background: var(--chip-pasta); } .chip.tarta { background: var(--chip-tarta); }
+  .chip.veggie { background: var(--chip-veggie); }
+
+  .side, .kids, .keto, .martu { font-size: 13px; color: var(--muted); margin: 0; }
+  .kids strong, .martu strong { color: var(--ink); font-weight: 600; }
+  .keto {
+    border-left: 3px solid var(--tomato); background: var(--tomato-soft);
+    padding: 5px 8px; border-radius: 0 6px 6px 0; color: var(--ink);
+  }
+  input.obs {
+    font: inherit; font-size: 13px; color: var(--ink);
+    background: transparent; border: none; border-bottom: 1px dashed var(--line);
+    padding: 3px 0; width: 100%;
+  }
+  input.obs::placeholder { color: var(--muted); opacity: 0.7; }
+
+  .actions {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 12px; margin-bottom: 24px;
+  }
+
+  .panel {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 14px; margin-bottom: 24px;
+  }
+  .panel h3 { font-family: var(--font-display); margin: 0 0 8px; font-size: 18px; }
+  .shop-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .shop-cols h4 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); }
+  .shop-cols ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  .shop-cols li { margin-bottom: 2px; }
+
+  details.recetario { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 0; }
+  details.recetario > summary {
+    cursor: pointer; padding: 12px 14px; font-family: var(--font-display); font-size: 18px; font-weight: 600;
+    list-style: none;
+  }
+  details.recetario > summary::before { content: "▸ "; color: var(--accent); }
+  details.recetario[open] > summary::before { content: "▾ "; }
+  .recetario-inner { padding: 0 14px 14px; }
+  .rec-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .rec-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
+  .rec-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .rec-table td.name { font-weight: 600; }
+  .rec-table .del { color: var(--tomato); border-color: transparent; background: none; font-size: 13px; padding: 2px 6px; }
+  .table-scroll { overflow-x: auto; }
+
+  form.add-dish {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px;
+    margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line);
+  }
+  form.add-dish input, form.add-dish select {
+    font: inherit; font-size: 14px; color: var(--ink); background: var(--paper);
+    border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; width: 100%;
+  }
+  form.add-dish .full { grid-column: 1 / -1; }
+  form.add-dish button { grid-column: 1 / -1; justify-self: start; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
+    background: var(--ink); color: var(--paper); padding: 9px 16px; border-radius: 99px;
+    font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
+    z-index: 50;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+  footer.note { color: var(--muted); font-size: 13px; margin-top: 30px; }
+
+  @media print {
+    .toolbar, .actions, details.recetario, .day-name .reroll, footer.note, .toast, #shopPanel { display: none !important; }
+    select.dish { border: none; background: none; padding: 0; appearance: none; font-weight: 700; }
+    .week-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    body { background: #fff; color: #000; }
+    .day-card, .panel { border-color: #999; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <h1>🍽️ Menú Semanal</h1>
+    <span class="subtitle">Cenas de la familia + viandas del cole · Fran (8) · Luca (6) · Martu (2)</span>
+  </header>
+
+  <div class="toolbar">
+    <label class="week">📆 Semana del <input type="date" id="weekDate"></label>
+    <label class="switch"><input type="checkbox" id="ketoToggle"> Ajuste keto (Mike)</label>
+    <span class="spacer"></span>
+    <button id="btnNewWeek" class="ghost" title="Guarda esta semana como historial y arranca una nueva">🗓️ Nueva semana</button>
+    <button id="btnGenerate" class="primary">🎲 Generar menú</button>
+  </div>
+
+  <section class="block" id="blockCenas">
+    <div class="block-head">
+      <h2>🍽 Cenas familia</h2>
+      <span class="hint">tocá un plato para cambiarlo · 🔁 sortea de nuevo ese día</span>
+      <button data-regen="cenas" class="icon" title="Regenerar solo cenas">🎲 Cenas</button>
+    </div>
+    <div class="week-grid" id="gridCenas"></div>
+  </section>
+
+  <section class="block" id="blockViandas">
+    <div class="block-head">
+      <h2>🧺 Viandas chicos</h2>
+      <span class="hint">con observaciones para quien las prepara</span>
+      <button data-regen="viandas" class="icon" title="Regenerar solo viandas">🎲 Viandas</button>
+    </div>
+    <div class="week-grid" id="gridViandas"></div>
+  </section>
+
+  <div class="actions">
+    <button id="btnCopyCenas">📋 Copiar cenas</button>
+    <button id="btnCopyViandas">📋 Copiar viandas</button>
+    <button id="btnWhatsApp" class="primary">💬 Enviar por WhatsApp</button>
+    <button id="btnShop">🛒 Lista de compras</button>
+    <button id="btnPrint">🖨️ Imprimir</button>
+  </div>
+
+  <div class="panel" id="shopPanel" hidden>
+    <h3>🛒 Lista de compras de la semana</h3>
+    <div class="shop-cols" id="shopCols"></div>
+    <p style="margin:10px 0 0"><button id="btnCopyShop">📋 Copiar lista</button></p>
+  </div>
+
+  <details class="recetario">
+    <summary>📖 Recetario de la familia (<span id="recCount"></span> platos)</summary>
+    <div class="recetario-inner">
+      <div class="table-scroll">
+        <table class="rec-table" id="recTable"></table>
+      </div>
+      <form class="add-dish" id="addDishForm">
+        <input name="nombre" placeholder="Nuevo plato (ej: Wok de pollo)" required class="full">
+        <select name="tipo">
+          <option value="cena">Cena familia</option>
+          <option value="vianda">Vianda chicos</option>
+        </select>
+        <select name="prot">
+          <option value="pollo">Pollo</option><option value="carne">Carne</option>
+          <option value="cerdo">Cerdo</option><option value="pescado">Pescado</option>
+          <option value="pasta">Pasta</option><option value="tarta">Tarta</option>
+          <option value="veggie">Veggie</option>
+        </select>
+        <input name="lados" placeholder="Acompañamiento (ej: puré + ensalada)" class="full">
+        <input name="chicos" placeholder="Variante chicos / Martu (opcional)" class="full">
+        <input name="keto" placeholder="Ajuste keto para Mike (opcional)" class="full">
+        <input name="ing" placeholder="Ingredientes separados por coma (para la lista de compras)" class="full">
+        <button type="submit" class="primary">＋ Agregar al recetario</button>
+      </form>
+    </div>
+  </details>
+
+  <footer class="note">
+    Los cambios se guardan solos en este dispositivo. «Nueva semana» archiva el menú actual para que el generador no repita los mismos platos la semana que viene.
+  </footer>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+"use strict";
+
+const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+const PROT_LABEL = { pollo: "Pollo", carne: "Carne", cerdo: "Cerdo", pescado: "Pescado", pasta: "Pasta", tarta: "Tarta", veggie: "Veggie" };
+
+// ── Recetario inicial: los platos que ya usan Mike y Xime (sacados del chat) ──
+const SEED = [
+  // Cenas familia
+  { id: "c1",  tipo: "cena", prot: "pollo",   nombre: "Kansas chicken en Essen", lados: "Puré de calabaza y papa", chicos: "", keto: "Kansas sin guarnición + ensalada verde grande", ing: "pata y muslo de pollo, mozzarella, queso de máquina, tomate, cebolla de verdeo, calabaza, papa" },
+  { id: "c2",  tipo: "cena", prot: "carne",   nombre: "Lomo al horno", lados: "Puré de papa + ensalada de tomate", chicos: "", keto: "Lomo 350 g + tomate, sin puré", ing: "lomo, papa, tomate" },
+  { id: "c3",  tipo: "cena", prot: "pescado", nombre: "Trucha al horno", lados: "Batatas al horno + ensalada", chicos: "Formitas de pescado con puré", keto: "Trucha + ensalada grande, sin batatas", ing: "trucha, batata, hojas verdes, limón" },
+  { id: "c4",  tipo: "cena", prot: "pescado", nombre: "Salmón al horno con naranja, limón y romero", lados: "Ensalada verde con parmesano", chicos: "Formitas de pescado con puré de calabaza", keto: "Salmón 350 g + ensalada, tal cual", ing: "salmón, naranja, limón, romero, hojas verdes, queso parmesano" },
+  { id: "c5",  tipo: "cena", prot: "pollo",   nombre: "Supremas de pollo grilladas", lados: "Papas al horno + ensalada", chicos: "", keto: "Suprema grillada + ensalada, sin papas", ing: "supremas de pollo, papa, hojas verdes" },
+  { id: "c6",  tipo: "cena", prot: "pollo",   nombre: "Suprema de pollo a la napolitana", lados: "Papas al horno + ensalada de tomate y rúcula", chicos: "", keto: "Suprema grillada sin rebozar + ensalada (o Kansas chicken)", ing: "supremas de pollo, jamón, mozzarella, salsa de tomate, papa, tomate, rúcula" },
+  { id: "c7",  tipo: "cena", prot: "carne",   nombre: "Hamburguesas caseras", lados: "Papas rústicas + ensalada", chicos: "", keto: "Hamburguesas sin pan + ensalada verde grande (si falta proteína: 2 claras)", ing: "carne picada, pan de hamburguesa, papa, hojas verdes, tomate" },
+  { id: "c8",  tipo: "cena", prot: "pollo",   nombre: "Milanesa de pollo al horno", lados: "Puré mixto (papa y boniato) + choclo", chicos: "", keto: "Reemplazar por suprema grillada + ensalada, sin puré ni choclo", ing: "milanesas de pollo, papa, boniato, choclo" },
+  { id: "c9",  tipo: "cena", prot: "carne",   nombre: "Milanesas napolitanas de carne", lados: "Papas y batatas fritas + ensalada de tomate", chicos: "Ravioles con crema", keto: "Churrasco a la plancha + ensalada, sin papas", ing: "milanesas de carne, jamón, mozzarella, salsa de tomate, papa, batata, tomate" },
+  { id: "c10", tipo: "cena", prot: "carne",   nombre: "Bifes de lomo a la plancha", lados: "Puré de calabaza y papa + tomate cherry", chicos: "", keto: "Lomo 350 g + cherry + ensalada verde (si querés volumen: zucchini salteado)", ing: "bifes de lomo, calabaza, papa, tomate cherry" },
+  { id: "c11", tipo: "cena", prot: "cerdo",   nombre: "Carré de cerdo al horno", lados: "Batatas al horno + ensalada de tomate", chicos: "", keto: "300–350 g de carré sin grasa visible + tomate y hojas verdes, sin batata", ing: "carré de cerdo, batata, tomate, hojas verdes" },
+  { id: "c12", tipo: "cena", prot: "carne",   nombre: "Fajitas caseras de carne", lados: "Salsa criolla + palta", chicos: "Dos tartas de jamón y queso + fajitas", keto: "Relleno sin tortilla + palta + ensalada", ing: "carne para fajitas, tortillas, morrón, cebolla, palta, tomate" },
+  { id: "c13", tipo: "cena", prot: "pollo",   nombre: "Fajitas de pollo con guacamole", lados: "Salsa criolla", chicos: "", keto: "Relleno sin tortilla + guacamole", ing: "pollo, tortillas, palta, limón, cebolla, morrón, tomate" },
+  { id: "c14", tipo: "cena", prot: "pescado", nombre: "Pescado a la plancha", lados: "Ensalada", chicos: "Fideos con tuco", keto: "Pescado 350 g + ensalada grande + 1 cda de aceite, sin pan ni pasta", ing: "pescado, hojas verdes, fideos, salsa de tomate" },
+  { id: "c15", tipo: "cena", prot: "pasta",   nombre: "Ravioles con crema", lados: "Ensalada verde con parmesano", chicos: "", keto: "Para Mike: proteína a la plancha + ensalada, sin pasta", ing: "ravioles, crema, queso parmesano, hojas verdes" },
+  { id: "c16", tipo: "cena", prot: "pollo",   nombre: "Pollo al horno", lados: "Batatas y zanahorias al horno", chicos: "Pollo con puré (sirve de base para viandas)", keto: "Pata y muslo sin piel crocante ok + ensalada, sin batata", ing: "pollo, batata, zanahoria" },
+  { id: "c17", tipo: "cena", prot: "carne",   nombre: "Estofado", lados: "Ensalada o puré", chicos: "", keto: "Estofado sin papa + ensalada", ing: "carne para estofado, cebolla, morrón, tomate, papa, zanahoria" },
+  { id: "c18", tipo: "cena", prot: "carne",   nombre: "Bife de chorizo", lados: "Calabaza al horno", chicos: "", keto: "Bife 350 g + ensalada verde, sin calabaza", ing: "bife de chorizo, calabaza" },
+  // Viandas chicos
+  { id: "v1",  tipo: "vianda", prot: "pasta",   nombre: "Fideos con crema", lados: "Fruta", chicos: "", keto: "", ing: "fideos, crema, queso rallado, fruta", obs: "Queso rallado aparte" },
+  { id: "v2",  tipo: "vianda", prot: "pasta",   nombre: "Fideos con tuco y queso rallado", lados: "", chicos: "", keto: "", ing: "fideos, salsa de tomate, queso rallado" },
+  { id: "v3",  tipo: "vianda", prot: "pollo",   nombre: "Milanesas de pollo con arroz", lados: "Puré de papa", chicos: "", keto: "", ing: "milanesas de pollo, arroz, papa" },
+  { id: "v4",  tipo: "vianda", prot: "carne",   nombre: "Milanesa de carne con arroz y tomate", lados: "", chicos: "Martu: con puré y lentejas", keto: "", ing: "milanesas de carne, arroz, tomate, lentejas" },
+  { id: "v5",  tipo: "vianda", prot: "pollo",   nombre: "Arroz con pollo", lados: "Puré mixto + tomate", chicos: "", keto: "", ing: "pollo, arroz, papa, calabaza, tomate" },
+  { id: "v6",  tipo: "vianda", prot: "tarta",   nombre: "Tarta de jamón y queso", lados: "Tomate", chicos: "", keto: "", ing: "tapas de tarta, jamón, queso, huevo, tomate" },
+  { id: "v7",  tipo: "vianda", prot: "tarta",   nombre: "Tarta de jamón y queso con choclo", lados: "", chicos: "Martu: sin choclo", keto: "", ing: "tapas de tarta, jamón, queso, huevo, choclo" },
+  { id: "v8",  tipo: "vianda", prot: "carne",   nombre: "Hamburguesa con pan", lados: "Papas fritas + tomate", chicos: "", keto: "", ing: "carne picada, pan de hamburguesa, papa, tomate" },
+  { id: "v9",  tipo: "vianda", prot: "carne",   nombre: "Carne con puré", lados: "", chicos: "Martu: carne, puré y lentejas", keto: "", ing: "carne, papa, lentejas", obs: "Calentar la carne a la mañana" },
+  { id: "v10", tipo: "vianda", prot: "pollo",   nombre: "Pollo al horno con arroz y tomatitos", lados: "Dos formitas de jamón y queso", chicos: "Martu: pollo con puré y zanahorias al horno", keto: "", ing: "pollo, arroz, tomate cherry, jamón, queso, papa, zanahoria" },
+  { id: "v11", tipo: "vianda", prot: "pollo",   nombre: "Sándwich de pollo", lados: "Hojas de espinaca", chicos: "", keto: "", ing: "pan blanco, pollo, espinaca" },
+  { id: "v12", tipo: "vianda", prot: "pescado", nombre: "Bastoncitos de merluza con arroz", lados: "Cubitos de tomate", chicos: "", keto: "", ing: "bastoncitos de merluza, arroz, tomate" },
+  { id: "v13", tipo: "vianda", prot: "veggie",  nombre: "Mini croquetas de arroz y queso", lados: "Bastoncitos de zanahoria al horno", chicos: "", keto: "", ing: "arroz, queso, huevo, zanahoria" },
+  { id: "v14", tipo: "vianda", prot: "carne",   nombre: "Empanadas con choclo", lados: "", chicos: "", keto: "", ing: "empanadas, choclo" },
+  { id: "v15", tipo: "vianda", prot: "pasta",   nombre: "Fideos verdes con crema", lados: "", chicos: "", keto: "", ing: "fideos verdes, crema, queso rallado" }
+];
+
+// ── Estado ──
+const STORE_KEY = "menuFliaV1";
+let state = load();
+
+function nextMonday() {
+  const d = new Date();
+  const day = d.getDay(); // 0 dom ... 6 sab
+  const add = day === 1 ? 0 : (8 - day) % 7;
+  d.setDate(d.getDate() + add);
+  return d.toISOString().slice(0, 10);
+}
+
+function freshWeek() {
+  return { monday: nextMonday(), cenas: Array(5).fill(null), viandas: Array(5).fill(null), obs: Array(5).fill("") };
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const s = JSON.parse(raw);
+      if (s && s.recetario && s.week) return s;
+    }
+  } catch (e) { /* storage bloqueado o corrupto: se arranca de cero */ }
+  return { recetario: SEED.map(d => ({ ...d })), week: freshWeek(), lastWeek: { cenas: [], viandas: [] }, keto: false };
+}
+
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* modo incógnito */ }
+}
+
+const byId = id => state.recetario.find(d => d.id === id);
+const pool = tipo => state.recetario.filter(d => d.tipo === tipo);
+const entryDish = e => (e && e.id) ? byId(e.id) : null;
+const entryName = e => e ? (e.custom || (entryDish(e) ? entryDish(e).nombre : "")) : "";
+const entryProt = e => { const d = entryDish(e); return d ? d.prot : null; };
+
+// ── Generador con reglas de variedad ──
+function scoreWeek(dishes, lastIds) {
+  let s = 0;
+  const count = {};
+  for (let i = 0; i < dishes.length; i++) {
+    const d = dishes[i];
+    count[d.prot] = (count[d.prot] || 0) + 1;
+    if (i > 0 && dishes[i - 1].prot === d.prot) s += 5;          // proteína repetida en días seguidos
+    if (lastIds.includes(d.id)) s += 2;                           // mismo plato que la semana pasada
+  }
+  for (const p in count) {
+    if (count[p] > 2) s += (count[p] - 2) * 4;                    // más de 2 veces la misma proteína
+    if (p === "pescado" && count[p] > 1) s += 3;                  // pescado, con 1 vez alcanza
+  }
+  return s;
+}
+
+function generateWeek(tipo) {
+  const dishes = pool(tipo);
+  if (dishes.length < 5) return dishes.map(d => ({ id: d.id }));
+  const lastIds = state.lastWeek[tipo === "cena" ? "cenas" : "viandas"] || [];
+  let best = null, bestScore = Infinity;
+  for (let t = 0; t < 400; t++) {
+    const pick = [...dishes].sort(() => Math.random() - 0.5).slice(0, 5);
+    const sc = scoreWeek(pick, lastIds);
+    if (sc < bestScore) { bestScore = sc; best = pick; if (sc === 0) break; }
+  }
+  return best.map(d => ({ id: d.id }));
+}
+
+function rerollDay(tipo, i) {
+  const key = tipo === "cena" ? "cenas" : "viandas";
+  const week = state.week[key];
+  const usados = week.filter((e, j) => j !== i && e && e.id).map(e => e.id);
+  const vecinos = [week[i - 1], week[i + 1]].map(entryProt).filter(Boolean);
+  const actual = week[i] && week[i].id;
+  let candidatos = pool(tipo).filter(d => d.id !== actual && !usados.includes(d.id));
+  const sinChoque = candidatos.filter(d => !vecinos.includes(d.prot));
+  if (sinChoque.length) candidatos = sinChoque;
+  if (!candidatos.length) return;
+  week[i] = { id: candidatos[Math.floor(Math.random() * candidatos.length)].id };
+  save(); render();
+}
+
+// ── Render ──
+const $ = sel => document.querySelector(sel);
+
+function dayCard(tipo, i) {
+  const key = tipo === "cena" ? "cenas" : "viandas";
+  const entry = state.week[key][i];
+  const dish = entryDish(entry);
+  const custom = entry && entry.custom;
+
+  const card = document.createElement("div");
+  card.className = "day-card";
+
+  const head = document.createElement("div");
+  head.className = "day-name";
+  head.innerHTML = `<span>${DIAS[i]}</span>`;
+  const re = document.createElement("button");
+  re.className = "reroll"; re.textContent = "🔁"; re.title = "Sortear otro plato para este día";
+  re.setAttribute("aria-label", `Sortear otro plato para el ${DIAS[i]}`);
+  re.addEventListener("click", () => rerollDay(tipo, i));
+  head.appendChild(re);
+  card.appendChild(head);
+
+  const body = document.createElement("div");
+  body.className = "day-body";
+
+  const sel = document.createElement("select");
+  sel.className = "dish";
+  sel.setAttribute("aria-label", `Plato del ${DIAS[i]}`);
+  sel.appendChild(new Option("— elegir plato —", ""));
+  for (const d of pool(tipo)) sel.appendChild(new Option(d.nombre, d.id));
+  sel.appendChild(new Option("✍️ Otro (escribir)…", "__custom"));
+  if (custom) {
+    const o = new Option(`✍️ ${entry.custom}`, "__current"); o.selected = true;
+    sel.insertBefore(o, sel.firstChild);
+  } else if (dish) sel.value = dish.id;
+  sel.addEventListener("change", () => {
+    if (sel.value === "__custom") {
+      const txt = prompt("¿Qué plato?");
+      state.week[key][i] = txt ? { custom: txt.trim() } : null;
+    } else if (sel.value && sel.value !== "__current") {
+      state.week[key][i] = { id: sel.value };
+    } else if (!sel.value) {
+      state.week[key][i] = null;
+    }
+    save(); render();
+  });
+  body.appendChild(sel);
+
+  if (dish) {
+    const chip = document.createElement("span");
+    chip.className = `chip ${dish.prot}`;
+    chip.textContent = PROT_LABEL[dish.prot] || dish.prot;
+    body.appendChild(chip);
+    if (dish.lados) { const p = document.createElement("p"); p.className = "side"; p.textContent = "🥗 " + dish.lados; body.appendChild(p); }
+    if (dish.chicos) {
+      const p = document.createElement("p");
+      p.className = tipo === "cena" ? "kids" : "martu";
+      p.innerHTML = `<strong>${tipo === "cena" ? "👧 Chicos:" : "🥣"}</strong> ${dish.chicos}`;
+      body.appendChild(p);
+    }
+    if (state.keto && tipo === "cena" && dish.keto) {
+      const p = document.createElement("p"); p.className = "keto"; p.textContent = "👉 Mike: " + dish.keto; body.appendChild(p);
+    }
+  }
+
+  if (tipo === "vianda") {
+    const obs = document.createElement("input");
+    obs.className = "obs"; obs.placeholder = "📝 Observaciones…";
+    obs.value = state.week.obs[i] || (dish && dish.obs) || "";
+    obs.addEventListener("change", () => { state.week.obs[i] = obs.value; save(); });
+    body.appendChild(obs);
+  }
+
+  card.appendChild(body);
+  return card;
+}
+
+function renderRecetario() {
+  const tbl = $("#recTable");
+  tbl.innerHTML = "<tr><th>Plato</th><th>Tipo</th><th>Proteína</th><th>Acompañamiento</th><th></th></tr>";
+  const sorted = [...state.recetario].sort((a, b) => a.tipo.localeCompare(b.tipo) || a.nombre.localeCompare(b.nombre));
+  for (const d of sorted) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td class="name">${d.nombre}</td><td>${d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda"}</td><td>${PROT_LABEL[d.prot] || d.prot}</td><td>${d.lados || ""}</td>`;
+    const td = document.createElement("td");
+    const del = document.createElement("button");
+    del.className = "del"; del.textContent = "✕"; del.title = `Sacar “${d.nombre}” del recetario`;
+    del.addEventListener("click", () => {
+      if (!confirm(`¿Sacar “${d.nombre}” del recetario?`)) return;
+      state.recetario = state.recetario.filter(x => x.id !== d.id);
+      for (const k of ["cenas", "viandas"]) state.week[k] = state.week[k].map(e => (e && e.id === d.id) ? null : e);
+      save(); render();
+    });
+    td.appendChild(del); tr.appendChild(td); tbl.appendChild(tr);
+  }
+  $("#recCount").textContent = state.recetario.length;
+}
+
+function render() {
+  const gc = $("#gridCenas"); gc.innerHTML = "";
+  const gv = $("#gridViandas"); gv.innerHTML = "";
+  for (let i = 0; i < 5; i++) { gc.appendChild(dayCard("cena", i)); gv.appendChild(dayCard("vianda", i)); }
+  $("#weekDate").value = state.week.monday;
+  $("#ketoToggle").checked = !!state.keto;
+  renderRecetario();
+}
+
+// ── Exportar con el formato de WhatsApp de la familia ──
+function fmtDate(iso) {
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function textoViandas() {
+  const L = [`🧺 Menú Semanal – Viandas Colegio`, ``, `📆 Semana del ${fmtDate(state.week.monday)}`, `👦 Fran (8) – 👦 Luca (6) – 👧 Martu (2)`, ``];
+  state.week.viandas.forEach((e, i) => {
+    L.push(`⸻`, ``, `*${DIAS[i]}*`);
+    const d = entryDish(e);
+    const nombre = entryName(e);
+    L.push(nombre ? `• ${nombre}` : `• (a definir)`);
+    if (d && d.lados) L.push(`• ${d.lados}`);
+    if (d && d.chicos) L.push(`🥣 ${d.chicos}`);
+    const obs = state.week.obs[i] || (d && d.obs);
+    if (obs) L.push(`📝 Obs: ${obs}`);
+    L.push(``);
+  });
+  return L.join("\n").trim();
+}
+
+function textoCenas() {
+  const L = [`🍽 Menú Semanal – Cenas Familia`, ``, `📆 Semana del ${fmtDate(state.week.monday)}`, ``];
+  state.week.cenas.forEach((e, i) => {
+    L.push(`⸻`, ``, `*${DIAS[i]}*`);
+    const d = entryDish(e);
+    const nombre = entryName(e);
+    L.push(nombre ? `• ${nombre}` : `• (a definir)`);
+    if (d && d.lados) L.push(`• ${d.lados}`);
+    if (d && d.chicos) L.push(`👧 Chicos: ${d.chicos}`);
+    if (state.keto && d && d.keto) L.push(`👉 Mike (keto): ${d.keto}`);
+    L.push(``);
+  });
+  return L.join("\n").trim();
+}
+
+async function copiar(txt, msg) {
+  try { await navigator.clipboard.writeText(txt); }
+  catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    document.execCommand("copy"); ta.remove();
+  }
+  toast(msg);
+}
+
+let toastTimer;
+function toast(msg) {
+  const t = $("#toast");
+  t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+// ── Lista de compras ──
+const CAT_RULES = [
+  ["🥩 Carnicería / pescadería", /pollo|carne|lomo|bife|churrasco|cerdo|carr[eé]|milanesa|hamburguesa|picada|trucha|salm[oó]n|merluza|pescado|pata y muslo|suprema|empanada/],
+  ["🥦 Verdulería", /papa|batata|boniato|calabaza|zanahoria|tomate|cebolla|morr[oó]n|palta|lim[oó]n|naranja|rúcula|r[uú]cula|espinaca|hojas verdes|zucchini|choclo|fruta|romero|verdeo|lechuga/],
+  ["🧀 Lácteos / fiambres", /queso|mozzarella|crema|jam[oó]n|manteca|leche|huevo|parmesano/],
+  ["🛒 Almacén", /./]
+];
+
+function listaCompras() {
+  const items = new Map(); // nombre → Set de días que lo usan (para contar)
+  const week = [...state.week.cenas, ...state.week.viandas];
+  for (const e of week) {
+    const d = entryDish(e);
+    if (!d || !d.ing) continue;
+    for (const raw of d.ing.split(",")) {
+      const it = raw.trim().toLowerCase();
+      if (!it) continue;
+      items.set(it, (items.get(it) || 0) + 1);
+    }
+  }
+  const cats = new Map(CAT_RULES.map(([n]) => [n, []]));
+  for (const [it, n] of [...items.entries()].sort()) {
+    const cat = CAT_RULES.find(([, rx]) => rx.test(it))[0];
+    cats.get(cat).push(n > 1 ? `${it} (×${n})` : it);
+  }
+  return cats;
+}
+
+function renderShop() {
+  const cols = $("#shopCols"); cols.innerHTML = "";
+  let any = false;
+  for (const [cat, arr] of listaCompras()) {
+    if (!arr.length) continue;
+    any = true;
+    const div = document.createElement("div");
+    const h = document.createElement("h4"); h.textContent = cat; div.appendChild(h);
+    const ul = document.createElement("ul");
+    for (const it of arr) { const li = document.createElement("li"); li.textContent = it; ul.appendChild(li); }
+    div.appendChild(ul); cols.appendChild(div);
+  }
+  if (!any) cols.innerHTML = "<p class='side'>Todavía no hay platos elegidos esta semana.</p>";
+}
+
+function textoCompras() {
+  const L = [`🛒 Lista de compras – Semana del ${fmtDate(state.week.monday)}`, ``];
+  for (const [cat, arr] of listaCompras()) {
+    if (!arr.length) continue;
+    L.push(`*${cat}*`);
+    for (const it of arr) L.push(`• ${it}`);
+    L.push(``);
+  }
+  return L.join("\n").trim();
+}
+
+// ── Eventos ──
+$("#btnGenerate").addEventListener("click", () => {
+  state.week.cenas = generateWeek("cena");
+  state.week.viandas = generateWeek("vianda");
+  save(); render(); renderShop();
+  toast("Menú generado 🎉 Ajustá lo que quieras y mandalo por WhatsApp");
+});
+
+document.querySelectorAll("[data-regen]").forEach(b => b.addEventListener("click", () => {
+  const which = b.dataset.regen;
+  state.week[which] = generateWeek(which === "cenas" ? "cena" : "vianda");
+  save(); render(); renderShop();
+}));
+
+$("#btnNewWeek").addEventListener("click", () => {
+  if (!confirm("¿Archivar esta semana y arrancar una nueva? El generador va a evitar repetir estos platos.")) return;
+  state.lastWeek = {
+    cenas: state.week.cenas.filter(e => e && e.id).map(e => e.id),
+    viandas: state.week.viandas.filter(e => e && e.id).map(e => e.id)
+  };
+  state.week = freshWeek();
+  save(); render(); renderShop();
+});
+
+$("#weekDate").addEventListener("change", e => { state.week.monday = e.target.value; save(); });
+$("#ketoToggle").addEventListener("change", e => { state.keto = e.target.checked; save(); render(); });
+
+$("#btnCopyViandas").addEventListener("click", () => copiar(textoViandas(), "Viandas copiadas — pegalas en WhatsApp 📲"));
+$("#btnCopyCenas").addEventListener("click", () => copiar(textoCenas(), "Cenas copiadas — pegalas en WhatsApp 📲"));
+$("#btnWhatsApp").addEventListener("click", () => {
+  const txt = textoCenas() + "\n\n" + textoViandas();
+  window.open("https://wa.me/?text=" + encodeURIComponent(txt), "_blank");
+});
+$("#btnShop").addEventListener("click", () => {
+  const p = $("#shopPanel");
+  p.hidden = !p.hidden;
+  if (!p.hidden) { renderShop(); p.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+});
+$("#btnCopyShop").addEventListener("click", () => copiar(textoCompras(), "Lista de compras copiada 🛒"));
+$("#btnPrint").addEventListener("click", () => window.print());
+
+$("#addDishForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  state.recetario.push({
+    id: "u" + Date.now().toString(36),
+    tipo: f.get("tipo"), prot: f.get("prot"),
+    nombre: f.get("nombre").trim(),
+    lados: (f.get("lados") || "").trim(),
+    chicos: (f.get("chicos") || "").trim(),
+    keto: (f.get("keto") || "").trim(),
+    ing: (f.get("ing") || "").trim()
+  });
+  e.target.reset();
+  save(); render();
+  toast("Plato agregado al recetario 📖");
+});
+
+render();
+</script>
+</body>
+</html>
