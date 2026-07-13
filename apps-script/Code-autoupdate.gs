@@ -7,6 +7,11 @@
 
 const APP_URL = 'https://raw.githubusercontent.com/miguelippolito3-cloud/Men-semanal-flia-/claude/weekly-family-menu-app-jw7odl/index.html';
 const FILE_NAME = 'menufam-data.json';
+// ID de la carpeta o unidad compartida donde viven los datos.
+// Vacío = raíz de Mi unidad del dueño del script.
+// Para usar una unidad compartida: pegá acá el ID que aparece en la URL
+// (drive.google.com/drive/folders/ESTE_ID) y mové menufam-data.json adentro.
+const DATA_FOLDER_ID = '';
 
 function doGet() {
   let html;
@@ -21,11 +26,18 @@ function doGet() {
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, viewport-fit=cover');
 }
 
+function getFolder_() {
+  return DATA_FOLDER_ID
+    ? DriveApp.getFolderById(DATA_FOLDER_ID)
+    : DriveApp.getRootFolder();
+}
+
 function getFile_() {
-  const files = DriveApp.getFilesByName(FILE_NAME);
+  const folder = getFolder_();
+  const files = folder.getFilesByName(FILE_NAME);
   return files.hasNext()
     ? files.next()
-    : DriveApp.createFile(FILE_NAME, '', 'application/json');
+    : folder.createFile(FILE_NAME, '', 'application/json');
 }
 
 /** Devuelve el estado compartido (JSON como string) o vacío si no existe. */

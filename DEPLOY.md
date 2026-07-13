@@ -86,6 +86,25 @@ en tu Drive, y actualizaciones automáticas desde el repo.
 - Cada teléfono además guarda una copia local, así la app abre al instante y
   funciona aunque se corte internet (sincroniza al volver).
 
+## Mover los datos a una unidad compartida
+
+1. Creá la unidad compartida (Drive → Unidades compartidas → ＋) o usá una
+   existente, y sumá como miembros a quienes quieras (con rol "Colaborador
+   de contenido" o más).
+2. **Mové `menufam-data.json`** desde Mi unidad a esa unidad compartida
+   (arrastrándolo en Drive). Mover no cambia el contenido: no se pierde nada.
+3. Abrí la unidad en el navegador y copiá el **ID** de la URL
+   (`drive.google.com/drive/folders/ESTE_ID`). Si usás una subcarpeta,
+   copiá el ID de la subcarpeta.
+4. En el proyecto de Apps Script, pegá ese ID en la constante
+   `DATA_FOLDER_ID` (arriba de todo en `Código.gs`) — el código nuevo con
+   esa constante está en `apps-script/Code-autoupdate.gs`.
+5. **Implementar → Administrar implementaciones → ✏️ → Versión: Nueva →
+   Implementar** (la URL de la app no cambia).
+
+Desde ahí el archivo vive en la unidad compartida: sobrevive a cambios de
+cuenta, y cualquier miembro de la unidad puede verlo y respaldarlo.
+
 ## Para actualizar la app más adelante
 
 1. Reemplazá el contenido del archivo `index` con el `index.html` nuevo.
