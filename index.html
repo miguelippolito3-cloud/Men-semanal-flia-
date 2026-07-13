@@ -17,9 +17,12 @@
     --accent-ink: #FFFFFF;
     --tomato: #B84A33;
     --tomato-soft: #F4E2DC;
+    --gold: #C98E2B;
     --chip-pollo: #C98E2B; --chip-carne: #B84A33; --chip-cerdo: #A56A8C;
     --chip-pescado: #3E7A96; --chip-pasta: #8C7B2F; --chip-tarta: #7A6A50; --chip-veggie: #4E8A4E;
-    --radius: 10px;
+    --wheel-1: #3D6A47; --wheel-2: #C98E2B; --wheel-3: #B84A33; --wheel-4: #3E7A96;
+    --wheel-5: #A56A8C; --wheel-6: #8C7B2F; --wheel-7: #4E8A4E; --wheel-8: #7A6A50;
+    --radius: 12px;
     --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
     --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
@@ -28,7 +31,7 @@
       --paper: #14170F; --card: #1D2117; --cell: #232919;
       --ink: #E8E6D6; --muted: #A3A88F; --line: #32372A;
       --accent: #8FBC93; --accent-soft: #26301F; --accent-ink: #14170F;
-      --tomato: #E08A6E; --tomato-soft: #362119;
+      --tomato: #E08A6E; --tomato-soft: #362119; --gold: #E0B45C;
       --chip-pollo: #E0B45C; --chip-carne: #E08A6E; --chip-cerdo: #CC98B8;
       --chip-pescado: #7FB6CE; --chip-pasta: #C4B45E; --chip-tarta: #B3A084; --chip-veggie: #85BF85;
     }
@@ -37,7 +40,7 @@
     --paper: #F6F4EC; --card: #FFFFFF; --cell: #E9EDDE;
     --ink: #262A1F; --muted: #6E7361; --line: #DBDCCB;
     --accent: #3D6A47; --accent-soft: #E1EAE0; --accent-ink: #FFFFFF;
-    --tomato: #B84A33; --tomato-soft: #F4E2DC;
+    --tomato: #B84A33; --tomato-soft: #F4E2DC; --gold: #C98E2B;
     --chip-pollo: #C98E2B; --chip-carne: #B84A33; --chip-cerdo: #A56A8C;
     --chip-pescado: #3E7A96; --chip-pasta: #8C7B2F; --chip-tarta: #7A6A50; --chip-veggie: #4E8A4E;
   }
@@ -45,7 +48,7 @@
     --paper: #14170F; --card: #1D2117; --cell: #232919;
     --ink: #E8E6D6; --muted: #A3A88F; --line: #32372A;
     --accent: #8FBC93; --accent-soft: #26301F; --accent-ink: #14170F;
-    --tomato: #E08A6E; --tomato-soft: #362119;
+    --tomato: #E08A6E; --tomato-soft: #362119; --gold: #E0B45C;
     --chip-pollo: #E0B45C; --chip-carne: #E08A6E; --chip-cerdo: #CC98B8;
     --chip-pescado: #7FB6CE; --chip-pasta: #C4B45E; --chip-tarta: #B3A084; --chip-veggie: #85BF85;
   }
@@ -59,16 +62,34 @@
     font-size: 16px;
     line-height: 1.45;
   }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 16px 14px 80px; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 16px 14px 90px; }
 
-  header.top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 16px; margin: 8px 0 4px; }
+  header.top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 8px 0 2px; }
   h1 {
     font-family: var(--font-display);
     font-size: clamp(26px, 5vw, 36px);
     font-weight: 600; letter-spacing: -0.01em;
     margin: 0; text-wrap: balance;
   }
-  .subtitle { color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+  .streak {
+    font-size: 14px; font-weight: 700; color: var(--gold);
+    background: var(--card); border: 1px solid var(--line); border-radius: 99px;
+    padding: 3px 12px;
+  }
+  .subtitle { color: var(--muted); font-size: 14px; margin: 0 0 14px; width: 100%; }
+
+  /* ── Hoy ── */
+  .today {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    background: var(--accent); color: var(--accent-ink);
+    border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px;
+  }
+  .today .t-head { grid-column: 1 / -1; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.85; }
+  .today .t-meal { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .today .t-emoji { font-size: 34px; line-height: 1; }
+  .today .t-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; opacity: 0.8; margin: 0; }
+  .today .t-name { font-family: var(--font-display); font-size: 17px; font-weight: 600; margin: 0; overflow-wrap: anywhere; }
+  @media (max-width: 560px) { .today { grid-template-columns: 1fr; } }
 
   .toolbar {
     display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
@@ -89,7 +110,7 @@
     padding: 7px 12px;
   }
   button:hover { border-color: var(--accent); }
-  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  button:focus-visible, input:focus-visible, select:focus-visible {
     outline: 2px solid var(--accent); outline-offset: 1px;
   }
   button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
@@ -99,11 +120,9 @@
   .switch { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; cursor: pointer; user-select: none; }
   .switch input { accent-color: var(--accent); width: 16px; height: 16px; }
 
-  section.block { margin-bottom: 28px; }
-  .block-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
-  .block-head h2 {
-    font-family: var(--font-display); font-size: 22px; font-weight: 600; margin: 0;
-  }
+  section.block { margin-bottom: 26px; }
+  .block-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+  .block-head h2 { font-family: var(--font-display); font-size: 22px; font-weight: 600; margin: 0; }
   .block-head .hint { color: var(--muted); font-size: 13px; }
   .block-head button { margin-left: auto; }
 
@@ -114,17 +133,21 @@
     background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
     display: flex; flex-direction: column; overflow: hidden;
   }
+  .day-card.drag-over { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
   .day-name {
     background: var(--cell); padding: 6px 10px;
     font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-    display: flex; align-items: center; justify-content: space-between;
+    display: flex; align-items: center; gap: 6px; cursor: grab;
   }
-  .day-name .reroll { border: none; background: none; padding: 0 2px; font-size: 14px; cursor: pointer; }
+  .day-name span { flex: 1; }
+  .day-name button { border: none; background: none; padding: 0 2px; font-size: 15px; cursor: pointer; }
   .day-body { padding: 10px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
 
+  .dish-row { display: flex; align-items: center; gap: 7px; }
+  .dish-emoji { font-size: 24px; line-height: 1; flex: none; }
   select.dish {
     font: inherit; font-size: 14px; font-weight: 600; color: var(--ink);
-    width: 100%; background: var(--paper); border: 1px solid var(--line);
+    width: 100%; min-width: 0; background: var(--paper); border: 1px solid var(--line);
     border-radius: 8px; padding: 6px 8px;
   }
   .chip {
@@ -150,6 +173,16 @@
   }
   input.obs::placeholder { color: var(--muted); opacity: 0.7; }
 
+  /* votos de la familia */
+  .fans { display: flex; gap: 4px; margin-top: auto; padding-top: 4px; align-items: center; }
+  .fan {
+    font-size: 12px; line-height: 1; padding: 3px 6px; border-radius: 99px;
+    border: 1px solid var(--line); background: transparent; color: var(--muted);
+  }
+  .fan.on { background: var(--tomato-soft); border-color: var(--tomato); color: var(--ink); }
+  .fan.veto { margin-left: auto; }
+  .fan.veto.on { background: var(--cell); border-color: var(--muted); }
+
   .actions {
     display: flex; flex-wrap: wrap; gap: 8px;
     background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
@@ -161,12 +194,15 @@
     padding: 14px; margin-bottom: 24px;
   }
   .panel h3 { font-family: var(--font-display); margin: 0 0 8px; font-size: 18px; }
-  .shop-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .shop-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
   .shop-cols h4 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); }
-  .shop-cols ul { margin: 0; padding-left: 18px; font-size: 14px; }
+  .shop-cols ul { margin: 0; padding: 0; list-style: none; font-size: 14px; }
   .shop-cols li { margin-bottom: 2px; }
+  .shop-cols label { display: flex; align-items: center; gap: 7px; cursor: pointer; }
+  .shop-cols input[type="checkbox"] { accent-color: var(--accent); }
+  .shop-cols .done { text-decoration: line-through; color: var(--muted); }
 
-  details.recetario { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 0; }
+  details.recetario { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
   details.recetario > summary {
     cursor: pointer; padding: 12px 14px; font-family: var(--font-display); font-size: 18px; font-weight: 600;
     list-style: none;
@@ -192,19 +228,43 @@
   form.add-dish .full { grid-column: 1 / -1; }
   form.add-dish button { grid-column: 1 / -1; justify-self: start; }
 
+  /* ── Ruleta ── */
+  dialog#wheelModal {
+    border: 1px solid var(--line); border-radius: 16px; background: var(--card); color: var(--ink);
+    padding: 18px; max-width: 92vw; width: 380px;
+  }
+  dialog#wheelModal::backdrop { background: rgba(0,0,0,0.45); }
+  .wheel-head { font-family: var(--font-display); font-size: 19px; font-weight: 600; margin: 0 0 4px; text-align: center; }
+  .wheel-sub { text-align: center; color: var(--muted); font-size: 13px; margin: 0 0 10px; }
+  .wheel-box { position: relative; width: 320px; max-width: 100%; margin: 0 auto; }
+  .wheel-box canvas { width: 100%; height: auto; display: block; }
+  .wheel-pointer {
+    position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent;
+    border-top: 18px solid var(--tomato); filter: drop-shadow(0 1px 1px rgba(0,0,0,.3));
+  }
+  .wheel-result { text-align: center; font-size: 16px; font-weight: 600; min-height: 26px; margin: 10px 0 6px; }
+  .wheel-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+
   .toast {
     position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
     background: var(--ink); color: var(--paper); padding: 9px 16px; border-radius: 99px;
     font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
-    z-index: 50;
+    z-index: 60; max-width: 90vw; text-align: center;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  @media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 55; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .toast { transition: none; }
+  }
 
   footer.note { color: var(--muted); font-size: 13px; margin-top: 30px; }
 
   @media print {
-    .toolbar, .actions, details.recetario, .day-name .reroll, footer.note, .toast, #shopPanel { display: none !important; }
+    .toolbar, .actions, details.recetario, .day-name button, footer.note, .toast,
+    #shopPanel, .fans, .today, .streak { display: none !important; }
     select.dish { border: none; background: none; padding: 0; appearance: none; font-weight: 700; }
     .week-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
     body { background: #fff; color: #000; }
@@ -217,8 +277,21 @@
 <div class="wrap">
   <header class="top">
     <h1>🍽️ Menú Semanal</h1>
-    <span class="subtitle">Cenas de la familia + viandas del cole · Fran (8) · Luca (6) · Martu (2)</span>
+    <span class="streak" id="streakBadge" hidden>🔥 <span id="streakN"></span></span>
+    <p class="subtitle">Cenas de la familia + viandas del cole · Fran (8) · Luca (6) · Martu (2)</p>
   </header>
+
+  <div class="today" id="todayCard" hidden>
+    <div class="t-head" id="todayHead"></div>
+    <div class="t-meal">
+      <span class="t-emoji" id="todayCenaEmoji"></span>
+      <div><p class="t-label">Cena</p><p class="t-name" id="todayCenaName"></p></div>
+    </div>
+    <div class="t-meal">
+      <span class="t-emoji" id="todayViandaEmoji"></span>
+      <div><p class="t-label">Vianda</p><p class="t-name" id="todayViandaName"></p></div>
+    </div>
+  </div>
 
   <div class="toolbar">
     <label class="week">📆 Semana del <input type="date" id="weekDate"></label>
@@ -231,7 +304,7 @@
   <section class="block" id="blockCenas">
     <div class="block-head">
       <h2>🍽 Cenas familia</h2>
-      <span class="hint">tocá un plato para cambiarlo · 🔁 sortea de nuevo ese día</span>
+      <span class="hint">🎡 ruleta · 🔁 otro plato · ❤️ votá y el generador aprende</span>
       <button data-regen="cenas" class="icon" title="Regenerar solo cenas">🎲 Cenas</button>
     </div>
     <div class="week-grid" id="gridCenas"></div>
@@ -252,12 +325,14 @@
     <button id="btnWhatsApp" class="primary">💬 Enviar por WhatsApp</button>
     <button id="btnShop">🛒 Lista de compras</button>
     <button id="btnPrint">🖨️ Imprimir</button>
+    <span class="spacer"></span>
+    <button id="btnDone">✅ ¡Semana lista!</button>
   </div>
 
   <div class="panel" id="shopPanel" hidden>
     <h3>🛒 Lista de compras de la semana</h3>
     <div class="shop-cols" id="shopCols"></div>
-    <p style="margin:10px 0 0"><button id="btnCopyShop">📋 Copiar lista</button></p>
+    <p style="margin:10px 0 0"><button id="btnCopyShop">📋 Copiar lo que falta</button></p>
   </div>
 
   <details class="recetario">
@@ -288,10 +363,26 @@
   </details>
 
   <footer class="note">
-    Los cambios se guardan solos en este dispositivo. «Nueva semana» archiva el menú actual para que el generador no repita los mismos platos la semana que viene.
+    Los cambios se guardan solos en este dispositivo. Los ❤️ hacen que ese plato salga más seguido; el 🚫 lo saca del sorteo sin borrarlo. «Nueva semana» archiva el menú actual para no repetir platos. En compu, arrastrá un día sobre otro para intercambiarlos.
   </footer>
 </div>
 
+<dialog id="wheelModal">
+  <p class="wheel-head" id="wheelTitle">🎡 Ruleta</p>
+  <p class="wheel-sub">¿Quién gira? ¡Que elijan los chicos!</p>
+  <div class="wheel-box">
+    <div class="wheel-pointer"></div>
+    <canvas id="wheelCanvas" width="640" height="640"></canvas>
+  </div>
+  <p class="wheel-result" id="wheelResult"></p>
+  <div class="wheel-actions">
+    <button id="wheelSpin" class="primary">🎡 ¡Girar!</button>
+    <button id="wheelApply" hidden>✔ ¡Va!</button>
+    <button id="wheelClose" class="ghost">Cerrar</button>
+  </div>
+</dialog>
+
+<canvas id="confetti" hidden></canvas>
 <div class="toast" id="toast" role="status"></div>
 
 <script>
@@ -299,6 +390,14 @@
 
 const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
 const PROT_LABEL = { pollo: "Pollo", carne: "Carne", cerdo: "Cerdo", pescado: "Pescado", pasta: "Pasta", tarta: "Tarta", veggie: "Veggie" };
+const FAMILIA = [
+  { k: "mike", label: "M", title: "Mike" },
+  { k: "xime", label: "X", title: "Xime" },
+  { k: "fran", label: "F", title: "Fran" },
+  { k: "luca", label: "L", title: "Luca" },
+  { k: "martu", label: "Mt", title: "Martu" }
+];
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // ── Recetario inicial: los platos que ya usan Mike y Xime (sacados del chat) ──
 const SEED = [
@@ -318,7 +417,7 @@ const SEED = [
   { id: "c13", tipo: "cena", prot: "pollo",   nombre: "Fajitas de pollo con guacamole", lados: "Salsa criolla", chicos: "", keto: "Relleno sin tortilla + guacamole", ing: "pollo, tortillas, palta, limón, cebolla, morrón, tomate" },
   { id: "c14", tipo: "cena", prot: "pescado", nombre: "Pescado a la plancha", lados: "Ensalada", chicos: "Fideos con tuco", keto: "Pescado 350 g + ensalada grande + 1 cda de aceite, sin pan ni pasta", ing: "pescado, hojas verdes, fideos, salsa de tomate" },
   { id: "c15", tipo: "cena", prot: "pasta",   nombre: "Ravioles con crema", lados: "Ensalada verde con parmesano", chicos: "", keto: "Para Mike: proteína a la plancha + ensalada, sin pasta", ing: "ravioles, crema, queso parmesano, hojas verdes" },
-  { id: "c16", tipo: "cena", prot: "pollo",   nombre: "Pollo al horno", lados: "Batatas y zanahorias al horno", chicos: "Pollo con puré (sirve de base para viandas)", keto: "Pata y muslo sin piel crocante ok + ensalada, sin batata", ing: "pollo, batata, zanahoria" },
+  { id: "c16", tipo: "cena", prot: "pollo",   nombre: "Pollo al horno", lados: "Batatas y zanahorias al horno", chicos: "Pollo con puré (sirve de base para viandas)", keto: "Pata y muslo + ensalada, sin batata", ing: "pollo, batata, zanahoria" },
   { id: "c17", tipo: "cena", prot: "carne",   nombre: "Estofado", lados: "Ensalada o puré", chicos: "", keto: "Estofado sin papa + ensalada", ing: "carne para estofado, cebolla, morrón, tomate, papa, zanahoria" },
   { id: "c18", tipo: "cena", prot: "carne",   nombre: "Bife de chorizo", lados: "Calabaza al horno", chicos: "", keto: "Bife 350 g + ensalada verde, sin calabaza", ing: "bife de chorizo, calabaza" },
   // Viandas chicos
@@ -339,20 +438,47 @@ const SEED = [
   { id: "v15", tipo: "vianda", prot: "pasta",   nombre: "Fideos verdes con crema", lados: "", chicos: "", keto: "", ing: "fideos verdes, crema, queso rallado" }
 ];
 
+// ── Emoji por plato ──
+const EMOJI_RULES = [
+  [/hamburgues/, "🍔"], [/fajita|tortilla|guacamole/, "🌮"], [/empanada/, "🥟"],
+  [/s[aá]ndwich/, "🥪"], [/tarta/, "🥧"], [/fideo|raviol|pasta/, "🍝"],
+  [/arroz|croqueta/, "🍚"], [/estofado|guiso/, "🍲"],
+  [/trucha|salm[oó]n|merluza|pescado|formitas de pescado/, "🐟"],
+  [/milanesa/, null], // decide por proteína
+  [/pollo|suprema|kansas/, "🍗"], [/cerdo|carr[eé]/, "🥓"],
+  [/lomo|bife|churrasco|carne/, "🥩"]
+];
+const PROT_EMOJI = { pollo: "🍗", carne: "🥩", cerdo: "🥓", pescado: "🐟", pasta: "🍝", tarta: "🥧", veggie: "🥦" };
+function emojiFor(dish) {
+  if (!dish) return "🍽️";
+  const n = dish.nombre.toLowerCase();
+  for (const [rx, e] of EMOJI_RULES) {
+    if (rx.test(n)) return e || PROT_EMOJI[dish.prot] || "🍽️";
+  }
+  return PROT_EMOJI[dish.prot] || "🍽️";
+}
+
 // ── Estado ──
 const STORE_KEY = "menuFliaV1";
 let state = load();
 
 function nextMonday() {
   const d = new Date();
-  const day = d.getDay(); // 0 dom ... 6 sab
+  const day = d.getDay();
   const add = day === 1 ? 0 : (8 - day) % 7;
   d.setDate(d.getDate() + add);
   return d.toISOString().slice(0, 10);
 }
 
 function freshWeek() {
-  return { monday: nextMonday(), cenas: Array(5).fill(null), viandas: Array(5).fill(null), obs: Array(5).fill("") };
+  return { monday: nextMonday(), cenas: Array(5).fill(null), viandas: Array(5).fill(null), obs: Array(5).fill(""), shopChecked: [] };
+}
+
+function migrate(s) {
+  for (const d of s.recetario) { d.fans = d.fans || []; d.veto = !!d.veto; }
+  s.week.shopChecked = s.week.shopChecked || [];
+  s.streak = s.streak || { count: 0, last: null };
+  return s;
 }
 
 function load() {
@@ -360,10 +486,10 @@ function load() {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) {
       const s = JSON.parse(raw);
-      if (s && s.recetario && s.week) return s;
+      if (s && s.recetario && s.week) return migrate(s);
     }
   } catch (e) { /* storage bloqueado o corrupto: se arranca de cero */ }
-  return { recetario: SEED.map(d => ({ ...d })), week: freshWeek(), lastWeek: { cenas: [], viandas: [] }, keto: false };
+  return migrate({ recetario: SEED.map(d => ({ ...d })), week: freshWeek(), lastWeek: { cenas: [], viandas: [] }, keto: false });
 }
 
 function save() {
@@ -372,56 +498,96 @@ function save() {
 
 const byId = id => state.recetario.find(d => d.id === id);
 const pool = tipo => state.recetario.filter(d => d.tipo === tipo);
+const sorteable = tipo => { const p = pool(tipo).filter(d => !d.veto); return p.length >= 5 ? p : pool(tipo); };
 const entryDish = e => (e && e.id) ? byId(e.id) : null;
 const entryName = e => e ? (e.custom || (entryDish(e) ? entryDish(e).nombre : "")) : "";
 const entryProt = e => { const d = entryDish(e); return d ? d.prot : null; };
 
-// ── Generador con reglas de variedad ──
+// ── Generador: reglas de variedad + los ❤️ pesan ──
+function weightedSample(arr, n) {
+  return arr
+    .map(d => ({ d, k: Math.pow(Math.random(), 1 / (1 + (d.fans ? d.fans.length : 0) * 0.7)) }))
+    .sort((a, b) => b.k - a.k)
+    .slice(0, n)
+    .map(x => x.d);
+}
+
 function scoreWeek(dishes, lastIds) {
   let s = 0;
   const count = {};
   for (let i = 0; i < dishes.length; i++) {
     const d = dishes[i];
     count[d.prot] = (count[d.prot] || 0) + 1;
-    if (i > 0 && dishes[i - 1].prot === d.prot) s += 5;          // proteína repetida en días seguidos
-    if (lastIds.includes(d.id)) s += 2;                           // mismo plato que la semana pasada
+    if (i > 0 && dishes[i - 1].prot === d.prot) s += 5;
+    if (lastIds.includes(d.id)) s += 2;
   }
   for (const p in count) {
-    if (count[p] > 2) s += (count[p] - 2) * 4;                    // más de 2 veces la misma proteína
-    if (p === "pescado" && count[p] > 1) s += 3;                  // pescado, con 1 vez alcanza
+    if (count[p] > 2) s += (count[p] - 2) * 4;
+    if (p === "pescado" && count[p] > 1) s += 3;
   }
   return s;
 }
 
 function generateWeek(tipo) {
-  const dishes = pool(tipo);
+  const dishes = sorteable(tipo);
   if (dishes.length < 5) return dishes.map(d => ({ id: d.id }));
   const lastIds = state.lastWeek[tipo === "cena" ? "cenas" : "viandas"] || [];
   let best = null, bestScore = Infinity;
   for (let t = 0; t < 400; t++) {
-    const pick = [...dishes].sort(() => Math.random() - 0.5).slice(0, 5);
+    const pick = weightedSample(dishes, 5);
     const sc = scoreWeek(pick, lastIds);
     if (sc < bestScore) { bestScore = sc; best = pick; if (sc === 0) break; }
   }
   return best.map(d => ({ id: d.id }));
 }
 
-function rerollDay(tipo, i) {
+function candidatesFor(tipo, i) {
   const key = tipo === "cena" ? "cenas" : "viandas";
   const week = state.week[key];
   const usados = week.filter((e, j) => j !== i && e && e.id).map(e => e.id);
   const vecinos = [week[i - 1], week[i + 1]].map(entryProt).filter(Boolean);
   const actual = week[i] && week[i].id;
-  let candidatos = pool(tipo).filter(d => d.id !== actual && !usados.includes(d.id));
-  const sinChoque = candidatos.filter(d => !vecinos.includes(d.prot));
-  if (sinChoque.length) candidatos = sinChoque;
-  if (!candidatos.length) return;
-  week[i] = { id: candidatos[Math.floor(Math.random() * candidatos.length)].id };
+  let c = sorteable(tipo).filter(d => d.id !== actual && !usados.includes(d.id));
+  const sinChoque = c.filter(d => !vecinos.includes(d.prot));
+  return (sinChoque.length ? sinChoque : c);
+}
+
+function rerollDay(tipo, i) {
+  const c = candidatesFor(tipo, i);
+  if (!c.length) return;
+  const pick = weightedSample(c, 1)[0];
+  state.week[tipo === "cena" ? "cenas" : "viandas"][i] = { id: pick.id };
   save(); render();
 }
 
 // ── Render ──
 const $ = sel => document.querySelector(sel);
+
+function fanRow(dish) {
+  const row = document.createElement("div");
+  row.className = "fans";
+  for (const m of FAMILIA) {
+    const b = document.createElement("button");
+    const on = dish.fans.includes(m.k);
+    b.className = "fan" + (on ? " on" : "");
+    b.textContent = (on ? "❤" : "♡") + " " + m.label;
+    b.title = `${on ? "Ya no le encanta a" : "Le encanta a"} ${m.title}`;
+    b.setAttribute("aria-pressed", on);
+    b.addEventListener("click", () => {
+      dish.fans = on ? dish.fans.filter(k => k !== m.k) : [...dish.fans, m.k];
+      save(); render();
+    });
+    row.appendChild(b);
+  }
+  const veto = document.createElement("button");
+  veto.className = "fan veto" + (dish.veto ? " on" : "");
+  veto.textContent = "🚫";
+  veto.title = dish.veto ? "Vetado: no entra en el sorteo. Tocá para habilitarlo." : "Vetar: que no salga más en el sorteo";
+  veto.setAttribute("aria-pressed", !!dish.veto);
+  veto.addEventListener("click", () => { dish.veto = !dish.veto; save(); render(); });
+  row.appendChild(veto);
+  return row;
+}
 
 function dayCard(tipo, i) {
   const key = tipo === "cena" ? "cenas" : "viandas";
@@ -431,25 +597,62 @@ function dayCard(tipo, i) {
 
   const card = document.createElement("div");
   card.className = "day-card";
+  card.dataset.tipo = tipo; card.dataset.i = i;
 
   const head = document.createElement("div");
   head.className = "day-name";
+  head.draggable = true;
+  head.title = "Arrastrá sobre otro día para intercambiar";
   head.innerHTML = `<span>${DIAS[i]}</span>`;
+  const wheelBtn = document.createElement("button");
+  wheelBtn.textContent = "🎡"; wheelBtn.title = "Ruleta: que la suerte (o los chicos) decidan";
+  wheelBtn.setAttribute("aria-label", `Ruleta para el ${DIAS[i]}`);
+  wheelBtn.addEventListener("click", () => openWheel(tipo, i));
   const re = document.createElement("button");
-  re.className = "reroll"; re.textContent = "🔁"; re.title = "Sortear otro plato para este día";
+  re.textContent = "🔁"; re.title = "Sortear otro plato para este día";
   re.setAttribute("aria-label", `Sortear otro plato para el ${DIAS[i]}`);
   re.addEventListener("click", () => rerollDay(tipo, i));
-  head.appendChild(re);
+  head.appendChild(wheelBtn); head.appendChild(re);
   card.appendChild(head);
+
+  // drag & drop para intercambiar días (desktop)
+  head.addEventListener("dragstart", ev => {
+    ev.dataTransfer.setData("text/plain", JSON.stringify({ tipo, i }));
+    ev.dataTransfer.effectAllowed = "move";
+  });
+  card.addEventListener("dragover", ev => {
+    ev.preventDefault(); card.classList.add("drag-over");
+  });
+  card.addEventListener("dragleave", () => card.classList.remove("drag-over"));
+  card.addEventListener("drop", ev => {
+    ev.preventDefault(); card.classList.remove("drag-over");
+    try {
+      const src = JSON.parse(ev.dataTransfer.getData("text/plain"));
+      if (src.tipo !== tipo || src.i === i) return;
+      const w = state.week[key];
+      [w[src.i], w[i]] = [w[i], w[src.i]];
+      if (tipo === "vianda") [state.week.obs[src.i], state.week.obs[i]] = [state.week.obs[i], state.week.obs[src.i]];
+      save(); render();
+    } catch (e) { /* drop ajeno */ }
+  });
 
   const body = document.createElement("div");
   body.className = "day-body";
+
+  const row = document.createElement("div");
+  row.className = "dish-row";
+  const em = document.createElement("span");
+  em.className = "dish-emoji";
+  em.textContent = custom ? ((entry.custom.match(/🥡|🍕/) || ["✍️"])[0]) : emojiFor(dish);
+  row.appendChild(em);
 
   const sel = document.createElement("select");
   sel.className = "dish";
   sel.setAttribute("aria-label", `Plato del ${DIAS[i]}`);
   sel.appendChild(new Option("— elegir plato —", ""));
-  for (const d of pool(tipo)) sel.appendChild(new Option(d.nombre, d.id));
+  for (const d of pool(tipo)) sel.appendChild(new Option((d.veto ? "🚫 " : "") + d.nombre, d.id));
+  sel.appendChild(new Option("🥡 Sobras / aprovechar", "__sobras"));
+  sel.appendChild(new Option("🍕 Salimos / pedimos", "__afuera"));
   sel.appendChild(new Option("✍️ Otro (escribir)…", "__custom"));
   if (custom) {
     const o = new Option(`✍️ ${entry.custom}`, "__current"); o.selected = true;
@@ -459,6 +662,10 @@ function dayCard(tipo, i) {
     if (sel.value === "__custom") {
       const txt = prompt("¿Qué plato?");
       state.week[key][i] = txt ? { custom: txt.trim() } : null;
+    } else if (sel.value === "__sobras") {
+      state.week[key][i] = { custom: "Sobras 🥡 (aprovechar lo que quedó)" };
+    } else if (sel.value === "__afuera") {
+      state.week[key][i] = { custom: "Salimos / pedimos 🍕" };
     } else if (sel.value && sel.value !== "__current") {
       state.week[key][i] = { id: sel.value };
     } else if (!sel.value) {
@@ -466,7 +673,8 @@ function dayCard(tipo, i) {
     }
     save(); render();
   });
-  body.appendChild(sel);
+  row.appendChild(sel);
+  body.appendChild(row);
 
   if (dish) {
     const chip = document.createElement("span");
@@ -493,17 +701,37 @@ function dayCard(tipo, i) {
     body.appendChild(obs);
   }
 
+  if (dish) body.appendChild(fanRow(dish));
+
   card.appendChild(body);
   return card;
 }
 
+function renderToday() {
+  const card = $("#todayCard");
+  const dow = new Date().getDay();
+  if (dow < 1 || dow > 5) { card.hidden = true; return; }
+  const i = dow - 1;
+  const cena = entryDish(state.week.cenas[i]);
+  const vianda = entryDish(state.week.viandas[i]);
+  const cenaName = entryName(state.week.cenas[i]);
+  const viandaName = entryName(state.week.viandas[i]);
+  if (!cenaName && !viandaName) { card.hidden = true; return; }
+  card.hidden = false;
+  $("#todayHead").textContent = `¿Qué toca hoy? · ${DIAS[i]}`;
+  $("#todayCenaEmoji").textContent = cenaName ? (cena ? emojiFor(cena) : "✍️") : "🤷";
+  $("#todayCenaName").textContent = cenaName || "Sin plan (¡ruleta!)";
+  $("#todayViandaEmoji").textContent = viandaName ? (vianda ? emojiFor(vianda) : "✍️") : "🤷";
+  $("#todayViandaName").textContent = viandaName || "Sin plan (¡ruleta!)";
+}
+
 function renderRecetario() {
   const tbl = $("#recTable");
-  tbl.innerHTML = "<tr><th>Plato</th><th>Tipo</th><th>Proteína</th><th>Acompañamiento</th><th></th></tr>";
+  tbl.innerHTML = "<tr><th></th><th>Plato</th><th>Tipo</th><th>Proteína</th><th>❤️</th><th>Acompañamiento</th><th></th></tr>";
   const sorted = [...state.recetario].sort((a, b) => a.tipo.localeCompare(b.tipo) || a.nombre.localeCompare(b.nombre));
   for (const d of sorted) {
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td class="name">${d.nombre}</td><td>${d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda"}</td><td>${PROT_LABEL[d.prot] || d.prot}</td><td>${d.lados || ""}</td>`;
+    tr.innerHTML = `<td>${emojiFor(d)}</td><td class="name">${d.veto ? "🚫 " : ""}${d.nombre}</td><td>${d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda"}</td><td>${PROT_LABEL[d.prot] || d.prot}</td><td>${d.fans.length || ""}</td><td>${d.lados || ""}</td>`;
     const td = document.createElement("td");
     const del = document.createElement("button");
     del.className = "del"; del.textContent = "✕"; del.title = `Sacar “${d.nombre}” del recetario`;
@@ -518,13 +746,158 @@ function renderRecetario() {
   $("#recCount").textContent = state.recetario.length;
 }
 
+function renderStreak() {
+  const b = $("#streakBadge");
+  if (state.streak.count > 0) {
+    b.hidden = false;
+    $("#streakN").textContent = state.streak.count === 1 ? "1 semana" : `${state.streak.count} semanas`;
+  } else b.hidden = true;
+}
+
 function render() {
   const gc = $("#gridCenas"); gc.innerHTML = "";
   const gv = $("#gridViandas"); gv.innerHTML = "";
   for (let i = 0; i < 5; i++) { gc.appendChild(dayCard("cena", i)); gv.appendChild(dayCard("vianda", i)); }
   $("#weekDate").value = state.week.monday;
   $("#ketoToggle").checked = !!state.keto;
+  renderToday();
   renderRecetario();
+  renderStreak();
+  if (!$("#shopPanel").hidden) renderShop();
+}
+
+// ── Ruleta 🎡 ──
+const WHEEL_COLORS = ["--wheel-1", "--wheel-2", "--wheel-3", "--wheel-4", "--wheel-5", "--wheel-6", "--wheel-7", "--wheel-8"];
+let wheel = { tipo: null, i: 0, cands: [], angle: 0, spinning: false, winner: null };
+
+function openWheel(tipo, i) {
+  let c = candidatesFor(tipo, i);
+  if (c.length < 2) { toast("No hay suficientes platos para la ruleta"); return; }
+  if (c.length > 8) c = weightedSample(c, 8);
+  wheel = { tipo, i, cands: c, angle: Math.random() * Math.PI * 2, spinning: false, winner: null };
+  $("#wheelTitle").textContent = `🎡 ${tipo === "cena" ? "Cena" : "Vianda"} del ${DIAS[i]}`;
+  $("#wheelResult").textContent = "";
+  $("#wheelApply").hidden = true;
+  $("#wheelSpin").disabled = false;
+  drawWheel();
+  $("#wheelModal").showModal();
+}
+
+function drawWheel() {
+  const cv = $("#wheelCanvas"), ctx = cv.getContext("2d");
+  const cs = getComputedStyle(document.documentElement);
+  const n = wheel.cands.length, seg = (Math.PI * 2) / n;
+  const R = cv.width / 2, cx = R, cy = R;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  for (let j = 0; j < n; j++) {
+    const a0 = wheel.angle + j * seg;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, R - 6, a0, a0 + seg);
+    ctx.closePath();
+    ctx.fillStyle = cs.getPropertyValue(WHEEL_COLORS[j % WHEEL_COLORS.length]).trim() || "#888";
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,0.65)"; ctx.lineWidth = 3; ctx.stroke();
+    // etiqueta
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(a0 + seg / 2);
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#fff";
+    ctx.font = "600 26px -apple-system, 'Segoe UI', Roboto, sans-serif";
+    const name = wheel.cands[j].nombre;
+    ctx.fillText((name.length > 18 ? name.slice(0, 17) + "…" : name), R - 26, 9);
+    ctx.restore();
+  }
+  // centro
+  ctx.beginPath(); ctx.arc(cx, cy, 42, 0, Math.PI * 2);
+  ctx.fillStyle = cs.getPropertyValue("--card").trim() || "#fff"; ctx.fill();
+  ctx.strokeStyle = "rgba(0,0,0,0.15)"; ctx.stroke();
+  ctx.font = "34px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText("🎡", cx, cy + 2);
+}
+
+function wheelWinnerIndex() {
+  const n = wheel.cands.length, seg = (Math.PI * 2) / n;
+  const pointer = -Math.PI / 2; // arriba
+  const norm = ((pointer - wheel.angle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
+  return Math.floor(norm / seg) % n;
+}
+
+function finishSpin() {
+  wheel.spinning = false;
+  const win = wheel.cands[wheelWinnerIndex()];
+  wheel.winner = win;
+  $("#wheelResult").textContent = `¡Salió ${emojiFor(win)} ${win.nombre}!`;
+  $("#wheelApply").hidden = false;
+  $("#wheelSpin").disabled = false;
+  $("#wheelSpin").textContent = "🎡 Otra vez";
+}
+
+function spinWheel() {
+  if (wheel.spinning) return;
+  $("#wheelResult").textContent = "";
+  $("#wheelApply").hidden = true;
+  if (REDUCED) { // sin animación: resultado directo
+    wheel.angle = Math.random() * Math.PI * 2;
+    drawWheel(); finishSpin(); return;
+  }
+  wheel.spinning = true;
+  $("#wheelSpin").disabled = true;
+  const start = wheel.angle;
+  const delta = Math.PI * 2 * (4 + Math.random() * 2) + Math.random() * Math.PI * 2;
+  const dur = 3200;
+  let t0 = null;
+  function frame(ts) {
+    if (t0 === null) t0 = ts;
+    const t = Math.min(1, (ts - t0) / dur);
+    const ease = 1 - Math.pow(1 - t, 3);
+    wheel.angle = start + delta * ease;
+    drawWheel();
+    if (t < 1) requestAnimationFrame(frame);
+    else finishSpin();
+  }
+  requestAnimationFrame(frame);
+}
+
+$("#wheelSpin").addEventListener("click", spinWheel);
+$("#wheelApply").addEventListener("click", () => {
+  if (!wheel.winner) return;
+  state.week[wheel.tipo === "cena" ? "cenas" : "viandas"][wheel.i] = { id: wheel.winner.id };
+  save(); render();
+  $("#wheelModal").close();
+  confetti(60);
+  toast(`${emojiFor(wheel.winner)} ¡${wheel.winner.nombre} para el ${DIAS[wheel.i]}!`);
+});
+$("#wheelClose").addEventListener("click", () => $("#wheelModal").close());
+
+// ── Confetti 🎉 ──
+function confetti(n) {
+  if (REDUCED) return;
+  const cv = $("#confetti"), ctx = cv.getContext("2d");
+  cv.hidden = false;
+  cv.width = innerWidth; cv.height = innerHeight;
+  const colors = ["#3D6A47", "#C98E2B", "#B84A33", "#3E7A96", "#A56A8C", "#8FBC93"];
+  const parts = Array.from({ length: n }, () => ({
+    x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * 0.3,
+    vx: (Math.random() - 0.5) * 2.4, vy: 2.2 + Math.random() * 3.2,
+    s: 5 + Math.random() * 6, r: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.25,
+    c: colors[Math.floor(Math.random() * colors.length)]
+  }));
+  let t0 = null;
+  function frame(ts) {
+    if (t0 === null) t0 = ts;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    for (const p of parts) {
+      p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+      ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6);
+      ctx.restore();
+    }
+    if (ts - t0 < 2400) requestAnimationFrame(frame);
+    else { ctx.clearRect(0, 0, cv.width, cv.height); cv.hidden = true; }
+  }
+  requestAnimationFrame(frame);
 }
 
 // ── Exportar con el formato de WhatsApp de la familia ──
@@ -539,7 +912,7 @@ function textoViandas() {
     L.push(`⸻`, ``, `*${DIAS[i]}*`);
     const d = entryDish(e);
     const nombre = entryName(e);
-    L.push(nombre ? `• ${nombre}` : `• (a definir)`);
+    L.push(nombre ? `${d ? emojiFor(d) : "•"} ${nombre}` : `• (a definir)`);
     if (d && d.lados) L.push(`• ${d.lados}`);
     if (d && d.chicos) L.push(`🥣 ${d.chicos}`);
     const obs = state.week.obs[i] || (d && d.obs);
@@ -555,7 +928,7 @@ function textoCenas() {
     L.push(`⸻`, ``, `*${DIAS[i]}*`);
     const d = entryDish(e);
     const nombre = entryName(e);
-    L.push(nombre ? `• ${nombre}` : `• (a definir)`);
+    L.push(nombre ? `${d ? emojiFor(d) : "•"} ${nombre}` : `• (a definir)`);
     if (d && d.lados) L.push(`• ${d.lados}`);
     if (d && d.chicos) L.push(`👧 Chicos: ${d.chicos}`);
     if (state.keto && d && d.keto) L.push(`👉 Mike (keto): ${d.keto}`);
@@ -579,7 +952,7 @@ function toast(msg) {
   const t = $("#toast");
   t.textContent = msg; t.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove("show"), 2200);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 2400);
 }
 
 // ── Lista de compras ──
@@ -591,7 +964,7 @@ const CAT_RULES = [
 ];
 
 function listaCompras() {
-  const items = new Map(); // nombre → Set de días que lo usan (para contar)
+  const items = new Map();
   const week = [...state.week.cenas, ...state.week.viandas];
   for (const e of week) {
     const d = entryDish(e);
@@ -605,13 +978,14 @@ function listaCompras() {
   const cats = new Map(CAT_RULES.map(([n]) => [n, []]));
   for (const [it, n] of [...items.entries()].sort()) {
     const cat = CAT_RULES.find(([, rx]) => rx.test(it))[0];
-    cats.get(cat).push(n > 1 ? `${it} (×${n})` : it);
+    cats.get(cat).push({ it, n });
   }
   return cats;
 }
 
 function renderShop() {
   const cols = $("#shopCols"); cols.innerHTML = "";
+  const checked = new Set(state.week.shopChecked);
   let any = false;
   for (const [cat, arr] of listaCompras()) {
     if (!arr.length) continue;
@@ -619,18 +993,35 @@ function renderShop() {
     const div = document.createElement("div");
     const h = document.createElement("h4"); h.textContent = cat; div.appendChild(h);
     const ul = document.createElement("ul");
-    for (const it of arr) { const li = document.createElement("li"); li.textContent = it; ul.appendChild(li); }
+    for (const { it, n } of arr) {
+      const li = document.createElement("li");
+      const lab = document.createElement("label");
+      const cb = document.createElement("input");
+      cb.type = "checkbox"; cb.checked = checked.has(it);
+      const sp = document.createElement("span");
+      sp.textContent = n > 1 ? `${it} (×${n})` : it;
+      if (cb.checked) sp.className = "done";
+      cb.addEventListener("change", () => {
+        if (cb.checked) checked.add(it); else checked.delete(it);
+        state.week.shopChecked = [...checked];
+        sp.className = cb.checked ? "done" : "";
+        save();
+      });
+      lab.appendChild(cb); lab.appendChild(sp); li.appendChild(lab); ul.appendChild(li);
+    }
     div.appendChild(ul); cols.appendChild(div);
   }
   if (!any) cols.innerHTML = "<p class='side'>Todavía no hay platos elegidos esta semana.</p>";
 }
 
 function textoCompras() {
+  const checked = new Set(state.week.shopChecked);
   const L = [`🛒 Lista de compras – Semana del ${fmtDate(state.week.monday)}`, ``];
   for (const [cat, arr] of listaCompras()) {
-    if (!arr.length) continue;
+    const pend = arr.filter(({ it }) => !checked.has(it));
+    if (!pend.length) continue;
     L.push(`*${cat}*`);
-    for (const it of arr) L.push(`• ${it}`);
+    for (const { it, n } of pend) L.push(`• ${n > 1 ? `${it} (×${n})` : it}`);
     L.push(``);
   }
   return L.join("\n").trim();
@@ -640,14 +1031,14 @@ function textoCompras() {
 $("#btnGenerate").addEventListener("click", () => {
   state.week.cenas = generateWeek("cena");
   state.week.viandas = generateWeek("vianda");
-  save(); render(); renderShop();
+  save(); render();
   toast("Menú generado 🎉 Ajustá lo que quieras y mandalo por WhatsApp");
 });
 
 document.querySelectorAll("[data-regen]").forEach(b => b.addEventListener("click", () => {
   const which = b.dataset.regen;
   state.week[which] = generateWeek(which === "cenas" ? "cena" : "vianda");
-  save(); render(); renderShop();
+  save(); render();
 }));
 
 $("#btnNewWeek").addEventListener("click", () => {
@@ -657,7 +1048,19 @@ $("#btnNewWeek").addEventListener("click", () => {
     viandas: state.week.viandas.filter(e => e && e.id).map(e => e.id)
   };
   state.week = freshWeek();
-  save(); render(); renderShop();
+  save(); render();
+});
+
+$("#btnDone").addEventListener("click", () => {
+  const filled = [...state.week.cenas, ...state.week.viandas].filter(e => e && (e.id || e.custom)).length;
+  if (filled < 10) { toast(`Faltan ${10 - filled} platos para completar la semana 💪`); return; }
+  if (state.streak.last !== state.week.monday) {
+    state.streak.count += 1;
+    state.streak.last = state.week.monday;
+    save(); renderStreak();
+  }
+  confetti(140);
+  toast(`🎉 ¡Semana planificada! Llevan ${state.streak.count} ${state.streak.count === 1 ? "semana" : "semanas"} organizados`);
 });
 
 $("#weekDate").addEventListener("change", e => { state.week.monday = e.target.value; save(); });
@@ -687,7 +1090,8 @@ $("#addDishForm").addEventListener("submit", e => {
     lados: (f.get("lados") || "").trim(),
     chicos: (f.get("chicos") || "").trim(),
     keto: (f.get("keto") || "").trim(),
-    ing: (f.get("ing") || "").trim()
+    ing: (f.get("ing") || "").trim(),
+    fans: [], veto: false
   });
   e.target.reset();
   save(); render();
