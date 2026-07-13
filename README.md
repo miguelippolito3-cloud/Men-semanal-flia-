@@ -3,6 +3,8 @@
 App para armar el menú semanal de la familia: **cenas** de lunes a viernes y **viandas del cole** para Fran (8), Luca (6) y Martu (2). El recetario viene precargado con los platos que ya usamos (Kansas chicken, milanesas napolitanas, tarta de jamón y queso, fideos con crema, etc.), sacados del chat "Menu Semanal Comidas".
 
 > La versión 2 incorpora las mejores ideas de las apps líderes de planificación de comidas (Mealime, Planifood, KptnCook, Plan to Eat, AnyList, BigOven) — ver [PROPUESTA.md](PROPUESTA.md) para la investigación completa.
+>
+> La versión 3 rediseña todo con estética de red social (Instagram/TikTok): app oscura tipo teléfono con barra de tabs y botón 🎲 central, **historias** de los días con anillo degradado, feed **Descubrir** de pantalla completa con swipe vertical, doble tap para ❤️ y botones laterales (like / vetar / agregar al plan), **perfiles** para que cada miembro vote con su cuenta, y editor de día en hoja inferior (bottom sheet).
 
 ## Qué hace
 

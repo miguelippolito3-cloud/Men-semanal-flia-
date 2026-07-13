@@ -2,369 +2,448 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Menú Semanal — Familia</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MenuFam — Menú Semanal</title>
 <style>
+  /* ── Identidad: app social oscura (estilo IG/TikTok), committed dark ── */
   :root {
-    --paper: #F6F4EC;
-    --card: #FFFFFF;
-    --cell: #E9EDDE;
-    --ink: #262A1F;
-    --muted: #6E7361;
-    --line: #DBDCCB;
-    --accent: #3D6A47;
-    --accent-soft: #E1EAE0;
-    --accent-ink: #FFFFFF;
-    --tomato: #B84A33;
-    --tomato-soft: #F4E2DC;
-    --gold: #C98E2B;
-    --chip-pollo: #C98E2B; --chip-carne: #B84A33; --chip-cerdo: #A56A8C;
-    --chip-pescado: #3E7A96; --chip-pasta: #8C7B2F; --chip-tarta: #7A6A50; --chip-veggie: #4E8A4E;
-    --wheel-1: #3D6A47; --wheel-2: #C98E2B; --wheel-3: #B84A33; --wheel-4: #3E7A96;
-    --wheel-5: #A56A8C; --wheel-6: #8C7B2F; --wheel-7: #4E8A4E; --wheel-8: #7A6A50;
-    --radius: 12px;
-    --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
-    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --bg: #0B0B10;
+    --shell: #101017;
+    --card: #17171F;
+    --card-2: #1E1E28;
+    --ink: #F4F3F7;
+    --muted: #8E8E9C;
+    --line: #26262F;
+    --grad-ig: linear-gradient(45deg, #F5B841, #FC4A1A 35%, #E22B6F 70%, #9B36C9);
+    --grad-ring: conic-gradient(from 210deg, #F5B841, #FC4A1A, #E22B6F, #9B36C9, #F5B841);
+    --like: #FF3B5C;
+    --ok: #3DDC84;
+    --chip-pollo: #F5A623; --chip-carne: #FF5A5F; --chip-cerdo: #C77DFF;
+    --chip-pescado: #4CC9F0; --chip-pasta: #F9C74F; --chip-tarta: #D4A373; --chip-veggie: #80ED99;
+    --radius: 18px;
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --tabbar-h: 64px;
+    color-scheme: dark;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #14170F; --card: #1D2117; --cell: #232919;
-      --ink: #E8E6D6; --muted: #A3A88F; --line: #32372A;
-      --accent: #8FBC93; --accent-soft: #26301F; --accent-ink: #14170F;
-      --tomato: #E08A6E; --tomato-soft: #362119; --gold: #E0B45C;
-      --chip-pollo: #E0B45C; --chip-carne: #E08A6E; --chip-cerdo: #CC98B8;
-      --chip-pescado: #7FB6CE; --chip-pasta: #C4B45E; --chip-tarta: #B3A084; --chip-veggie: #85BF85;
-    }
-  }
-  :root[data-theme="light"] {
-    --paper: #F6F4EC; --card: #FFFFFF; --cell: #E9EDDE;
-    --ink: #262A1F; --muted: #6E7361; --line: #DBDCCB;
-    --accent: #3D6A47; --accent-soft: #E1EAE0; --accent-ink: #FFFFFF;
-    --tomato: #B84A33; --tomato-soft: #F4E2DC; --gold: #C98E2B;
-    --chip-pollo: #C98E2B; --chip-carne: #B84A33; --chip-cerdo: #A56A8C;
-    --chip-pescado: #3E7A96; --chip-pasta: #8C7B2F; --chip-tarta: #7A6A50; --chip-veggie: #4E8A4E;
-  }
-  :root[data-theme="dark"] {
-    --paper: #14170F; --card: #1D2117; --cell: #232919;
-    --ink: #E8E6D6; --muted: #A3A88F; --line: #32372A;
-    --accent: #8FBC93; --accent-soft: #26301F; --accent-ink: #14170F;
-    --tomato: #E08A6E; --tomato-soft: #362119; --gold: #E0B45C;
-    --chip-pollo: #E0B45C; --chip-carne: #E08A6E; --chip-cerdo: #CC98B8;
-    --chip-pescado: #7FB6CE; --chip-pasta: #C4B45E; --chip-tarta: #B3A084; --chip-veggie: #85BF85;
-  }
-
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { margin: 0; padding: 0; }
   body {
-    background: var(--paper);
+    background: var(--bg);
     color: var(--ink);
-    font-family: var(--font-body);
+    font-family: var(--font);
     font-size: 16px;
-    line-height: 1.45;
+    line-height: 1.4;
   }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 16px 14px 90px; }
-
-  header.top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 8px 0 2px; }
-  h1 {
-    font-family: var(--font-display);
-    font-size: clamp(26px, 5vw, 36px);
-    font-weight: 600; letter-spacing: -0.01em;
-    margin: 0; text-wrap: balance;
+  /* Shell tipo teléfono, centrado en desktop */
+  #app {
+    max-width: 520px; margin: 0 auto; min-height: 100dvh;
+    background: var(--shell);
+    box-shadow: 0 0 60px rgba(0,0,0,0.55);
+    position: relative;
+    padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 8px);
   }
-  .streak {
-    font-size: 14px; font-weight: 700; color: var(--gold);
-    background: var(--card); border: 1px solid var(--line); border-radius: 99px;
-    padding: 3px 12px;
-  }
-  .subtitle { color: var(--muted); font-size: 14px; margin: 0 0 14px; width: 100%; }
-
-  /* ── Hoy ── */
-  .today {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
-    background: var(--accent); color: var(--accent-ink);
-    border-radius: var(--radius); padding: 14px 16px; margin-bottom: 14px;
-  }
-  .today .t-head { grid-column: 1 / -1; font-size: 12px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.85; }
-  .today .t-meal { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .today .t-emoji { font-size: 34px; line-height: 1; }
-  .today .t-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; opacity: 0.8; margin: 0; }
-  .today .t-name { font-family: var(--font-display); font-size: 17px; font-weight: 600; margin: 0; overflow-wrap: anywhere; }
-  @media (max-width: 560px) { .today { grid-template-columns: 1fr; } }
-
-  .toolbar {
-    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 10px 12px; margin-bottom: 20px;
-  }
-  .toolbar label.week { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--muted); }
-  input[type="date"] {
-    font: inherit; color: var(--ink); background: var(--paper);
-    border: 1px solid var(--line); border-radius: 8px; padding: 5px 8px;
-  }
-  .spacer { flex: 1; }
 
   button {
-    font: inherit; font-size: 14px; cursor: pointer;
-    border: 1px solid var(--line); border-radius: 8px;
-    background: var(--card); color: var(--ink);
-    padding: 7px 12px;
+    font: inherit; cursor: pointer; color: var(--ink);
+    background: var(--card-2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 8px 13px; font-size: 14px; font-weight: 600;
+    transition: transform .08s ease;
   }
-  button:hover { border-color: var(--accent); }
-  button:focus-visible, input:focus-visible, select:focus-visible {
-    outline: 2px solid var(--accent); outline-offset: 1px;
-  }
-  button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+  button:active { transform: scale(0.95); }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid #F5B841; outline-offset: 2px; }
+  button.grad { background: var(--grad-ig); border: none; color: #fff; font-weight: 800; }
   button.ghost { background: transparent; }
-  button.icon { padding: 6px 9px; line-height: 1; }
 
-  .switch { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; cursor: pointer; user-select: none; }
-  .switch input { accent-color: var(--accent); width: 16px; height: 16px; }
+  select, input[type="date"], input[type="text"] {
+    font: inherit; font-size: 14px; color: var(--ink);
+    background: var(--card-2); border: 1px solid var(--line); border-radius: 12px;
+    padding: 8px 10px; width: 100%;
+  }
 
-  section.block { margin-bottom: 26px; }
-  .block-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-  .block-head h2 { font-family: var(--font-display); font-size: 22px; font-weight: 600; margin: 0; }
-  .block-head .hint { color: var(--muted); font-size: 13px; }
-  .block-head button { margin-left: auto; }
+  /* ── Header ── */
+  header.top {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 16px 8px;
+    position: sticky; top: 0; z-index: 20;
+    background: linear-gradient(var(--shell) 75%, transparent);
+  }
+  .logo {
+    font-size: 22px; font-weight: 900; letter-spacing: -0.03em; margin: 0;
+    background: var(--grad-ig); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .streak {
+    font-size: 13px; font-weight: 800; color: #F5B841;
+    background: var(--card); border: 1px solid var(--line); border-radius: 99px;
+    padding: 3px 10px; white-space: nowrap;
+  }
+  .spacer { flex: 1; }
+  .profiles { display: flex; gap: 6px; }
+  .avatar {
+    width: 34px; height: 34px; border-radius: 50%; padding: 0;
+    font-size: 12px; font-weight: 800; color: var(--ink);
+    background: var(--card-2); border: 2px solid var(--line);
+    display: grid; place-items: center;
+  }
+  .avatar.active { border-color: transparent; background: var(--grad-ig); color: #fff; }
 
-  .week-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-  @media (max-width: 760px) { .week-grid { grid-template-columns: 1fr; } }
+  main { padding: 0 0 8px; }
+  .tab { display: none; }
+  .tab.active { display: block; }
+  .pad { padding: 0 16px; }
 
-  .day-card {
+  h2.sec {
+    font-size: 15px; font-weight: 800; letter-spacing: 0.02em;
+    margin: 20px 0 10px; display: flex; align-items: center; gap: 8px;
+  }
+  h2.sec .mini { margin-left: auto; }
+  .hint { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; }
+
+  /* ── Historias (días) ── */
+  .stories { display: flex; gap: 12px; padding: 10px 16px 4px; overflow-x: auto; scrollbar-width: none; }
+  .stories::-webkit-scrollbar { display: none; }
+  .story { flex: none; width: 66px; background: none; border: none; padding: 0; text-align: center; }
+  .story .ring {
+    width: 62px; height: 62px; border-radius: 50%; padding: 3px; margin: 0 auto;
+    background: var(--line);
+  }
+  .story.full .ring { background: var(--grad-ring); }
+  .story .core {
+    width: 100%; height: 100%; border-radius: 50%;
+    background: var(--card); display: grid; place-items: center;
+    font-size: 26px; position: relative;
+  }
+  .story .badge {
+    position: absolute; right: -3px; bottom: -3px; font-size: 15px;
+    background: var(--card-2); border-radius: 50%; padding: 2px; border: 1px solid var(--line);
+  }
+  .story .lbl { font-size: 11.5px; font-weight: 700; color: var(--muted); margin-top: 5px; }
+  .story.today .lbl { color: #F5B841; }
+
+  /* ── Héroe HOY ── */
+  .hero {
+    margin: 10px 16px 4px; border-radius: var(--radius); padding: 16px;
+    color: #fff; position: relative; overflow: hidden;
+  }
+  .hero .h-label { font-size: 11px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85; margin: 0 0 8px; }
+  .hero .h-row { display: flex; align-items: center; gap: 12px; margin: 6px 0; }
+  .hero .h-emoji { font-size: 38px; line-height: 1; filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); }
+  .hero .h-kind { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8; margin: 0; }
+  .hero .h-name { font-size: 17px; font-weight: 800; margin: 0; text-wrap: balance; }
+
+  /* ── Config semana ── */
+  .conf {
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+    margin: 14px 16px; padding: 10px 12px;
     background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-    display: flex; flex-direction: column; overflow: hidden;
+    font-size: 13px; color: var(--muted);
   }
-  .day-card.drag-over { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
-  .day-name {
-    background: var(--cell); padding: 6px 10px;
-    font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-    display: flex; align-items: center; gap: 6px; cursor: grab;
-  }
-  .day-name span { flex: 1; }
-  .day-name button { border: none; background: none; padding: 0 2px; font-size: 15px; cursor: pointer; }
-  .day-body { padding: 10px; display: flex; flex-direction: column; gap: 7px; flex: 1; }
+  .conf input[type="date"] { width: auto; padding: 5px 8px; font-size: 13px; }
+  .switch { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; font-weight: 700; }
+  .switch input { accent-color: #E22B6F; width: 16px; height: 16px; }
 
-  .dish-row { display: flex; align-items: center; gap: 7px; }
-  .dish-emoji { font-size: 24px; line-height: 1; flex: none; }
-  select.dish {
-    font: inherit; font-size: 14px; font-weight: 600; color: var(--ink);
-    width: 100%; min-width: 0; background: var(--paper); border: 1px solid var(--line);
-    border-radius: 8px; padding: 6px 8px;
+  /* ── Filas de platos por día ── */
+  .rows { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+  .row {
+    display: flex; align-items: center; gap: 11px; text-align: left;
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 9px 11px; width: 100%;
   }
+  .row .r-emoji {
+    flex: none; width: 46px; height: 46px; border-radius: 14px;
+    display: grid; place-items: center; font-size: 24px;
+    background: var(--card-2);
+  }
+  .row .r-main { flex: 1; min-width: 0; }
+  .row .r-day { font-size: 10.5px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  .row .r-name { font-size: 14.5px; font-weight: 700; margin: 1px 0 0; overflow-wrap: anywhere; }
+  .row .r-sub { font-size: 12px; color: var(--muted); margin: 1px 0 0; }
+  .row .r-likes { flex: none; font-size: 12.5px; font-weight: 800; color: var(--like); }
+  .row .r-go { flex: none; color: var(--muted); font-size: 18px; }
+
   .chip {
-    align-self: flex-start; font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
-    text-transform: uppercase; padding: 2px 8px; border-radius: 99px;
-    color: var(--paper); background: var(--muted);
+    display: inline-block; font-size: 9.5px; font-weight: 800; letter-spacing: 0.06em;
+    text-transform: uppercase; padding: 2px 7px; border-radius: 99px; color: #0B0B10;
   }
   .chip.pollo { background: var(--chip-pollo); } .chip.carne { background: var(--chip-carne); }
   .chip.cerdo { background: var(--chip-cerdo); } .chip.pescado { background: var(--chip-pescado); }
   .chip.pasta { background: var(--chip-pasta); } .chip.tarta { background: var(--chip-tarta); }
   .chip.veggie { background: var(--chip-veggie); }
 
-  .side, .kids, .keto, .martu { font-size: 13px; color: var(--muted); margin: 0; }
-  .kids strong, .martu strong { color: var(--ink); font-weight: 600; }
-  .keto {
-    border-left: 3px solid var(--tomato); background: var(--tomato-soft);
-    padding: 5px 8px; border-radius: 0 6px 6px 0; color: var(--ink);
-  }
-  input.obs {
-    font: inherit; font-size: 13px; color: var(--ink);
-    background: transparent; border: none; border-bottom: 1px dashed var(--line);
-    padding: 3px 0; width: 100%;
-  }
-  input.obs::placeholder { color: var(--muted); opacity: 0.7; }
+  .export-bar { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 16px 6px; }
 
-  /* votos de la familia */
-  .fans { display: flex; gap: 4px; margin-top: auto; padding-top: 4px; align-items: center; }
-  .fan {
-    font-size: 12px; line-height: 1; padding: 3px 6px; border-radius: 99px;
-    border: 1px solid var(--line); background: transparent; color: var(--muted);
+  /* ── Feed Descubrir (TikTok) ── */
+  #tab-descubrir { position: relative; }
+  .feed-filters {
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 10;
+    display: flex; gap: 6px;
+    background: rgba(11,11,16,0.55); backdrop-filter: blur(8px);
+    padding: 4px; border-radius: 99px;
   }
-  .fan.on { background: var(--tomato-soft); border-color: var(--tomato); color: var(--ink); }
-  .fan.veto { margin-left: auto; }
-  .fan.veto.on { background: var(--cell); border-color: var(--muted); }
+  .feed-filters button { border: none; border-radius: 99px; padding: 6px 14px; font-size: 13px; background: transparent; color: #fff; opacity: 0.7; }
+  .feed-filters button.on { background: #fff; color: #000; opacity: 1; }
+  .feed {
+    height: calc(100dvh - var(--tabbar-h) - 66px);
+    overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none;
+    border-radius: var(--radius); margin: 0 6px;
+  }
+  .feed::-webkit-scrollbar { display: none; }
+  .fcard {
+    height: 100%; scroll-snap-align: start; scroll-snap-stop: always;
+    position: relative; border-radius: var(--radius); overflow: hidden;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    margin-bottom: 6px;
+  }
+  .fcard .f-emoji {
+    position: absolute; inset: 0; display: grid; place-items: center;
+    font-size: clamp(110px, 34vw, 170px);
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.35));
+  }
+  .fcard .f-shade {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,.62) 0%, rgba(0,0,0,.18) 38%, transparent 60%);
+  }
+  .fcard .f-info { position: relative; padding: 16px 76px 18px 16px; color: #fff; }
+  .fcard .f-name { font-size: 22px; font-weight: 900; margin: 6px 0 4px; letter-spacing: -0.01em; text-wrap: balance; }
+  .fcard .f-sub { font-size: 13.5px; opacity: 0.9; margin: 2px 0; }
+  .fcard .f-keto { font-size: 12.5px; margin: 6px 0 0; background: rgba(0,0,0,.4); border-left: 3px solid #F5B841; padding: 5px 8px; border-radius: 0 8px 8px 0; }
+  .rail {
+    position: absolute; right: 8px; bottom: 16px; z-index: 5;
+    display: flex; flex-direction: column; gap: 14px; align-items: center;
+  }
+  .rail button {
+    width: 52px; height: 52px; border-radius: 50%; border: none; padding: 0;
+    background: rgba(20,20,28,0.55); backdrop-filter: blur(6px);
+    font-size: 23px; color: #fff; display: grid; place-items: center;
+  }
+  .rail .cnt { font-size: 11.5px; font-weight: 800; color: #fff; margin-top: -9px; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
+  .rail button.liked { color: var(--like); }
+  .rail button.vetoed { opacity: 0.55; }
+  .heart-burst {
+    position: absolute; font-size: 84px; pointer-events: none; z-index: 6;
+    animation: burst .8s ease-out forwards;
+  }
+  @keyframes burst {
+    0% { transform: scale(0.3); opacity: 0; }
+    25% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1.5) translateY(-40px); opacity: 0; }
+  }
+  .day-pick {
+    position: absolute; right: 68px; bottom: 20px; z-index: 7;
+    background: rgba(15,15,22,0.92); backdrop-filter: blur(8px);
+    border: 1px solid var(--line); border-radius: 14px; padding: 10px;
+    display: none; flex-direction: column; gap: 6px;
+  }
+  .day-pick.open { display: flex; }
+  .day-pick p { margin: 0 0 2px; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .day-pick button { padding: 6px 12px; font-size: 13px; }
 
-  .actions {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 12px; margin-bottom: 24px;
-  }
-
-  .panel {
-    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 14px; margin-bottom: 24px;
-  }
-  .panel h3 { font-family: var(--font-display); margin: 0 0 8px; font-size: 18px; }
-  .shop-cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-  .shop-cols h4 { margin: 0 0 6px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--accent); }
-  .shop-cols ul { margin: 0; padding: 0; list-style: none; font-size: 14px; }
-  .shop-cols li { margin-bottom: 2px; }
-  .shop-cols label { display: flex; align-items: center; gap: 7px; cursor: pointer; }
-  .shop-cols input[type="checkbox"] { accent-color: var(--accent); }
+  /* ── Lista de compras ── */
+  .shop-cols { display: flex; flex-direction: column; gap: 14px; padding: 4px 16px; }
+  .shop-cols h4 { margin: 0 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: #F5B841; }
+  .shop-cols ul { margin: 0; padding: 0; list-style: none; font-size: 14.5px; }
+  .shop-cols li { margin-bottom: 3px; }
+  .shop-cols label { display: flex; align-items: center; gap: 9px; cursor: pointer; padding: 4px 0; }
+  .shop-cols input[type="checkbox"] { accent-color: #3DDC84; width: 18px; height: 18px; }
   .shop-cols .done { text-decoration: line-through; color: var(--muted); }
+  .shop-progress { margin: 8px 16px 0; height: 7px; background: var(--card-2); border-radius: 99px; overflow: hidden; }
+  .shop-progress .bar { height: 100%; background: var(--grad-ig); border-radius: 99px; transition: width .3s; }
+  .shop-meta { font-size: 12.5px; color: var(--muted); margin: 6px 16px 0; }
 
-  details.recetario { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
-  details.recetario > summary {
-    cursor: pointer; padding: 12px 14px; font-family: var(--font-display); font-size: 18px; font-weight: 600;
-    list-style: none;
-  }
-  details.recetario > summary::before { content: "▸ "; color: var(--accent); }
-  details.recetario[open] > summary::before { content: "▾ "; }
-  .recetario-inner { padding: 0 14px 14px; }
-  .rec-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  .rec-table th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); padding: 6px 8px; border-bottom: 1px solid var(--line); }
-  .rec-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
-  .rec-table td.name { font-weight: 600; }
-  .rec-table .del { color: var(--tomato); border-color: transparent; background: none; font-size: 13px; padding: 2px 6px; }
-  .table-scroll { overflow-x: auto; }
-
-  form.add-dish {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px;
-    margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--line);
-  }
-  form.add-dish input, form.add-dish select {
-    font: inherit; font-size: 14px; color: var(--ink); background: var(--paper);
-    border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; width: 100%;
-  }
+  /* ── Recetario ── */
+  .rec-list { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
+  .rec-row { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px; }
+  .rec-row .r-emoji { width: 38px; height: 38px; font-size: 20px; border-radius: 11px; background: var(--card-2); display: grid; place-items: center; flex: none; }
+  .rec-row .n { flex: 1; min-width: 0; font-size: 14px; font-weight: 700; }
+  .rec-row .n small { display: block; font-weight: 500; color: var(--muted); font-size: 11.5px; }
+  .rec-row .del { color: var(--like); background: none; border: none; font-size: 15px; padding: 4px 6px; }
+  form.add-dish { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 14px 16px 0; padding: 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); }
   form.add-dish .full { grid-column: 1 / -1; }
-  form.add-dish button { grid-column: 1 / -1; justify-self: start; }
+  form.add-dish button { grid-column: 1 / -1; }
+
+  /* ── Tab bar (TikTok) ── */
+  nav.tabbar {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 520px; height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(12,12,18,0.92); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: 1fr 1fr 76px 1fr 1fr; align-items: center;
+    z-index: 40;
+  }
+  .tabbar button { background: none; border: none; border-radius: 0; color: var(--muted); font-size: 10.5px; font-weight: 700; padding: 4px 0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .tabbar button .ico { font-size: 21px; line-height: 1; }
+  .tabbar button.on { color: var(--ink); }
+  .tabbar .big {
+    width: 58px; height: 58px; margin: 0 auto; border-radius: 18px;
+    background: var(--grad-ig); color: #fff; font-size: 27px;
+    display: grid; place-items: center; border: none;
+    box-shadow: 0 6px 18px rgba(226,43,111,0.45);
+    transform: translateY(-10px);
+  }
+  .tabbar .big:active { transform: translateY(-10px) scale(0.93); }
+
+  /* ── Sheet editor de día ── */
+  .sheet-back { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 45; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .sheet-back.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: fixed; bottom: 0; left: 50%; transform: translate(-50%, 105%);
+    width: 100%; max-width: 520px; z-index: 46;
+    background: var(--shell); border-radius: 22px 22px 0 0; border: 1px solid var(--line); border-bottom: none;
+    padding: 10px 16px calc(18px + env(safe-area-inset-bottom, 0px));
+    transition: transform .25s ease; max-height: 86dvh; overflow-y: auto;
+  }
+  .sheet.open { transform: translate(-50%, 0); }
+  .sheet .handle { width: 42px; height: 4px; border-radius: 99px; background: var(--line); margin: 2px auto 12px; }
+  .sheet h3 { margin: 0 0 12px; font-size: 18px; font-weight: 900; }
+  .sheet .meal { margin-bottom: 16px; }
+  .sheet .meal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .sheet .meal-head span { font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); flex: 1; }
+  .sheet .side { font-size: 13px; color: var(--muted); margin: 7px 2px 0; }
+  .sheet .keto-note { font-size: 13px; margin: 7px 0 0; background: var(--card); border-left: 3px solid #F5B841; padding: 6px 9px; border-radius: 0 9px 9px 0; }
+  .fans { display: flex; gap: 5px; margin-top: 9px; flex-wrap: wrap; }
+  .fan { font-size: 12px; padding: 5px 9px; border-radius: 99px; background: var(--card-2); border: 1px solid var(--line); color: var(--muted); }
+  .fan.on { background: rgba(255,59,92,0.16); border-color: var(--like); color: var(--ink); }
+  .fan.veto.on { background: var(--card); border-color: var(--muted); }
+  input.obs { margin-top: 9px; font-size: 13px; }
 
   /* ── Ruleta ── */
   dialog#wheelModal {
-    border: 1px solid var(--line); border-radius: 16px; background: var(--card); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink);
     padding: 18px; max-width: 92vw; width: 380px;
   }
-  dialog#wheelModal::backdrop { background: rgba(0,0,0,0.45); }
-  .wheel-head { font-family: var(--font-display); font-size: 19px; font-weight: 600; margin: 0 0 4px; text-align: center; }
+  dialog#wheelModal::backdrop { background: rgba(0,0,0,0.6); }
+  .wheel-head { font-size: 19px; font-weight: 900; margin: 0 0 4px; text-align: center; }
   .wheel-sub { text-align: center; color: var(--muted); font-size: 13px; margin: 0 0 10px; }
   .wheel-box { position: relative; width: 320px; max-width: 100%; margin: 0 auto; }
   .wheel-box canvas { width: 100%; height: auto; display: block; }
   .wheel-pointer {
     position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
     width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent;
-    border-top: 18px solid var(--tomato); filter: drop-shadow(0 1px 1px rgba(0,0,0,.3));
+    border-top: 18px solid var(--like); filter: drop-shadow(0 1px 2px rgba(0,0,0,.5));
   }
-  .wheel-result { text-align: center; font-size: 16px; font-weight: 600; min-height: 26px; margin: 10px 0 6px; }
+  .wheel-result { text-align: center; font-size: 16px; font-weight: 800; min-height: 26px; margin: 10px 0 6px; }
   .wheel-actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
 
   .toast {
-    position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%) translateY(20px);
-    background: var(--ink); color: var(--paper); padding: 9px 16px; border-radius: 99px;
-    font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
-    z-index: 60; max-width: 90vw; text-align: center;
+    position: fixed; left: 50%; bottom: calc(var(--tabbar-h) + 18px); transform: translateX(-50%) translateY(16px);
+    background: var(--ink); color: #0B0B10; padding: 10px 17px; border-radius: 99px;
+    font-size: 14px; font-weight: 700; opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s;
+    z-index: 70; max-width: 88vw; text-align: center;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 55; }
+  #confetti { position: fixed; inset: 0; pointer-events: none; z-index: 65; }
 
   @media (prefers-reduced-motion: reduce) {
-    .toast { transition: none; }
+    .toast, .sheet, .sheet-back { transition: none; }
+    .heart-burst { animation: none; opacity: 0; }
   }
 
-  footer.note { color: var(--muted); font-size: 13px; margin-top: 30px; }
-
   @media print {
-    .toolbar, .actions, details.recetario, .day-name button, footer.note, .toast,
-    #shopPanel, .fans, .today, .streak { display: none !important; }
-    select.dish { border: none; background: none; padding: 0; appearance: none; font-weight: 700; }
-    .week-grid { grid-template-columns: repeat(5, 1fr); gap: 6px; }
-    body { background: #fff; color: #000; }
-    .day-card, .panel { border-color: #999; }
+    nav.tabbar, .sheet, .sheet-back, header.top, .export-bar, .conf, .stories, .hero, #tab-descubrir { display: none !important; }
+    body, #app { background: #fff; color: #000; box-shadow: none; }
+    .tab { display: block !important; }
+    #tab-compras, #tab-recetario { display: none !important; }
+    .row { border-color: #999; }
   }
 </style>
 </head>
 <body>
-
-<div class="wrap">
+<div id="app">
   <header class="top">
-    <h1>🍽️ Menú Semanal</h1>
+    <h1 class="logo">MenuFam</h1>
     <span class="streak" id="streakBadge" hidden>🔥 <span id="streakN"></span></span>
-    <p class="subtitle">Cenas de la familia + viandas del cole · Fran (8) · Luca (6) · Martu (2)</p>
+    <span class="spacer"></span>
+    <div class="profiles" id="profiles" role="group" aria-label="¿Quién está usando la app?"></div>
   </header>
 
-  <div class="today" id="todayCard" hidden>
-    <div class="t-head" id="todayHead"></div>
-    <div class="t-meal">
-      <span class="t-emoji" id="todayCenaEmoji"></span>
-      <div><p class="t-label">Cena</p><p class="t-name" id="todayCenaName"></p></div>
-    </div>
-    <div class="t-meal">
-      <span class="t-emoji" id="todayViandaEmoji"></span>
-      <div><p class="t-label">Vianda</p><p class="t-name" id="todayViandaName"></p></div>
-    </div>
-  </div>
-
-  <div class="toolbar">
-    <label class="week">📆 Semana del <input type="date" id="weekDate"></label>
-    <label class="switch"><input type="checkbox" id="ketoToggle"> Ajuste keto (Mike)</label>
-    <span class="spacer"></span>
-    <button id="btnNewWeek" class="ghost" title="Guarda esta semana como historial y arranca una nueva">🗓️ Nueva semana</button>
-    <button id="btnGenerate" class="primary">🎲 Generar menú</button>
-  </div>
-
-  <section class="block" id="blockCenas">
-    <div class="block-head">
-      <h2>🍽 Cenas familia</h2>
-      <span class="hint">🎡 ruleta · 🔁 otro plato · ❤️ votá y el generador aprende</span>
-      <button data-regen="cenas" class="icon" title="Regenerar solo cenas">🎲 Cenas</button>
-    </div>
-    <div class="week-grid" id="gridCenas"></div>
-  </section>
-
-  <section class="block" id="blockViandas">
-    <div class="block-head">
-      <h2>🧺 Viandas chicos</h2>
-      <span class="hint">con observaciones para quien las prepara</span>
-      <button data-regen="viandas" class="icon" title="Regenerar solo viandas">🎲 Viandas</button>
-    </div>
-    <div class="week-grid" id="gridViandas"></div>
-  </section>
-
-  <div class="actions">
-    <button id="btnCopyCenas">📋 Copiar cenas</button>
-    <button id="btnCopyViandas">📋 Copiar viandas</button>
-    <button id="btnWhatsApp" class="primary">💬 Enviar por WhatsApp</button>
-    <button id="btnShop">🛒 Lista de compras</button>
-    <button id="btnPrint">🖨️ Imprimir</button>
-    <span class="spacer"></span>
-    <button id="btnDone">✅ ¡Semana lista!</button>
-  </div>
-
-  <div class="panel" id="shopPanel" hidden>
-    <h3>🛒 Lista de compras de la semana</h3>
-    <div class="shop-cols" id="shopCols"></div>
-    <p style="margin:10px 0 0"><button id="btnCopyShop">📋 Copiar lo que falta</button></p>
-  </div>
-
-  <details class="recetario">
-    <summary>📖 Recetario de la familia (<span id="recCount"></span> platos)</summary>
-    <div class="recetario-inner">
-      <div class="table-scroll">
-        <table class="rec-table" id="recTable"></table>
+  <main>
+    <!-- ── SEMANA ── -->
+    <section class="tab active" id="tab-semana">
+      <div class="stories" id="stories"></div>
+      <div class="hero" id="hero" hidden>
+        <p class="h-label" id="heroLabel"></p>
+        <div class="h-row"><span class="h-emoji" id="heroCenaEmoji"></span><div><p class="h-kind">Cena</p><p class="h-name" id="heroCenaName"></p></div></div>
+        <div class="h-row"><span class="h-emoji" id="heroViandaEmoji"></span><div><p class="h-kind">Vianda</p><p class="h-name" id="heroViandaName"></p></div></div>
       </div>
+
+      <div class="conf">
+        <label>📆 <input type="date" id="weekDate" aria-label="Lunes de la semana"></label>
+        <label class="switch"><input type="checkbox" id="ketoToggle"> Keto Mike</label>
+        <span class="spacer"></span>
+        <button id="btnNewWeek" class="ghost">🗓️ Nueva semana</button>
+      </div>
+
+      <h2 class="sec pad">🍽 Cenas familia <button class="mini" data-regen="cenas">🎲</button></h2>
+      <div class="rows" id="rowsCenas"></div>
+
+      <h2 class="sec pad">🧺 Viandas chicos <button class="mini" data-regen="viandas">🎲</button></h2>
+      <div class="rows" id="rowsViandas"></div>
+
+      <div class="export-bar">
+        <button id="btnWhatsApp" class="grad">💬 Mandar al grupo</button>
+        <button id="btnCopyCenas">📋 Cenas</button>
+        <button id="btnCopyViandas">📋 Viandas</button>
+        <button id="btnDone">✅ ¡Semana lista!</button>
+      </div>
+      <p class="hint pad">Tocá un día para editarlo · los ❤️ de cada perfil hacen que ese plato salga más seguido en el sorteo.</p>
+    </section>
+
+    <!-- ── DESCUBRIR ── -->
+    <section class="tab" id="tab-descubrir">
+      <div class="feed-filters">
+        <button id="fltCenas" class="on">🍽 Cenas</button>
+        <button id="fltViandas">🧺 Viandas</button>
+      </div>
+      <div class="feed" id="feed"></div>
+    </section>
+
+    <!-- ── COMPRAS ── -->
+    <section class="tab" id="tab-compras">
+      <h2 class="sec pad">🛒 Compras de la semana</h2>
+      <div class="shop-progress"><div class="bar" id="shopBar" style="width:0%"></div></div>
+      <p class="shop-meta" id="shopMeta"></p>
+      <div class="shop-cols" id="shopCols"></div>
+      <div class="export-bar"><button id="btnCopyShop" class="grad">📋 Copiar lo que falta</button></div>
+    </section>
+
+    <!-- ── RECETARIO ── -->
+    <section class="tab" id="tab-recetario">
+      <h2 class="sec pad">📖 Recetario (<span id="recCount"></span>)</h2>
+      <div class="rec-list" id="recList"></div>
       <form class="add-dish" id="addDishForm">
-        <input name="nombre" placeholder="Nuevo plato (ej: Wok de pollo)" required class="full">
-        <select name="tipo">
-          <option value="cena">Cena familia</option>
-          <option value="vianda">Vianda chicos</option>
-        </select>
+        <input name="nombre" placeholder="Nuevo plato (ej: Wok de pollo)" required class="full" type="text">
+        <select name="tipo"><option value="cena">Cena familia</option><option value="vianda">Vianda chicos</option></select>
         <select name="prot">
           <option value="pollo">Pollo</option><option value="carne">Carne</option>
           <option value="cerdo">Cerdo</option><option value="pescado">Pescado</option>
           <option value="pasta">Pasta</option><option value="tarta">Tarta</option>
           <option value="veggie">Veggie</option>
         </select>
-        <input name="lados" placeholder="Acompañamiento (ej: puré + ensalada)" class="full">
-        <input name="chicos" placeholder="Variante chicos / Martu (opcional)" class="full">
-        <input name="keto" placeholder="Ajuste keto para Mike (opcional)" class="full">
-        <input name="ing" placeholder="Ingredientes separados por coma (para la lista de compras)" class="full">
-        <button type="submit" class="primary">＋ Agregar al recetario</button>
+        <input name="lados" placeholder="Acompañamiento" class="full" type="text">
+        <input name="chicos" placeholder="Variante chicos / Martu (opcional)" class="full" type="text">
+        <input name="keto" placeholder="Ajuste keto para Mike (opcional)" class="full" type="text">
+        <input name="ing" placeholder="Ingredientes separados por coma" class="full" type="text">
+        <button type="submit" class="grad">＋ Agregar</button>
       </form>
-    </div>
-  </details>
+      <div class="export-bar"><button id="btnPrint">🖨️ Imprimir semana</button></div>
+    </section>
+  </main>
 
-  <footer class="note">
-    Los cambios se guardan solos en este dispositivo. Los ❤️ hacen que ese plato salga más seguido; el 🚫 lo saca del sorteo sin borrarlo. «Nueva semana» archiva el menú actual para no repetir platos. En compu, arrastrá un día sobre otro para intercambiarlos.
-  </footer>
+  <nav class="tabbar">
+    <button data-tab="semana" class="on"><span class="ico">🗓️</span>Semana</button>
+    <button data-tab="descubrir"><span class="ico">🔥</span>Descubrir</button>
+    <button class="big" id="btnGenerate" aria-label="Generar menú de la semana">🎲</button>
+    <button data-tab="compras"><span class="ico">🛒</span>Compras</button>
+    <button data-tab="recetario"><span class="ico">📖</span>Recetario</button>
+  </nav>
+</div>
+
+<!-- Sheet editor de día -->
+<div class="sheet-back" id="sheetBack"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="handle"></div>
+  <h3 id="sheetTitle"></h3>
+  <div id="sheetBody"></div>
 </div>
 
 <dialog id="wheelModal">
@@ -376,7 +455,7 @@
   </div>
   <p class="wheel-result" id="wheelResult"></p>
   <div class="wheel-actions">
-    <button id="wheelSpin" class="primary">🎡 ¡Girar!</button>
+    <button id="wheelSpin" class="grad">🎡 ¡Girar!</button>
     <button id="wheelApply" hidden>✔ ¡Va!</button>
     <button id="wheelClose" class="ghost">Cerrar</button>
   </div>
@@ -389,7 +468,18 @@
 "use strict";
 
 const DIAS = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes"];
+const DIAS_CORTO = ["Lun", "Mar", "Mié", "Jue", "Vie"];
 const PROT_LABEL = { pollo: "Pollo", carne: "Carne", cerdo: "Cerdo", pescado: "Pescado", pasta: "Pasta", tarta: "Tarta", veggie: "Veggie" };
+const PROT_GRAD = {
+  pollo: "linear-gradient(160deg,#B45309,#F59E0B)",
+  carne: "linear-gradient(160deg,#7F1D1D,#EF4444)",
+  cerdo: "linear-gradient(160deg,#6B21A8,#C084FC)",
+  pescado: "linear-gradient(160deg,#0C4A6E,#38BDF8)",
+  pasta: "linear-gradient(160deg,#854D0E,#FACC15)",
+  tarta: "linear-gradient(160deg,#78350F,#D4A373)",
+  veggie: "linear-gradient(160deg,#14532D,#4ADE80)",
+  custom: "linear-gradient(160deg,#334155,#94A3B8)"
+};
 const FAMILIA = [
   { k: "mike", label: "M", title: "Mike" },
   { k: "xime", label: "X", title: "Xime" },
@@ -401,7 +491,6 @@ const REDUCED = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // ── Recetario inicial: los platos que ya usan Mike y Xime (sacados del chat) ──
 const SEED = [
-  // Cenas familia
   { id: "c1",  tipo: "cena", prot: "pollo",   nombre: "Kansas chicken en Essen", lados: "Puré de calabaza y papa", chicos: "", keto: "Kansas sin guarnición + ensalada verde grande", ing: "pata y muslo de pollo, mozzarella, queso de máquina, tomate, cebolla de verdeo, calabaza, papa" },
   { id: "c2",  tipo: "cena", prot: "carne",   nombre: "Lomo al horno", lados: "Puré de papa + ensalada de tomate", chicos: "", keto: "Lomo 350 g + tomate, sin puré", ing: "lomo, papa, tomate" },
   { id: "c3",  tipo: "cena", prot: "pescado", nombre: "Trucha al horno", lados: "Batatas al horno + ensalada", chicos: "Formitas de pescado con puré", keto: "Trucha + ensalada grande, sin batatas", ing: "trucha, batata, hojas verdes, limón" },
@@ -420,7 +509,6 @@ const SEED = [
   { id: "c16", tipo: "cena", prot: "pollo",   nombre: "Pollo al horno", lados: "Batatas y zanahorias al horno", chicos: "Pollo con puré (sirve de base para viandas)", keto: "Pata y muslo + ensalada, sin batata", ing: "pollo, batata, zanahoria" },
   { id: "c17", tipo: "cena", prot: "carne",   nombre: "Estofado", lados: "Ensalada o puré", chicos: "", keto: "Estofado sin papa + ensalada", ing: "carne para estofado, cebolla, morrón, tomate, papa, zanahoria" },
   { id: "c18", tipo: "cena", prot: "carne",   nombre: "Bife de chorizo", lados: "Calabaza al horno", chicos: "", keto: "Bife 350 g + ensalada verde, sin calabaza", ing: "bife de chorizo, calabaza" },
-  // Viandas chicos
   { id: "v1",  tipo: "vianda", prot: "pasta",   nombre: "Fideos con crema", lados: "Fruta", chicos: "", keto: "", ing: "fideos, crema, queso rallado, fruta", obs: "Queso rallado aparte" },
   { id: "v2",  tipo: "vianda", prot: "pasta",   nombre: "Fideos con tuco y queso rallado", lados: "", chicos: "", keto: "", ing: "fideos, salsa de tomate, queso rallado" },
   { id: "v3",  tipo: "vianda", prot: "pollo",   nombre: "Milanesas de pollo con arroz", lados: "Puré de papa", chicos: "", keto: "", ing: "milanesas de pollo, arroz, papa" },
@@ -438,13 +526,12 @@ const SEED = [
   { id: "v15", tipo: "vianda", prot: "pasta",   nombre: "Fideos verdes con crema", lados: "", chicos: "", keto: "", ing: "fideos verdes, crema, queso rallado" }
 ];
 
-// ── Emoji por plato ──
 const EMOJI_RULES = [
   [/hamburgues/, "🍔"], [/fajita|tortilla|guacamole/, "🌮"], [/empanada/, "🥟"],
   [/s[aá]ndwich/, "🥪"], [/tarta/, "🥧"], [/fideo|raviol|pasta/, "🍝"],
   [/arroz|croqueta/, "🍚"], [/estofado|guiso/, "🍲"],
   [/trucha|salm[oó]n|merluza|pescado|formitas de pescado/, "🐟"],
-  [/milanesa/, null], // decide por proteína
+  [/milanesa/, null],
   [/pollo|suprema|kansas/, "🍗"], [/cerdo|carr[eé]/, "🥓"],
   [/lomo|bife|churrasco|carne/, "🥩"]
 ];
@@ -461,6 +548,9 @@ function emojiFor(dish) {
 // ── Estado ──
 const STORE_KEY = "menuFliaV1";
 let state = load();
+let activeTab = "semana";
+let feedTipo = "cena";
+let sheetDay = null;
 
 function nextMonday() {
   const d = new Date();
@@ -469,18 +559,16 @@ function nextMonday() {
   d.setDate(d.getDate() + add);
   return d.toISOString().slice(0, 10);
 }
-
 function freshWeek() {
   return { monday: nextMonday(), cenas: Array(5).fill(null), viandas: Array(5).fill(null), obs: Array(5).fill(""), shopChecked: [] };
 }
-
 function migrate(s) {
   for (const d of s.recetario) { d.fans = d.fans || []; d.veto = !!d.veto; }
   s.week.shopChecked = s.week.shopChecked || [];
   s.streak = s.streak || { count: 0, last: null };
+  s.currentUser = s.currentUser || "mike";
   return s;
 }
-
 function load() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
@@ -488,12 +576,11 @@ function load() {
       const s = JSON.parse(raw);
       if (s && s.recetario && s.week) return migrate(s);
     }
-  } catch (e) { /* storage bloqueado o corrupto: se arranca de cero */ }
+  } catch (e) { /* storage bloqueado o corrupto */ }
   return migrate({ recetario: SEED.map(d => ({ ...d })), week: freshWeek(), lastWeek: { cenas: [], viandas: [] }, keto: false });
 }
-
 function save() {
-  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* modo incógnito */ }
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* incógnito */ }
 }
 
 const byId = id => state.recetario.find(d => d.id === id);
@@ -502,6 +589,11 @@ const sorteable = tipo => { const p = pool(tipo).filter(d => !d.veto); return p.
 const entryDish = e => (e && e.id) ? byId(e.id) : null;
 const entryName = e => e ? (e.custom || (entryDish(e) ? entryDish(e).nombre : "")) : "";
 const entryProt = e => { const d = entryDish(e); return d ? d.prot : null; };
+const entryEmoji = e => {
+  if (!e) return null;
+  if (e.custom) return (e.custom.match(/🥡|🍕/) || ["✍️"])[0];
+  return emojiFor(entryDish(e));
+};
 
 // ── Generador: reglas de variedad + los ❤️ pesan ──
 function weightedSample(arr, n) {
@@ -511,7 +603,6 @@ function weightedSample(arr, n) {
     .slice(0, n)
     .map(x => x.d);
 }
-
 function scoreWeek(dishes, lastIds) {
   let s = 0;
   const count = {};
@@ -527,7 +618,6 @@ function scoreWeek(dishes, lastIds) {
   }
   return s;
 }
-
 function generateWeek(tipo) {
   const dishes = sorteable(tipo);
   if (dishes.length < 5) return dishes.map(d => ({ id: d.id }));
@@ -540,7 +630,6 @@ function generateWeek(tipo) {
   }
   return best.map(d => ({ id: d.id }));
 }
-
 function candidatesFor(tipo, i) {
   const key = tipo === "cena" ? "cenas" : "viandas";
   const week = state.week[key];
@@ -551,7 +640,6 @@ function candidatesFor(tipo, i) {
   const sinChoque = c.filter(d => !vecinos.includes(d.prot));
   return (sinChoque.length ? sinChoque : c);
 }
-
 function rerollDay(tipo, i) {
   const c = candidatesFor(tipo, i);
   if (!c.length) return;
@@ -563,98 +651,132 @@ function rerollDay(tipo, i) {
 // ── Render ──
 const $ = sel => document.querySelector(sel);
 
-function fanRow(dish) {
-  const row = document.createElement("div");
-  row.className = "fans";
+function renderProfiles() {
+  const box = $("#profiles"); box.innerHTML = "";
   for (const m of FAMILIA) {
     const b = document.createElement("button");
-    const on = dish.fans.includes(m.k);
-    b.className = "fan" + (on ? " on" : "");
-    b.textContent = (on ? "❤" : "♡") + " " + m.label;
-    b.title = `${on ? "Ya no le encanta a" : "Le encanta a"} ${m.title}`;
-    b.setAttribute("aria-pressed", on);
+    b.className = "avatar" + (state.currentUser === m.k ? " active" : "");
+    b.textContent = m.label;
+    b.title = `Usar como ${m.title}`;
+    b.setAttribute("aria-pressed", state.currentUser === m.k);
     b.addEventListener("click", () => {
-      dish.fans = on ? dish.fans.filter(k => k !== m.k) : [...dish.fans, m.k];
-      save(); render();
+      state.currentUser = m.k; save(); render();
+      toast(`Hola ${m.title} 👋 tus ❤️ cuentan para el sorteo`);
     });
-    row.appendChild(b);
+    box.appendChild(b);
   }
-  const veto = document.createElement("button");
-  veto.className = "fan veto" + (dish.veto ? " on" : "");
-  veto.textContent = "🚫";
-  veto.title = dish.veto ? "Vetado: no entra en el sorteo. Tocá para habilitarlo." : "Vetar: que no salga más en el sorteo";
-  veto.setAttribute("aria-pressed", !!dish.veto);
-  veto.addEventListener("click", () => { dish.veto = !dish.veto; save(); render(); });
-  row.appendChild(veto);
+}
+
+function todayIndex() {
+  const dow = new Date().getDay();
+  return (dow >= 1 && dow <= 5) ? dow - 1 : null;
+}
+
+function renderStories() {
+  const box = $("#stories"); box.innerHTML = "";
+  const ti = todayIndex();
+  for (let i = 0; i < 5; i++) {
+    const cena = state.week.cenas[i], via = state.week.viandas[i];
+    const full = cena && via;
+    const b = document.createElement("button");
+    b.className = "story" + (full ? " full" : "") + (i === ti ? " today" : "");
+    b.setAttribute("aria-label", `Editar ${DIAS[i]}`);
+    b.innerHTML = `<div class="ring"><div class="core">${entryEmoji(cena) || "＋"}${via ? `<span class="badge">${entryEmoji(via)}</span>` : ""}</div></div><div class="lbl">${i === ti ? "HOY" : DIAS_CORTO[i]}</div>`;
+    b.addEventListener("click", () => openSheet(i));
+    box.appendChild(b);
+  }
+}
+
+function renderHero() {
+  const hero = $("#hero");
+  const i = todayIndex();
+  if (i === null) { hero.hidden = true; return; }
+  const cenaN = entryName(state.week.cenas[i]);
+  const viaN = entryName(state.week.viandas[i]);
+  if (!cenaN && !viaN) { hero.hidden = true; return; }
+  hero.hidden = false;
+  const prot = entryProt(state.week.cenas[i]) || "custom";
+  hero.style.background = PROT_GRAD[prot] || PROT_GRAD.custom;
+  $("#heroLabel").textContent = `¿Qué toca hoy? · ${DIAS[i]}`;
+  $("#heroCenaEmoji").textContent = entryEmoji(state.week.cenas[i]) || "🤷";
+  $("#heroCenaName").textContent = cenaN || "Sin plan — ¡girá la ruleta!";
+  $("#heroViandaEmoji").textContent = entryEmoji(state.week.viandas[i]) || "🤷";
+  $("#heroViandaName").textContent = viaN || "Sin plan — ¡girá la ruleta!";
+}
+
+function rowFor(tipo, i) {
+  const key = tipo === "cena" ? "cenas" : "viandas";
+  const e = state.week[key][i];
+  const d = entryDish(e);
+  const row = document.createElement("button");
+  row.className = "row";
+  row.setAttribute("aria-label", `Editar ${tipo} del ${DIAS[i]}`);
+  const emoji = entryEmoji(e) || "＋";
+  const name = entryName(e) || "Elegir plato…";
+  const likes = d ? d.fans.length : 0;
+  row.innerHTML = `
+    <span class="r-emoji" style="background:${d ? PROT_GRAD[d.prot] : (e && e.custom ? PROT_GRAD.custom : "var(--card-2)")}">${emoji}</span>
+    <span class="r-main">
+      <p class="r-day">${DIAS[i]}</p>
+      <p class="r-name">${name}</p>
+      ${d && d.lados ? `<p class="r-sub">🥗 ${d.lados}</p>` : ""}
+      ${d ? `<span class="chip ${d.prot}">${PROT_LABEL[d.prot]}</span>` : ""}
+    </span>
+    ${likes ? `<span class="r-likes">❤️ ${likes}</span>` : ""}
+    <span class="r-go">›</span>`;
+  row.addEventListener("click", () => openSheet(i, tipo));
   return row;
 }
 
-function dayCard(tipo, i) {
+function renderRows() {
+  const rc = $("#rowsCenas"); rc.innerHTML = "";
+  const rv = $("#rowsViandas"); rv.innerHTML = "";
+  for (let i = 0; i < 5; i++) { rc.appendChild(rowFor("cena", i)); rv.appendChild(rowFor("vianda", i)); }
+}
+
+function renderStreak() {
+  const b = $("#streakBadge");
+  if (state.streak.count > 0) {
+    b.hidden = false;
+    $("#streakN").textContent = state.streak.count === 1 ? "1 sem" : `${state.streak.count} sem`;
+  } else b.hidden = true;
+}
+
+function render() {
+  renderProfiles();
+  renderStories();
+  renderHero();
+  renderRows();
+  renderStreak();
+  $("#weekDate").value = state.week.monday;
+  $("#ketoToggle").checked = !!state.keto;
+  if (activeTab === "descubrir") renderFeed();
+  if (activeTab === "compras") renderShop();
+  if (activeTab === "recetario") renderRecetario();
+  if (sheetDay !== null) renderSheet();
+}
+
+// ── Tabs ──
+document.querySelectorAll(".tabbar [data-tab]").forEach(b => b.addEventListener("click", () => {
+  activeTab = b.dataset.tab;
+  document.querySelectorAll(".tabbar [data-tab]").forEach(x => x.classList.toggle("on", x === b));
+  document.querySelectorAll(".tab").forEach(s => s.classList.toggle("active", s.id === "tab-" + activeTab));
+  render();
+}));
+
+// ── Sheet: editor de día ──
+function buildDishSelect(tipo, i) {
   const key = tipo === "cena" ? "cenas" : "viandas";
   const entry = state.week[key][i];
   const dish = entryDish(entry);
-  const custom = entry && entry.custom;
-
-  const card = document.createElement("div");
-  card.className = "day-card";
-  card.dataset.tipo = tipo; card.dataset.i = i;
-
-  const head = document.createElement("div");
-  head.className = "day-name";
-  head.draggable = true;
-  head.title = "Arrastrá sobre otro día para intercambiar";
-  head.innerHTML = `<span>${DIAS[i]}</span>`;
-  const wheelBtn = document.createElement("button");
-  wheelBtn.textContent = "🎡"; wheelBtn.title = "Ruleta: que la suerte (o los chicos) decidan";
-  wheelBtn.setAttribute("aria-label", `Ruleta para el ${DIAS[i]}`);
-  wheelBtn.addEventListener("click", () => openWheel(tipo, i));
-  const re = document.createElement("button");
-  re.textContent = "🔁"; re.title = "Sortear otro plato para este día";
-  re.setAttribute("aria-label", `Sortear otro plato para el ${DIAS[i]}`);
-  re.addEventListener("click", () => rerollDay(tipo, i));
-  head.appendChild(wheelBtn); head.appendChild(re);
-  card.appendChild(head);
-
-  // drag & drop para intercambiar días (desktop)
-  head.addEventListener("dragstart", ev => {
-    ev.dataTransfer.setData("text/plain", JSON.stringify({ tipo, i }));
-    ev.dataTransfer.effectAllowed = "move";
-  });
-  card.addEventListener("dragover", ev => {
-    ev.preventDefault(); card.classList.add("drag-over");
-  });
-  card.addEventListener("dragleave", () => card.classList.remove("drag-over"));
-  card.addEventListener("drop", ev => {
-    ev.preventDefault(); card.classList.remove("drag-over");
-    try {
-      const src = JSON.parse(ev.dataTransfer.getData("text/plain"));
-      if (src.tipo !== tipo || src.i === i) return;
-      const w = state.week[key];
-      [w[src.i], w[i]] = [w[i], w[src.i]];
-      if (tipo === "vianda") [state.week.obs[src.i], state.week.obs[i]] = [state.week.obs[i], state.week.obs[src.i]];
-      save(); render();
-    } catch (e) { /* drop ajeno */ }
-  });
-
-  const body = document.createElement("div");
-  body.className = "day-body";
-
-  const row = document.createElement("div");
-  row.className = "dish-row";
-  const em = document.createElement("span");
-  em.className = "dish-emoji";
-  em.textContent = custom ? ((entry.custom.match(/🥡|🍕/) || ["✍️"])[0]) : emojiFor(dish);
-  row.appendChild(em);
-
   const sel = document.createElement("select");
-  sel.className = "dish";
-  sel.setAttribute("aria-label", `Plato del ${DIAS[i]}`);
+  sel.setAttribute("aria-label", `${tipo} del ${DIAS[i]}`);
   sel.appendChild(new Option("— elegir plato —", ""));
-  for (const d of pool(tipo)) sel.appendChild(new Option((d.veto ? "🚫 " : "") + d.nombre, d.id));
+  for (const d of pool(tipo)) sel.appendChild(new Option((d.veto ? "🚫 " : "") + `${emojiFor(d)} ${d.nombre}`, d.id));
   sel.appendChild(new Option("🥡 Sobras / aprovechar", "__sobras"));
   sel.appendChild(new Option("🍕 Salimos / pedimos", "__afuera"));
   sel.appendChild(new Option("✍️ Otro (escribir)…", "__custom"));
-  if (custom) {
+  if (entry && entry.custom) {
     const o = new Option(`✍️ ${entry.custom}`, "__current"); o.selected = true;
     sel.insertBefore(o, sel.firstChild);
   } else if (dish) sel.value = dish.id;
@@ -673,101 +795,234 @@ function dayCard(tipo, i) {
     }
     save(); render();
   });
-  row.appendChild(sel);
-  body.appendChild(row);
+  return sel;
+}
 
-  if (dish) {
-    const chip = document.createElement("span");
-    chip.className = `chip ${dish.prot}`;
-    chip.textContent = PROT_LABEL[dish.prot] || dish.prot;
-    body.appendChild(chip);
-    if (dish.lados) { const p = document.createElement("p"); p.className = "side"; p.textContent = "🥗 " + dish.lados; body.appendChild(p); }
-    if (dish.chicos) {
-      const p = document.createElement("p");
-      p.className = tipo === "cena" ? "kids" : "martu";
-      p.innerHTML = `<strong>${tipo === "cena" ? "👧 Chicos:" : "🥣"}</strong> ${dish.chicos}`;
-      body.appendChild(p);
-    }
-    if (state.keto && tipo === "cena" && dish.keto) {
-      const p = document.createElement("p"); p.className = "keto"; p.textContent = "👉 Mike: " + dish.keto; body.appendChild(p);
-    }
+function fanRow(dish) {
+  const row = document.createElement("div");
+  row.className = "fans";
+  for (const m of FAMILIA) {
+    const b = document.createElement("button");
+    const on = dish.fans.includes(m.k);
+    b.className = "fan" + (on ? " on" : "");
+    b.textContent = (on ? "❤" : "♡") + " " + m.title;
+    b.setAttribute("aria-pressed", on);
+    b.addEventListener("click", () => {
+      dish.fans = on ? dish.fans.filter(k => k !== m.k) : [...dish.fans, m.k];
+      save(); render();
+    });
+    row.appendChild(b);
   }
+  const veto = document.createElement("button");
+  veto.className = "fan veto" + (dish.veto ? " on" : "");
+  veto.textContent = dish.veto ? "🚫 vetado" : "🚫";
+  veto.title = dish.veto ? "Vetado: no entra en el sorteo. Tocá para habilitarlo." : "Vetar: que no salga más en el sorteo";
+  veto.setAttribute("aria-pressed", !!dish.veto);
+  veto.addEventListener("click", () => { dish.veto = !dish.veto; save(); render(); });
+  row.appendChild(veto);
+  return row;
+}
 
+function mealBlock(tipo, i) {
+  const key = tipo === "cena" ? "cenas" : "viandas";
+  const dish = entryDish(state.week[key][i]);
+  const box = document.createElement("div");
+  box.className = "meal";
+  const head = document.createElement("div");
+  head.className = "meal-head";
+  const lbl = document.createElement("span");
+  lbl.textContent = tipo === "cena" ? "🍽 Cena familia" : "🧺 Vianda chicos";
+  head.appendChild(lbl);
+  const wheelB = document.createElement("button");
+  wheelB.textContent = "🎡"; wheelB.title = "Ruleta";
+  wheelB.addEventListener("click", () => openWheel(tipo, i));
+  const reB = document.createElement("button");
+  reB.textContent = "🔁"; reB.title = "Sortear otro";
+  reB.addEventListener("click", () => rerollDay(tipo, i));
+  head.appendChild(wheelB); head.appendChild(reB);
+  box.appendChild(head);
+  box.appendChild(buildDishSelect(tipo, i));
+  if (dish) {
+    if (dish.lados) { const p = document.createElement("p"); p.className = "side"; p.textContent = "🥗 " + dish.lados; box.appendChild(p); }
+    if (dish.chicos) { const p = document.createElement("p"); p.className = "side"; p.textContent = (tipo === "cena" ? "👧 Chicos: " : "🥣 ") + dish.chicos; box.appendChild(p); }
+    if (state.keto && tipo === "cena" && dish.keto) { const p = document.createElement("p"); p.className = "keto-note"; p.textContent = "👉 Mike: " + dish.keto; box.appendChild(p); }
+    box.appendChild(fanRow(dish));
+  }
   if (tipo === "vianda") {
     const obs = document.createElement("input");
-    obs.className = "obs"; obs.placeholder = "📝 Observaciones…";
+    obs.type = "text"; obs.className = "obs"; obs.placeholder = "📝 Observaciones…";
     obs.value = state.week.obs[i] || (dish && dish.obs) || "";
     obs.addEventListener("change", () => { state.week.obs[i] = obs.value; save(); });
-    body.appendChild(obs);
+    box.appendChild(obs);
   }
-
-  if (dish) body.appendChild(fanRow(dish));
-
-  card.appendChild(body);
-  return card;
+  return box;
 }
 
-function renderToday() {
-  const card = $("#todayCard");
-  const dow = new Date().getDay();
-  if (dow < 1 || dow > 5) { card.hidden = true; return; }
-  const i = dow - 1;
-  const cena = entryDish(state.week.cenas[i]);
-  const vianda = entryDish(state.week.viandas[i]);
-  const cenaName = entryName(state.week.cenas[i]);
-  const viandaName = entryName(state.week.viandas[i]);
-  if (!cenaName && !viandaName) { card.hidden = true; return; }
-  card.hidden = false;
-  $("#todayHead").textContent = `¿Qué toca hoy? · ${DIAS[i]}`;
-  $("#todayCenaEmoji").textContent = cenaName ? (cena ? emojiFor(cena) : "✍️") : "🤷";
-  $("#todayCenaName").textContent = cenaName || "Sin plan (¡ruleta!)";
-  $("#todayViandaEmoji").textContent = viandaName ? (vianda ? emojiFor(vianda) : "✍️") : "🤷";
-  $("#todayViandaName").textContent = viandaName || "Sin plan (¡ruleta!)";
+function renderSheet() {
+  const i = sheetDay;
+  $("#sheetTitle").textContent = `${DIAS[i]} ${todayIndex() === i ? "· HOY 🌟" : ""}`;
+  const body = $("#sheetBody");
+  body.innerHTML = "";
+  body.appendChild(mealBlock("cena", i));
+  body.appendChild(mealBlock("vianda", i));
+}
+function openSheet(i) {
+  sheetDay = i;
+  renderSheet();
+  $("#sheet").classList.add("open");
+  $("#sheetBack").classList.add("open");
+}
+function closeSheet() {
+  sheetDay = null;
+  $("#sheet").classList.remove("open");
+  $("#sheetBack").classList.remove("open");
+}
+$("#sheetBack").addEventListener("click", closeSheet);
+
+// ── Feed Descubrir ──
+function renderFeed() {
+  const feed = $("#feed"); feed.innerHTML = "";
+  const dishes = pool(feedTipo);
+  for (const d of dishes) {
+    const card = document.createElement("article");
+    card.className = "fcard";
+    card.style.background = PROT_GRAD[d.prot];
+    const liked = d.fans.includes(state.currentUser);
+    card.innerHTML = `
+      <div class="f-emoji">${emojiFor(d)}</div>
+      <div class="f-shade"></div>
+      <div class="f-info">
+        <span class="chip ${d.prot}">${PROT_LABEL[d.prot]}</span>
+        <p class="f-name">${d.nombre}</p>
+        ${d.lados ? `<p class="f-sub">🥗 ${d.lados}</p>` : ""}
+        ${d.chicos ? `<p class="f-sub">${d.tipo === "cena" ? "👧 Chicos:" : "🥣"} ${d.chicos}</p>` : ""}
+        ${state.keto && d.tipo === "cena" && d.keto ? `<p class="f-keto">👉 Mike: ${d.keto}</p>` : ""}
+      </div>`;
+    const rail = document.createElement("div");
+    rail.className = "rail";
+    const likeB = document.createElement("button");
+    likeB.className = liked ? "liked" : "";
+    likeB.textContent = liked ? "❤️" : "🤍";
+    likeB.title = "Me encanta (cuenta para el sorteo)";
+    likeB.setAttribute("aria-pressed", liked);
+    const cnt = document.createElement("span");
+    cnt.className = "cnt"; cnt.textContent = d.fans.length || "";
+    likeB.addEventListener("click", () => toggleLike(d, card));
+    const vetoB = document.createElement("button");
+    vetoB.className = d.veto ? "vetoed" : "";
+    vetoB.textContent = "🚫";
+    vetoB.title = d.veto ? "Vetado — tocá para habilitar" : "Que no salga más";
+    vetoB.setAttribute("aria-pressed", !!d.veto);
+    vetoB.addEventListener("click", () => { d.veto = !d.veto; save(); render(); toast(d.veto ? `🚫 ${d.nombre} fuera del sorteo` : `✅ ${d.nombre} vuelve al sorteo`); });
+    const addB = document.createElement("button");
+    addB.textContent = "➕";
+    addB.title = "Ponerlo en un día de la semana";
+    const pick = document.createElement("div");
+    pick.className = "day-pick";
+    pick.innerHTML = `<p>¿Qué día?</p>`;
+    for (let i = 0; i < 5; i++) {
+      const pb = document.createElement("button");
+      pb.textContent = DIAS[i];
+      pb.addEventListener("click", () => {
+        state.week[d.tipo === "cena" ? "cenas" : "viandas"][i] = { id: d.id };
+        save(); render();
+        pick.classList.remove("open");
+        confetti(45);
+        toast(`${emojiFor(d)} ${d.nombre} → ${DIAS[i]}`);
+      });
+      pick.appendChild(pb);
+    }
+    addB.addEventListener("click", () => {
+      document.querySelectorAll(".day-pick.open").forEach(p => { if (p !== pick) p.classList.remove("open"); });
+      pick.classList.toggle("open");
+    });
+    rail.appendChild(likeB); rail.appendChild(cnt); rail.appendChild(vetoB); rail.appendChild(addB);
+    card.appendChild(rail);
+    card.appendChild(pick);
+    // doble tap = like (estilo Instagram)
+    let lastTap = 0;
+    card.addEventListener("pointerup", ev => {
+      if (ev.target.closest(".rail") || ev.target.closest(".day-pick")) return;
+      const now = Date.now();
+      if (now - lastTap < 320) {
+        if (!d.fans.includes(state.currentUser)) toggleLike(d, card, ev);
+        else heartBurst(card, ev);
+      }
+      lastTap = now;
+    });
+    feed.appendChild(card);
+  }
 }
 
+function heartBurst(card, ev) {
+  if (REDUCED) return;
+  const h = document.createElement("span");
+  h.className = "heart-burst"; h.textContent = "❤️";
+  const r = card.getBoundingClientRect();
+  h.style.left = ((ev ? ev.clientX - r.left : r.width / 2) - 42) + "px";
+  h.style.top = ((ev ? ev.clientY - r.top : r.height / 2) - 42) + "px";
+  card.appendChild(h);
+  setTimeout(() => h.remove(), 850);
+}
+
+function toggleLike(d, card, ev) {
+  const me = state.currentUser;
+  const on = d.fans.includes(me);
+  d.fans = on ? d.fans.filter(k => k !== me) : [...d.fans, me];
+  if (!on) heartBurst(card, ev);
+  save();
+  render();
+}
+
+$("#fltCenas").addEventListener("click", () => { feedTipo = "cena"; $("#fltCenas").classList.add("on"); $("#fltViandas").classList.remove("on"); renderFeed(); });
+$("#fltViandas").addEventListener("click", () => { feedTipo = "vianda"; $("#fltViandas").classList.add("on"); $("#fltCenas").classList.remove("on"); renderFeed(); });
+
+// ── Recetario ──
 function renderRecetario() {
-  const tbl = $("#recTable");
-  tbl.innerHTML = "<tr><th></th><th>Plato</th><th>Tipo</th><th>Proteína</th><th>❤️</th><th>Acompañamiento</th><th></th></tr>";
+  const list = $("#recList"); list.innerHTML = "";
   const sorted = [...state.recetario].sort((a, b) => a.tipo.localeCompare(b.tipo) || a.nombre.localeCompare(b.nombre));
   for (const d of sorted) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `<td>${emojiFor(d)}</td><td class="name">${d.veto ? "🚫 " : ""}${d.nombre}</td><td>${d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda"}</td><td>${PROT_LABEL[d.prot] || d.prot}</td><td>${d.fans.length || ""}</td><td>${d.lados || ""}</td>`;
-    const td = document.createElement("td");
+    const row = document.createElement("div");
+    row.className = "rec-row";
+    row.innerHTML = `
+      <span class="r-emoji" style="background:${PROT_GRAD[d.prot]}">${emojiFor(d)}</span>
+      <span class="n">${d.veto ? "🚫 " : ""}${d.nombre}
+        <small>${d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda"} · ${PROT_LABEL[d.prot]}${d.fans.length ? ` · ❤️ ${d.fans.length}` : ""}</small>
+      </span>`;
     const del = document.createElement("button");
-    del.className = "del"; del.textContent = "✕"; del.title = `Sacar “${d.nombre}” del recetario`;
+    del.className = "del"; del.textContent = "✕"; del.title = `Sacar “${d.nombre}”`;
     del.addEventListener("click", () => {
       if (!confirm(`¿Sacar “${d.nombre}” del recetario?`)) return;
       state.recetario = state.recetario.filter(x => x.id !== d.id);
       for (const k of ["cenas", "viandas"]) state.week[k] = state.week[k].map(e => (e && e.id === d.id) ? null : e);
       save(); render();
     });
-    td.appendChild(del); tr.appendChild(td); tbl.appendChild(tr);
+    row.appendChild(del);
+    list.appendChild(row);
   }
   $("#recCount").textContent = state.recetario.length;
 }
 
-function renderStreak() {
-  const b = $("#streakBadge");
-  if (state.streak.count > 0) {
-    b.hidden = false;
-    $("#streakN").textContent = state.streak.count === 1 ? "1 semana" : `${state.streak.count} semanas`;
-  } else b.hidden = true;
-}
-
-function render() {
-  const gc = $("#gridCenas"); gc.innerHTML = "";
-  const gv = $("#gridViandas"); gv.innerHTML = "";
-  for (let i = 0; i < 5; i++) { gc.appendChild(dayCard("cena", i)); gv.appendChild(dayCard("vianda", i)); }
-  $("#weekDate").value = state.week.monday;
-  $("#ketoToggle").checked = !!state.keto;
-  renderToday();
-  renderRecetario();
-  renderStreak();
-  if (!$("#shopPanel").hidden) renderShop();
-}
+$("#addDishForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const f = new FormData(e.target);
+  state.recetario.push({
+    id: "u" + Date.now().toString(36),
+    tipo: f.get("tipo"), prot: f.get("prot"),
+    nombre: f.get("nombre").trim(),
+    lados: (f.get("lados") || "").trim(),
+    chicos: (f.get("chicos") || "").trim(),
+    keto: (f.get("keto") || "").trim(),
+    ing: (f.get("ing") || "").trim(),
+    fans: [], veto: false
+  });
+  e.target.reset();
+  save(); render();
+  toast("Plato agregado al recetario 📖");
+});
 
 // ── Ruleta 🎡 ──
-const WHEEL_COLORS = ["--wheel-1", "--wheel-2", "--wheel-3", "--wheel-4", "--wheel-5", "--wheel-6", "--wheel-7", "--wheel-8"];
+const WHEEL_COLORS = ["#F5A623", "#FF5A5F", "#C77DFF", "#4CC9F0", "#F9C74F", "#80ED99", "#E22B6F", "#38BDF8"];
 let wheel = { tipo: null, i: 0, cands: [], angle: 0, spinning: false, winner: null };
 
 function openWheel(tipo, i) {
@@ -779,13 +1034,13 @@ function openWheel(tipo, i) {
   $("#wheelResult").textContent = "";
   $("#wheelApply").hidden = true;
   $("#wheelSpin").disabled = false;
+  $("#wheelSpin").textContent = "🎡 ¡Girar!";
   drawWheel();
   $("#wheelModal").showModal();
 }
 
 function drawWheel() {
   const cv = $("#wheelCanvas"), ctx = cv.getContext("2d");
-  const cs = getComputedStyle(document.documentElement);
   const n = wheel.cands.length, seg = (Math.PI * 2) / n;
   const R = cv.width / 2, cx = R, cy = R;
   ctx.clearRect(0, 0, cv.width, cv.height);
@@ -795,35 +1050,32 @@ function drawWheel() {
     ctx.moveTo(cx, cy);
     ctx.arc(cx, cy, R - 6, a0, a0 + seg);
     ctx.closePath();
-    ctx.fillStyle = cs.getPropertyValue(WHEEL_COLORS[j % WHEEL_COLORS.length]).trim() || "#888";
+    ctx.fillStyle = WHEEL_COLORS[j % WHEEL_COLORS.length];
     ctx.fill();
-    ctx.strokeStyle = "rgba(255,255,255,0.65)"; ctx.lineWidth = 3; ctx.stroke();
-    // etiqueta
+    ctx.strokeStyle = "rgba(10,10,14,0.6)"; ctx.lineWidth = 3; ctx.stroke();
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(a0 + seg / 2);
     ctx.textAlign = "right";
-    ctx.fillStyle = "#fff";
-    ctx.font = "600 26px -apple-system, 'Segoe UI', Roboto, sans-serif";
+    ctx.fillStyle = "#0B0B10";
+    ctx.font = "700 26px -apple-system, 'Segoe UI', Roboto, sans-serif";
     const name = wheel.cands[j].nombre;
     ctx.fillText((name.length > 18 ? name.slice(0, 17) + "…" : name), R - 26, 9);
     ctx.restore();
   }
-  // centro
   ctx.beginPath(); ctx.arc(cx, cy, 42, 0, Math.PI * 2);
-  ctx.fillStyle = cs.getPropertyValue("--card").trim() || "#fff"; ctx.fill();
-  ctx.strokeStyle = "rgba(0,0,0,0.15)"; ctx.stroke();
+  ctx.fillStyle = "#17171F"; ctx.fill();
+  ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.stroke();
   ctx.font = "34px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
   ctx.fillText("🎡", cx, cy + 2);
 }
 
 function wheelWinnerIndex() {
   const n = wheel.cands.length, seg = (Math.PI * 2) / n;
-  const pointer = -Math.PI / 2; // arriba
+  const pointer = -Math.PI / 2;
   const norm = ((pointer - wheel.angle) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2);
   return Math.floor(norm / seg) % n;
 }
-
 function finishSpin() {
   wheel.spinning = false;
   const win = wheel.cands[wheelWinnerIndex()];
@@ -833,12 +1085,11 @@ function finishSpin() {
   $("#wheelSpin").disabled = false;
   $("#wheelSpin").textContent = "🎡 Otra vez";
 }
-
 function spinWheel() {
   if (wheel.spinning) return;
   $("#wheelResult").textContent = "";
   $("#wheelApply").hidden = true;
-  if (REDUCED) { // sin animación: resultado directo
+  if (REDUCED) {
     wheel.angle = Math.random() * Math.PI * 2;
     drawWheel(); finishSpin(); return;
   }
@@ -859,7 +1110,6 @@ function spinWheel() {
   }
   requestAnimationFrame(frame);
 }
-
 $("#wheelSpin").addEventListener("click", spinWheel);
 $("#wheelApply").addEventListener("click", () => {
   if (!wheel.winner) return;
@@ -877,7 +1127,7 @@ function confetti(n) {
   const cv = $("#confetti"), ctx = cv.getContext("2d");
   cv.hidden = false;
   cv.width = innerWidth; cv.height = innerHeight;
-  const colors = ["#3D6A47", "#C98E2B", "#B84A33", "#3E7A96", "#A56A8C", "#8FBC93"];
+  const colors = ["#F5B841", "#FC4A1A", "#E22B6F", "#9B36C9", "#4CC9F0", "#80ED99"];
   const parts = Array.from({ length: n }, () => ({
     x: Math.random() * cv.width, y: -20 - Math.random() * cv.height * 0.3,
     vx: (Math.random() - 0.5) * 2.4, vy: 2.2 + Math.random() * 3.2,
@@ -905,7 +1155,6 @@ function fmtDate(iso) {
   const [y, m, d] = iso.split("-");
   return `${d}/${m}/${y}`;
 }
-
 function textoViandas() {
   const L = [`🧺 Menú Semanal – Viandas Colegio`, ``, `📆 Semana del ${fmtDate(state.week.monday)}`, `👦 Fran (8) – 👦 Luca (6) – 👧 Martu (2)`, ``];
   state.week.viandas.forEach((e, i) => {
@@ -921,7 +1170,6 @@ function textoViandas() {
   });
   return L.join("\n").trim();
 }
-
 function textoCenas() {
   const L = [`🍽 Menú Semanal – Cenas Familia`, ``, `📆 Semana del ${fmtDate(state.week.monday)}`, ``];
   state.week.cenas.forEach((e, i) => {
@@ -936,7 +1184,6 @@ function textoCenas() {
   });
   return L.join("\n").trim();
 }
-
 async function copiar(txt, msg) {
   try { await navigator.clipboard.writeText(txt); }
   catch (e) {
@@ -962,7 +1209,6 @@ const CAT_RULES = [
   ["🧀 Lácteos / fiambres", /queso|mozzarella|crema|jam[oó]n|manteca|leche|huevo|parmesano/],
   ["🛒 Almacén", /./]
 ];
-
 function listaCompras() {
   const items = new Map();
   const week = [...state.week.cenas, ...state.week.viandas];
@@ -982,18 +1228,18 @@ function listaCompras() {
   }
   return cats;
 }
-
 function renderShop() {
   const cols = $("#shopCols"); cols.innerHTML = "";
   const checked = new Set(state.week.shopChecked);
-  let any = false;
+  let total = 0, done = 0;
   for (const [cat, arr] of listaCompras()) {
     if (!arr.length) continue;
-    any = true;
     const div = document.createElement("div");
     const h = document.createElement("h4"); h.textContent = cat; div.appendChild(h);
     const ul = document.createElement("ul");
     for (const { it, n } of arr) {
+      total++;
+      if (checked.has(it)) done++;
       const li = document.createElement("li");
       const lab = document.createElement("label");
       const cb = document.createElement("input");
@@ -1004,16 +1250,17 @@ function renderShop() {
       cb.addEventListener("change", () => {
         if (cb.checked) checked.add(it); else checked.delete(it);
         state.week.shopChecked = [...checked];
-        sp.className = cb.checked ? "done" : "";
-        save();
+        save(); renderShop();
       });
       lab.appendChild(cb); lab.appendChild(sp); li.appendChild(lab); ul.appendChild(li);
     }
     div.appendChild(ul); cols.appendChild(div);
   }
-  if (!any) cols.innerHTML = "<p class='side'>Todavía no hay platos elegidos esta semana.</p>";
+  if (!total) cols.innerHTML = "<p class='hint' style='padding:0 2px'>Todavía no hay platos elegidos esta semana. Generá el menú con el 🎲 de abajo.</p>";
+  $("#shopBar").style.width = total ? Math.round(done / total * 100) + "%" : "0%";
+  $("#shopMeta").textContent = total ? `${done}/${total} en el changuito ${done === total && total > 0 ? "🎉 ¡listo!" : ""}` : "";
+  if (total > 0 && done === total) confetti(50);
 }
-
 function textoCompras() {
   const checked = new Set(state.week.shopChecked);
   const L = [`🛒 Lista de compras – Semana del ${fmtDate(state.week.monday)}`, ``];
@@ -1027,20 +1274,24 @@ function textoCompras() {
   return L.join("\n").trim();
 }
 
-// ── Eventos ──
+// ── Eventos globales ──
 $("#btnGenerate").addEventListener("click", () => {
   state.week.cenas = generateWeek("cena");
   state.week.viandas = generateWeek("vianda");
-  save(); render();
-  toast("Menú generado 🎉 Ajustá lo que quieras y mandalo por WhatsApp");
+  save();
+  activeTab = "semana";
+  document.querySelectorAll(".tabbar [data-tab]").forEach(x => x.classList.toggle("on", x.dataset.tab === "semana"));
+  document.querySelectorAll(".tab").forEach(s => s.classList.toggle("active", s.id === "tab-semana"));
+  render();
+  confetti(70);
+  toast("🎲 ¡Menú generado! Tocá un día para ajustarlo");
 });
-
-document.querySelectorAll("[data-regen]").forEach(b => b.addEventListener("click", () => {
+document.querySelectorAll("[data-regen]").forEach(b => b.addEventListener("click", ev => {
+  ev.stopPropagation();
   const which = b.dataset.regen;
   state.week[which] = generateWeek(which === "cenas" ? "cena" : "vianda");
   save(); render();
 }));
-
 $("#btnNewWeek").addEventListener("click", () => {
   if (!confirm("¿Archivar esta semana y arrancar una nueva? El generador va a evitar repetir estos platos.")) return;
   state.lastWeek = {
@@ -1050,7 +1301,6 @@ $("#btnNewWeek").addEventListener("click", () => {
   state.week = freshWeek();
   save(); render();
 });
-
 $("#btnDone").addEventListener("click", () => {
   const filled = [...state.week.cenas, ...state.week.viandas].filter(e => e && (e.id || e.custom)).length;
   if (filled < 10) { toast(`Faltan ${10 - filled} platos para completar la semana 💪`); return; }
@@ -1059,44 +1309,19 @@ $("#btnDone").addEventListener("click", () => {
     state.streak.last = state.week.monday;
     save(); renderStreak();
   }
-  confetti(140);
+  confetti(150);
   toast(`🎉 ¡Semana planificada! Llevan ${state.streak.count} ${state.streak.count === 1 ? "semana" : "semanas"} organizados`);
 });
-
 $("#weekDate").addEventListener("change", e => { state.week.monday = e.target.value; save(); });
 $("#ketoToggle").addEventListener("change", e => { state.keto = e.target.checked; save(); render(); });
-
 $("#btnCopyViandas").addEventListener("click", () => copiar(textoViandas(), "Viandas copiadas — pegalas en WhatsApp 📲"));
 $("#btnCopyCenas").addEventListener("click", () => copiar(textoCenas(), "Cenas copiadas — pegalas en WhatsApp 📲"));
 $("#btnWhatsApp").addEventListener("click", () => {
   const txt = textoCenas() + "\n\n" + textoViandas();
   window.open("https://wa.me/?text=" + encodeURIComponent(txt), "_blank");
 });
-$("#btnShop").addEventListener("click", () => {
-  const p = $("#shopPanel");
-  p.hidden = !p.hidden;
-  if (!p.hidden) { renderShop(); p.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
-});
 $("#btnCopyShop").addEventListener("click", () => copiar(textoCompras(), "Lista de compras copiada 🛒"));
 $("#btnPrint").addEventListener("click", () => window.print());
-
-$("#addDishForm").addEventListener("submit", e => {
-  e.preventDefault();
-  const f = new FormData(e.target);
-  state.recetario.push({
-    id: "u" + Date.now().toString(36),
-    tipo: f.get("tipo"), prot: f.get("prot"),
-    nombre: f.get("nombre").trim(),
-    lados: (f.get("lados") || "").trim(),
-    chicos: (f.get("chicos") || "").trim(),
-    keto: (f.get("keto") || "").trim(),
-    ing: (f.get("ing") || "").trim(),
-    fans: [], veto: false
-  });
-  e.target.reset();
-  save(); render();
-  toast("Plato agregado al recetario 📖");
-});
 
 render();
 </script>
