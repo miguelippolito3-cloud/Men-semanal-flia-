@@ -10,7 +10,24 @@ archivo `menufam-data.json` en tu Drive — **toda la familia ve y edita el
 mismo menú**, sincronizado (la app manda los cambios sola y se actualiza cada
 45 segundos).
 
-## Pasos (una sola vez, ~10 minutos)
+## ⚡ Opción rápida (2 pasos, ~3 minutos) — recomendada
+
+Esta variante descarga la app desde GitHub en cada visita: **cuando el repo
+se actualiza, la app se actualiza sola** sin tocar nada.
+
+1. Entrá a [script.new](https://script.new) (logueado con tu cuenta), ponele
+   nombre `MenuFam`, borrá el contenido de `Código.gs` y pegá el contenido de
+   [`apps-script/Code-autoupdate.gs`](https://raw.githubusercontent.com/miguelippolito3-cloud/Men-semanal-flia-/claude/weekly-family-menu-app-jw7odl/apps-script/Code-autoupdate.gs)
+   (abrí ese link, seleccioná todo, copiá y pegá). No hay que crear ningún
+   archivo más.
+2. **Implementar → Nueva implementación → Aplicación web** · Ejecutar como:
+   **Yo** · Acceso: **Cualquier usuario con cuenta de Google** → Implementar
+   → autorizá los permisos → copiá la URL `/exec` y mandala al grupo.
+
+Listo: login con Google automático, datos compartidos en `menufam-data.json`
+en tu Drive, y actualizaciones automáticas desde el repo.
+
+## Opción clásica (todo pegado en el proyecto, ~10 minutos)
 
 1. **Entrá a [script.new](https://script.new)** logueado con tu cuenta
    `@grupomitre.com.ar`. Se abre un proyecto nuevo de Apps Script.
