@@ -1,5 +1,20 @@
 # 🚀 Cómo publicar MenuFam dentro de Google Workspace (costo $0)
 
+## ✅ Implementación activa (13/07/2026)
+
+- **URL de la app (mandar al grupo):**
+  https://script.google.com/macros/s/AKfycbypLi__u2lS2SsaKFJhgPSSiNUtTS6OHaVENaaT_fJb8Ttq9KVFOweuFf9-D7Lu_f2h/exec
+- **ID de implementación:** `AKfycbypLi__u2lS2SsaKFJhgPSSiNUtTS6OHaVENaaT_fJb8Ttq9KVFOweuFf9-D7Lu_f2h`
+- Versión 2 · Ejecutar como: dueño · Acceso: cualquier usuario con cuenta de Google
+- Proyecto: script.google.com → "MenuFam" · Datos: `menufam-data.json` en el Drive del dueño
+- La app se actualiza sola desde este repo (branch `claude/weekly-family-menu-app-jw7odl`) — no hace falta re-implementar para recibir mejoras.
+
+> Nota: este repo es público, así que la URL queda visible. Igual solo entra
+> gente logueada en Google; si algún día quieren cerrarla más, en
+> "Administrar implementaciones" cambien el acceso a "Cualquier usuario de
+> Grupo Mitre" (requiere que toda la familia use cuentas del dominio).
+
+
 La app se hospeda en **Google Apps Script**, que ya está incluido en el plan
 Business Starter de `@grupomitre.com.ar`. No hay que dar de alta ningún
 sistema externo, no consume tokens de IA, y el **login con Google es
