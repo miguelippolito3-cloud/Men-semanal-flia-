@@ -706,6 +706,63 @@ const RECETAS = {
 };
 const recetaOf = d => d.receta || RECETAS[d.id] || "";
 
+// ── Estructura de la cena: principal (carne) + ensaladas (siempre una verde) + complemento ──
+const CARNES = ["carne", "cerdo", "pollo", "pescado"];
+const ENSALADAS = [
+  { id: "s1", nombre: "Ensalada verde", verde: true, ing: "hojas verdes" },
+  { id: "s2", nombre: "Ensalada de tomate", ing: "tomate" },
+  { id: "s3", nombre: "Tomate y rúcula con parmesano", ing: "tomate, rúcula, queso parmesano" },
+  { id: "s4", nombre: "Mixta (lechuga, tomate y cebolla)", ing: "lechuga, tomate, cebolla" },
+  { id: "s5", nombre: "Caprese", ing: "tomate, mozzarella, albahaca" },
+  { id: "s6", nombre: "Zanahoria rallada con huevo", ing: "zanahoria, huevo" },
+  { id: "s7", nombre: "Remolacha y huevo", ing: "remolacha, huevo" },
+  { id: "s8", nombre: "Verde con palta", ing: "hojas verdes, palta" }
+];
+const COMPLEMENTOS = [
+  { id: "k1", nombre: "Burrata con jamón crudo", ing: "burrata, jamón crudo" },
+  { id: "k2", nombre: "Palta con limón y sal", ing: "palta, limón" },
+  { id: "k3", nombre: "Porción de tarta de verdura", ing: "tapas de tarta, acelga, huevo, queso" },
+  { id: "k4", nombre: "Tortilla de papas", ing: "papa, huevo, cebolla" },
+  { id: "k5", nombre: "Omelette de claras", ing: "claras de huevo, queso" },
+  { id: "k6", nombre: "Budín de zapallito", ing: "zapallito, huevo, queso" },
+  { id: "k7", nombre: "Omelette de queso y tomate", ing: "huevo, queso, tomate" },
+  { id: "k8", nombre: "Choclo con manteca", ing: "choclo, manteca" },
+  { id: "k9", nombre: "Salsa criolla y palta", ing: "tomate, cebolla, morrón, palta" },
+  { id: "k10", nombre: "Huevos duros rellenos", ing: "huevo, mayonesa" }
+];
+const ensById = id => ENSALADAS.find(s => s.id === id);
+const compById = id => COMPLEMENTOS.find(k => k.id === id);
+function ensureSides(i) {
+  if (!state.week.sides[i]) {
+    const comps = COMPLEMENTOS.filter(k => !esBanned(k.nombre));
+    state.week.sides[i] = { ens2: null, comp: { id: comps[Math.floor(Math.random() * comps.length)].id } };
+  }
+  return state.week.sides[i];
+}
+function compName(side) {
+  if (!side || !side.comp) return null;
+  if (side.comp.custom) return side.comp.custom;
+  const k = compById(side.comp.id);
+  return k ? k.nombre : null;
+}
+function saladLine(side) {
+  const extra = side && side.ens2 ? ensById(side.ens2) : null;
+  return "Verde" + (extra ? " + " + extra.nombre.toLowerCase() : "");
+}
+// Genera ensaladas y complementos para los 5 días (complemento sin repetir días seguidos)
+function genSides() {
+  const comps = COMPLEMENTOS.filter(k => !esBanned(k.nombre));
+  const extras = ENSALADAS.filter(s => !s.verde && !esBanned(s.nombre));
+  let prev = null;
+  return Array.from({ length: 5 }, () => {
+    const ens2 = Math.random() < 0.55 ? extras[Math.floor(Math.random() * extras.length)] : null;
+    const pool = comps.filter(k => k.id !== prev);
+    const k = pool[Math.floor(Math.random() * pool.length)];
+    prev = k.id;
+    return { ens2: ens2 ? ens2.id : null, comp: { id: k.id } };
+  });
+}
+
 // ── Info nutricional aproximada por porción: [kcal, proteínas g, carbos g, grasas g] ──
 const NUT = {
   c1: [680, 48, 42, 34], c2: [620, 45, 40, 28], c3: [560, 38, 38, 26], c4: [520, 40, 18, 32],
@@ -739,7 +796,7 @@ function nextMonday() {
   return d.toISOString().slice(0, 10);
 }
 function freshWeek() {
-  return { monday: nextMonday(), cenas: Array(5).fill(null), viandas: Array(5).fill(null), obs: Array(5).fill(""), shopChecked: [] };
+  return { monday: nextMonday(), cenas: Array(5).fill(null), viandas: Array(5).fill(null), sides: Array(5).fill(null), obs: Array(5).fill(""), shopChecked: [] };
 }
 function migrate(s) {
   for (const d of s.recetario) {
@@ -747,6 +804,7 @@ function migrate(s) {
     if (!d.nut && NUT[d.id]) d.nut = NUT[d.id];
   }
   s.week.shopChecked = s.week.shopChecked || [];
+  s.week.sides = s.week.sides || Array(5).fill(null);
   s.streak = s.streak || { count: 0, last: null };
   s.currentUser = s.currentUser || "mike";
   s.theme = s.theme || "dark";
@@ -792,8 +850,10 @@ const sorteable = tipo => { const p = pool(tipo).filter(d => !d.veto); return p.
 const catalogoNuevos = tipo => CATALOGO.filter(d => (!tipo || d.tipo === tipo) && !byId(d.id) && !state.catalogoOcultos.includes(d.id) && !nombreBanned(d));
 // Pool según el origen elegido para el sorteo (sin platos con nombre vetado)
 function poolForGen(tipo) {
-  const casa = sorteable(tipo).filter(d => !nombreBanned(d));
-  const nuevos = catalogoNuevos(tipo);
+  // La cena lleva siempre una carne de principal (vaca, cerdo, pollo o pescado)
+  const soloCarne = arr => tipo === "cena" ? arr.filter(d => CARNES.includes(d.prot)) : arr;
+  const casa = soloCarne(sorteable(tipo).filter(d => !nombreBanned(d)));
+  const nuevos = soloCarne(catalogoNuevos(tipo));
   if (state.fuente === "arg") return nuevos.length >= 5 ? nuevos : [...nuevos, ...casa];
   if (state.fuente === "mix") return [...casa, ...nuevos];
   return casa;
@@ -802,10 +862,12 @@ function poolForGen(tipo) {
 function sorpresaDay(tipo, i) {
   const key = tipo === "cena" ? "cenas" : "viandas";
   const usados = state.week[key].filter((e, j) => j !== i && e && e.id).map(e => e.id);
-  const c = catalogoNuevos(tipo).filter(d => !usados.includes(d.id));
+  let c = catalogoNuevos(tipo).filter(d => !usados.includes(d.id));
+  if (tipo === "cena") c = c.filter(d => CARNES.includes(d.prot));
   if (!c.length) { toast("No quedan recetas argentinas nuevas de ese tipo 😅"); return; }
   const pick = ensureInRecetario(weightedSample(c, 1)[0]);
   state.week[key][i] = { id: pick.id };
+  if (tipo === "cena") ensureSides(i);
   save(); render();
   confetti(45);
   toast(`🇦🇷 ¡Sorpresa! ${emojiFor(pick)} ${pick.nombre} el ${DIAS[i]}`);
@@ -885,6 +947,7 @@ function rerollFrom(tipo, i, dishes) {
   if (!c.length) { toast("No hay más platos disponibles 😅"); return null; }
   const pick = ensureInRecetario(weightedSample(c, 1)[0]);
   state.week[key][i] = { id: pick.id };
+  if (tipo === "cena") ensureSides(i);
   save(); render();
   return pick;
 }
@@ -893,7 +956,9 @@ function rerollDay(tipo, i) {
 }
 // 🏠 Volver a un plato del recetario familiar para ese día
 function casaDay(tipo, i) {
-  const pick = rerollFrom(tipo, i, sorteable(tipo).filter(d => !nombreBanned(d)));
+  let dishes = sorteable(tipo).filter(d => !nombreBanned(d));
+  if (tipo === "cena") dishes = dishes.filter(d => CARNES.includes(d.prot));
+  const pick = rerollFrom(tipo, i, dishes);
   if (pick) toast(`🏠 ${emojiFor(pick)} ${pick.nombre} el ${DIAS[i]}`);
 }
 
@@ -976,7 +1041,8 @@ function rowFor(tipo, i) {
     <span class="r-main">
       <p class="r-day">${DIAS[i]}</p>
       <p class="r-name">${name}</p>
-      ${d && d.lados ? `<p class="r-sub">🥗 ${d.lados}</p>` : ""}
+      ${d && d.lados ? `<p class="r-sub">🍟 ${d.lados}</p>` : ""}
+      ${tipo === "cena" && e ? `<p class="r-sub">🥬 ${saladLine(state.week.sides[i])}${compName(state.week.sides[i]) ? ` · ➕ ${compName(state.week.sides[i])}` : ""}</p>` : ""}
       ${d ? `<span class="chip ${d.prot}">${PROT_LABEL[d.prot]}</span>` : ""}
     </span>
     ${likes ? `<span class="r-likes">❤️ ${likes}</span>` : ""}`;
@@ -1129,6 +1195,43 @@ function mealBlock(tipo, i) {
     if (state.keto && tipo === "cena" && dish.keto) { const p = document.createElement("p"); p.className = "keto-note"; p.textContent = "👉 Mike: " + dish.keto; box.appendChild(p); }
     box.appendChild(fanRow(dish));
   }
+  if (tipo === "cena") {
+    const side = ensureSides(i);
+    const lbl1 = document.createElement("p");
+    lbl1.className = "side"; lbl1.style.marginTop = "10px";
+    lbl1.textContent = "🥬 Ensaladas — la verde va siempre. ¿Sumamos otra?";
+    box.appendChild(lbl1);
+    const ensSel = document.createElement("select");
+    ensSel.setAttribute("aria-label", "Segunda ensalada");
+    ensSel.appendChild(new Option("Solo ensalada verde", ""));
+    for (const sd of ENSALADAS.filter(x => !x.verde)) ensSel.appendChild(new Option("+ " + sd.nombre, sd.id));
+    ensSel.value = side.ens2 || "";
+    ensSel.addEventListener("change", () => { side.ens2 = ensSel.value || null; save(); render(); });
+    box.appendChild(ensSel);
+    const lbl2 = document.createElement("p");
+    lbl2.className = "side"; lbl2.style.marginTop = "10px";
+    lbl2.textContent = "➕ Complemento (burrata, tarta, tortilla, omelette…)";
+    box.appendChild(lbl2);
+    const compSel = document.createElement("select");
+    compSel.setAttribute("aria-label", "Complemento de la cena");
+    compSel.appendChild(new Option("Sin complemento", ""));
+    for (const k of COMPLEMENTOS) compSel.appendChild(new Option(k.nombre + (esBanned(k.nombre) ? " 🚫" : ""), k.id));
+    compSel.appendChild(new Option("✍️ Otro (escribir)…", "__custom"));
+    if (side.comp && side.comp.custom) {
+      const o = new Option(`✍️ ${side.comp.custom}`, "__current"); o.selected = true;
+      compSel.insertBefore(o, compSel.firstChild);
+    } else if (side.comp && side.comp.id) compSel.value = side.comp.id;
+    compSel.addEventListener("change", () => {
+      if (compSel.value === "__custom") {
+        const txt = prompt("¿Qué complemento?");
+        side.comp = txt ? { custom: txt.trim() } : null;
+      } else if (compSel.value && compSel.value !== "__current") {
+        side.comp = { id: compSel.value };
+      } else if (!compSel.value) side.comp = null;
+      save(); render();
+    });
+    box.appendChild(compSel);
+  }
   if (tipo === "vianda") {
     const obs = document.createElement("input");
     obs.type = "text"; obs.className = "obs"; obs.placeholder = "📝 Observaciones…";
@@ -1230,6 +1333,7 @@ function renderFeed() {
       pb.addEventListener("click", () => {
         ensureInRecetario(d);
         state.week[d.tipo === "cena" ? "cenas" : "viandas"][i] = { id: d.id };
+        if (d.tipo === "cena") ensureSides(i);
         save(); render();
         pick.classList.remove("open");
         confetti(45);
@@ -1557,6 +1661,7 @@ $("#wheelApply").addEventListener("click", () => {
   if (!wheel.winner) return;
   ensureInRecetario(wheel.winner);
   state.week[wheel.tipo === "cena" ? "cenas" : "viandas"][wheel.i] = { id: wheel.winner.id };
+  if (wheel.tipo === "cena") ensureSides(wheel.i);
   save(); render();
   $("#wheelModal").close();
   confetti(60);
@@ -1623,6 +1728,11 @@ function textoCenas() {
     L.push(nombre ? `${d ? emojiFor(d) : "•"} ${nombre}` : `• (a definir)`);
     if (d && d.lados) L.push(`• ${d.lados}`);
     if (d && ingsBanned(d).length) L.push(`🚫 Sin ${ingsBanned(d).join(" ni ")}`);
+    if (e) {
+      L.push(`🥬 Ensalada: ${saladLine(state.week.sides[i]).toLowerCase()}`);
+      const cn = compName(state.week.sides[i]);
+      if (cn) L.push(`➕ ${cn}`);
+    }
     if (d && d.chicos) L.push(`👧 Chicos: ${d.chicos}`);
     if (state.keto && d && d.keto) L.push(`👉 Mike (keto): ${d.keto}`);
     L.push(``);
@@ -1656,16 +1766,26 @@ const CAT_RULES = [
 ];
 function listaCompras() {
   const items = new Map();
-  const week = [...state.week.cenas, ...state.week.viandas];
-  for (const e of week) {
-    const d = entryDish(e);
-    if (!d || !d.ing) continue;
-    for (const raw of d.ing.split(",")) {
+  const addIngs = txt => {
+    for (const raw of (txt || "").split(",")) {
       const it = raw.trim().toLowerCase();
       if (!it || esBanned(it)) continue; // lo que no nos gusta no se compra
       items.set(it, (items.get(it) || 0) + 1);
     }
+  };
+  const week = [...state.week.cenas, ...state.week.viandas];
+  for (const e of week) {
+    const d = entryDish(e);
+    if (d) addIngs(d.ing);
   }
+  // Ensaladas y complementos de cada cena planificada
+  state.week.cenas.forEach((e, i) => {
+    if (!e) return;
+    const side = state.week.sides[i];
+    addIngs("hojas verdes");
+    if (side && side.ens2 && ensById(side.ens2)) addIngs(ensById(side.ens2).ing);
+    if (side && side.comp && side.comp.id && compById(side.comp.id)) addIngs(compById(side.comp.id).ing);
+  });
   const cats = new Map(CAT_RULES.map(([n]) => [n, []]));
   for (const [it, n] of [...items.entries()].sort()) {
     const cat = CAT_RULES.find(([, rx]) => rx.test(it))[0];
@@ -1723,6 +1843,7 @@ function textoCompras() {
 $("#btnGenerate").addEventListener("click", () => {
   state.week.cenas = generateWeek("cena");
   state.week.viandas = generateWeek("vianda");
+  state.week.sides = genSides();
   save();
   activeTab = "semana";
   document.querySelectorAll(".tabbar [data-tab]").forEach(x => x.classList.toggle("on", x.dataset.tab === "semana"));
@@ -1735,6 +1856,7 @@ document.querySelectorAll("[data-regen]").forEach(b => b.addEventListener("click
   ev.stopPropagation();
   const which = b.dataset.regen;
   state.week[which] = generateWeek(which === "cenas" ? "cena" : "vianda");
+  if (which === "cenas") state.week.sides = genSides();
   save(); render();
 }));
 $("#btnNewWeek").addEventListener("click", () => {

@@ -9,6 +9,8 @@ App para armar el menú semanal de la familia: **cenas** de lunes a viernes y **
 > La versión 4 suma: **tres temas** (🌙 oscuro, ☀️ claro y 🌈 psicodélico con fondo animado y colores que rotan), **info nutricional** por porción en cada plato (kcal, proteínas, carbos y grasas) y **fotos HD por plato** — tocá 📷 en el recetario y subí imágenes (por ejemplo generadas con Gemini / Nano Banana); quedan guardadas en el dispositivo y aparecen de fondo en el feed, las filas y el héroe del día.
 >
 > La versión 5 agrega el **catálogo argentino 🇦🇷**: 34 recetas familiares investigadas en Cookpad AR, RecetasArgentinas.net, La Paulina, Essen y Cookidoo/Thermomix. El sorteo puede usar 🏠 solo el recetario familiar, 🔀 mezclar, o 🇦🇷 traer solo recetas nuevas; y el feed tiene el filtro "Nuevas" para descubrirlas (❤️ guarda, ➕ prueba en un día, 🚫 oculta).
+>
+> Las versiones 6-8 suman: recetas paso a paso con opción de importar, edición de platos, lista de ingredientes "no nos gusta" (aceitunas, roquefort y queso azul de fábrica 😄), botones 🇦🇷/🏠 por día, y la **estructura completa de la cena**: principal siempre una carne (vaca, cerdo, pollo o pescado) + ensaladas (una o dos, la verde va siempre) + un complemento (burrata, palta, tarta, tortilla, omelette de claras, budín…) que rota sin repetirse en días seguidos.
 
 ## Qué hace
 
