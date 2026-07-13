@@ -839,6 +839,7 @@ function load() {
 }
 function save() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* incógnito */ }
+  if (window.__pushState && !window.__applying) window.__pushState(); // sync familiar (Apps Script)
 }
 
 const byId = id => state.recetario.find(d => d.id === id);
@@ -1918,6 +1919,7 @@ $("#photoInput").addEventListener("change", () => {
       dish.img = cv.toDataURL("image/jpeg", 0.72);
       try {
         localStorage.setItem(STORE_KEY, JSON.stringify(state));
+        if (window.__pushState && !window.__applying) window.__pushState();
         toast(`📷 Foto guardada para ${dish.nombre}`);
       } catch (e) {
         delete dish.img;
@@ -1950,6 +1952,47 @@ $("#photoInput").addEventListener("change", () => {
 
 applyTheme();
 render();
+
+// ── Sincronización familiar via Google Apps Script (no hace nada fuera de GAS) ──
+(function initSync() {
+  if (typeof google === "undefined" || !google.script || !google.script.run) return;
+  let pushTimer = null, lastServer = 0, dirty = false;
+  window.__applying = false;
+  window.__pushState = () => {
+    dirty = true;
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(() => {
+      const payload = JSON.stringify({ t: Date.now(), state });
+      google.script.run
+        .withSuccessHandler(() => { dirty = false; lastServer = Date.now(); })
+        .withFailureHandler(() => toast("⚠️ Sin conexión: los cambios quedaron en este dispositivo"))
+        .saveState(payload);
+    }, 1200);
+  };
+  function pull(initial) {
+    google.script.run.withSuccessHandler(raw => {
+      if (!raw || !raw.trim()) { if (initial) window.__pushState(); return; }
+      try {
+        const data = JSON.parse(raw);
+        if (data && data.state && data.t > lastServer && !dirty) {
+          lastServer = data.t;
+          window.__applying = true;
+          state = migrate(data.state);
+          try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* sin espacio local */ }
+          applyTheme(); render();
+          window.__applying = false;
+          if (initial) toast("☁️ Menú familiar sincronizado");
+        }
+      } catch (e) { /* JSON corrupto en Drive: se ignora */ }
+    }).loadState();
+  }
+  pull(true);
+  setInterval(() => { if (document.visibilityState === "visible") pull(false); }, 45000);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pull(false); });
+  google.script.run.withSuccessHandler(email => {
+    if (email) toast(`👋 Conectados como ${email} — todos ven el mismo menú`);
+  }).getUserEmail();
+})();
 </script>
 </body>
 </html>

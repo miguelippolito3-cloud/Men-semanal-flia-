@@ -32,8 +32,9 @@ App para armar el menú semanal de la familia: **cenas** de lunes a viernes y **
 
 Es un único archivo, sin dependencias:
 
-1. Abrí `index.html` en cualquier navegador (funciona en el celular), **o**
-2. Activá GitHub Pages en este repo (*Settings → Pages → Deploy from branch*) y queda con URL fija para toda la familia.
+1. **Recomendado: publicarla en Google Apps Script** (incluido en Workspace, costo $0): login con Google automático y el menú compartido entre todos los dispositivos de la familia, guardado en un JSON en tu Drive. Guía paso a paso en [DEPLOY.md](DEPLOY.md); el backend está en [`apps-script/Code.gs`](apps-script/Code.gs).
+2. Abrí `index.html` en cualquier navegador (funciona en el celular, datos locales al dispositivo), **o**
+3. Activá GitHub Pages en este repo (*Settings → Pages → Deploy from branch*) — URL fija pero sin login ni sincronización.
 
 ## Flujo semanal sugerido
 
