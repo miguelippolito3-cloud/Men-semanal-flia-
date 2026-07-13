@@ -346,11 +346,16 @@
   input.obs { margin-top: 9px; font-size: 13px; }
 
   /* ── Ruleta ── */
-  dialog#wheelModal {
+  dialog#wheelModal, dialog#recipeModal {
     border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink);
     padding: 18px; max-width: 92vw; width: 380px;
   }
-  dialog#wheelModal::backdrop { background: rgba(0,0,0,0.6); }
+  dialog#wheelModal::backdrop, dialog#recipeModal::backdrop { background: rgba(0,0,0,0.6); }
+  dialog#recipeModal { max-height: 84dvh; overflow-y: auto; }
+  #rcpBody h5 { margin: 12px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); }
+  #rcpBody p, #rcpBody ul { margin: 0 0 4px; }
+  #rcpBody ul { padding-left: 18px; }
+  #rcpBody .tachado { text-decoration: line-through; color: var(--muted); }
   .wheel-head { font-size: 19px; font-weight: 900; margin: 0 0 4px; text-align: center; }
   .wheel-sub { text-align: center; color: var(--muted); font-size: 13px; margin: 0 0 10px; }
   .wheel-box { position: relative; width: 320px; max-width: 100%; margin: 0 auto; }
@@ -456,9 +461,18 @@
 
     <!-- ── RECETARIO ── -->
     <section class="tab" id="tab-recetario">
+      <h2 class="sec pad">🚫 No nos gusta</h2>
+      <p class="hint" style="padding:0 16px;margin:0">Ingredientes que nunca entran: se sacan de las recetas, del sorteo y de la lista de compras.</p>
+      <div class="fans" id="bannedChips" style="padding:8px 16px 0"></div>
+      <form id="bannedForm" style="display:flex;gap:8px;margin:8px 16px 0">
+        <input type="text" id="bannedInput" placeholder="Ej: mostaza, morcilla…" style="flex:1">
+        <button type="submit">＋</button>
+      </form>
+
       <h2 class="sec pad">📖 Recetario (<span id="recCount"></span>)</h2>
       <div class="rec-list" id="recList"></div>
       <form class="add-dish" id="addDishForm">
+        <p class="hint full" id="editBanner" hidden style="margin:0">✏️ Editando <strong id="editName"></strong> — <a href="#" id="editCancel">cancelar</a></p>
         <input name="nombre" placeholder="Nuevo plato (ej: Wok de pollo)" required class="full" type="text">
         <select name="tipo"><option value="cena">Cena familia</option><option value="vianda">Vianda chicos</option></select>
         <select name="prot">
@@ -472,7 +486,8 @@
         <input name="keto" placeholder="Ajuste keto para Mike (opcional)" class="full" type="text">
         <input name="ing" placeholder="Ingredientes separados por coma" class="full" type="text">
         <input name="nut" placeholder="Nutrición: kcal, proteínas, carbos, grasas (ej: 650, 45, 40, 28)" class="full" type="text" inputmode="numeric">
-        <button type="submit" class="grad">＋ Agregar</button>
+        <textarea name="receta" placeholder="Receta paso a paso (opcional)" class="full" rows="3" style="font:inherit;font-size:14px;color:var(--ink);background:var(--paper, var(--card-2));background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:8px 10px"></textarea>
+        <button type="submit" class="grad" id="addDishBtn">＋ Agregar</button>
       </form>
       <p class="hint pad" style="margin-top:12px">📷 Tocá la cámara de cada plato para ponerle una foto HD (podés generarlas con Gemini / Nano Banana y subirlas acá — quedan guardadas en este dispositivo y aparecen en el feed).</p>
       <div class="export-bar"><button id="btnPrint">🖨️ Imprimir semana</button></div>
@@ -496,6 +511,16 @@
   <h3 id="sheetTitle"></h3>
   <div id="sheetBody"></div>
 </div>
+
+<dialog id="recipeModal">
+  <p class="wheel-head" id="rcpTitle"></p>
+  <p class="wheel-sub" id="rcpMeta"></p>
+  <div id="rcpBody" style="font-size:14px; line-height:1.6"></div>
+  <div class="wheel-actions" style="margin-top:14px">
+    <button id="rcpImport" class="grad" hidden>➕ Importar al recetario</button>
+    <button id="rcpClose" class="ghost">Cerrar</button>
+  </div>
+</dialog>
 
 <dialog id="wheelModal">
   <p class="wheel-head" id="wheelTitle">🎡 Ruleta</p>
@@ -637,6 +662,45 @@ const CATALOGO = [
   { id: "b14", tipo: "vianda", prot: "pescado", nombre: "Medallones de merluza con arroz", lados: "Tomate", chicos: "", keto: "", ing: "medallones de merluza, arroz, tomate", nut: [430, 24, 48, 12], src: "Cookpad AR" }
 ];
 
+// ── Recetas paso a paso del catálogo argentino ──
+const RECETAS = {
+  a1: "1) Rehogá cebolla y morrón, sumá la carne picada y condimentá con comino y pimentón. 2) Agregá huevo duro picado. 3) Hacé un puré de papa con manteca. 4) En una fuente: capa de carne, capa de puré, queso rallado arriba. 5) Horno fuerte 20 min hasta gratinar.",
+  a2: "1) Remojá las lentejas 1 hora (o usá de lata). 2) Rehogá cebolla, morrón y panceta; sumá el chorizo colorado en rodajas. 3) Agregá lentejas, papa y zanahoria en cubos, tomate y caldo. 4) Cociná a fuego bajo 40 min hasta que espese. Mejor de un día para otro.",
+  a3: "1) Herví papas y hacé un puré seco. 2) Mezclá con harina y huevo hasta formar una masa. 3) Armá rollitos, cortá los ñoquis y marcalos con tenedor. 4) Hervilos hasta que floten. 5) Serví con tuco de carne y queso rallado.",
+  a4: "1) Desgrasá el matambre y hervilo en agua con sal y laurel 1½ hora (o cocinalo en olla a presión 40 min). 2) Ponelo en una fuente, cubrilo con salsa de tomate, mozzarella y orégano. 3) Horno fuerte 10 min hasta fundir. Con papas al horno.",
+  a5: "1) Herví agua o leche con sal y llové la polenta revolviendo 5 min. 2) Aparte, hacé un tuco: cebolla, carne picada y salsa de tomate. 3) Serví la polenta con el tuco arriba y queso cremoso para que se funda.",
+  a6: "1) Rehogá cebolla y mezclá con acelga hervida y escurrida, queso rallado y nuez moscada. 2) Forrá una tartera con una tapa, poné el relleno y hacé huecos para los huevos crudos. 3) Tapá con la otra masa y pintá con huevo. 4) Horno medio 40 min.",
+  a7: "1) Mezclá harina, levadura, agua tibia, sal y aceite; amasá y dejá levar 1 hora. 2) Estirá en pizzera aceitada y dejá levar 15 min más. 3) Salsa de tomate, horno fuerte 7 min. 4) Mozzarella y orégano, horno hasta fundir.",
+  a8: "1) Dorá los trozos de pollo en la olla. 2) Agregá abundante cebolla de verdeo picada y cociná 5 min. 3) Sumá crema y un chorrito de caldo, cociná 10 min a fuego bajo. 4) Serví con arroz blanco.",
+  a9: "1) Cortá el pollo en tiras y salteálo en el wok bien caliente. 2) Sumá zanahoria, morrón, cebolla y brócoli en tiras. 3) Salteá 5 min, agregá salsa de soja. 4) Serví con arroz.",
+  a10: "1) En una olla poné capas de papa en rodajas, cebolla, morrón y los bifes. 2) Cubrí con tomate triturado y condimentá. 3) Tapá y cociná a fuego bajo 40 min sin revolver. 4) Sumá arvejas al final.",
+  a11: "1) Mezclá la carne picada con huevo, pan rallado remojado y condimentos. 2) Estirá sobre film, poné jamón y queso, y enrollá. 3) Horno medio 45 min. 4) Serví en rodajas con puré de calabaza.",
+  a12: "1) Rehogá cebolla y mezclá con acelga picada y ricota. 2) Rellená los panqueques o tapas y enrollá. 3) Acomodá en fuente, cubrí con salsa blanca y salsa de tomate. 4) Queso rallado y horno 20 min.",
+  a13: "1) Hacé una salsa bolognesa con carne picada y tomate. 2) En una fuente alterná: láminas de lasaña, bolognesa, salsa blanca y mozzarella. 3) Tres pisos, terminá con salsa blanca y queso. 4) Horno medio 40 min, reposá 10 antes de cortar.",
+  a14: "1) Herví los zapallitos 5 min y ahuecalos. 2) Mezclá la pulpa con carne picada rehogada, cebolla, huevo y queso. 3) Rellená, coronó con queso rallado. 4) Horno medio 30 min. Con arroz.",
+  a15: "1) Cortá papas en rodajas finas y cocinalas en sartén con aceite a fuego bajo. 2) Batí huevos con sal y sumá cebolla rehogada. 3) Mezclá con las papas y cuajá en la sartén de ambos lados. Jugosa adentro.",
+  a16: "1) Empaná las supremas (harina, huevo, pan rallado) y hacelas al horno o fritas. 2) Guarnición clásica: puré, choclo salteado con manteca y banana rebozada. 3) Emplatá todo junto.",
+  a17: "1) Pasá los filets por harina, huevo batido y de nuevo harina. 2) Freílos 3 min por lado hasta dorar. 3) Serví con puré y limón. Tip: al horno también salen.",
+  a18: "1) Rehogá cebolla, morrón y ajo en una cazuela. 2) Sumá tomate, papa en rodajas y un vaso de vino blanco. 3) Cociná 15 min y acomodá el pescado arriba. 4) Tapá y cociná 10 min más a fuego bajo.",
+  a19: "1) Rehogá mucha cebolla, agregá la carne picada y sacá del fuego apenas cambia de color. 2) Condimentá con comino y pimentón; sumá huevo duro. 3) Enfriá el relleno, armá las empanadas y pintalas con huevo. 4) Horno fuerte 15-20 min.",
+  a20: "1) Rehogá cebolla en manteca, sumá el arroz y nacaralo. 2) Agregá calabaza en cubos y caldo caliente de a poco, revolviendo. 3) A los 18 min, apagá y mantecá con parmesano.",
+  b1: "1) Herví los ñoquis hasta que floten. 2) Saltealos con manteca. 3) Queso rallado arriba. En termo o vianda térmica llegan perfectos.",
+  b2: "1) Papas en rodajas finas cocidas en sartén. 2) Mezclá con huevo batido y cebolla. 3) Cuajá de ambos lados y cortá en cubos para la vianda.",
+  b3: "1) Cortá jamón y queso en cubitos. 2) Rellená las tapas, cerrá con repulgue simple. 3) Horno fuerte 15 min. Frías también van bien.",
+  b4: "1) Mezclá pollo cocido desmenuzado con puré de papa y huevo. 2) Armá croquetas y pasalas por pan rallado. 3) Horno 20 min con un hilo de aceite.",
+  b5: "1) Polenta firme cocida con caldo. 2) Volcá en fuente, enfriá y cortá en cubos. 3) Gratiná con queso cremoso. Va con tomate en cubitos.",
+  b6: "1) Herví arroz y enfriá. 2) Mezclá con arvejas, zanahoria y choclo cocidos, jamón en cubos y huevo duro. 3) Un hilo de aceite y listo, va frío.",
+  b7: "1) Milanesa al horno con salsa de tomate, jamón y queso gratinado. 2) Puré de papa aparte para que no humedezca. 3) Cortada en tiras para los más chicos.",
+  b8: "1) Rellená los canelones con pollo cocido procesado con salsa blanca. 2) Fuente con salsa blanca abajo y arriba. 3) Queso y horno 20 min. En la vianda van cortados.",
+  b9: "1) Rallá los zapallitos y escurrilos bien. 2) Mezclá con huevo, queso y cebolla rehogada. 3) Budinera enmantecada, horno medio 35 min. Frío es más rico.",
+  b10: "1) Masa casera o prepizza. 2) Salsa, mozzarella y al horno fuerte. 3) En porciones chicas para la vianda, fría también gusta.",
+  b11: "1) Grillá el pollo en tiras. 2) Herví los moñitos y mezclá con un poco de manteca. 3) Queso rallado en un potecito aparte.",
+  b12: "1) Dorá el pollo en cubos. 2) Sumá arroz, zanahoria y arvejas con caldo. 3) Cociná 18 min hasta que el arroz esté a punto. Vianda térmica.",
+  b13: "1) Tapas de tarta, relleno de tomate en rodajas escurridas, mozzarella y albahaca. 2) Huevo batido por arriba. 3) Horno medio 35 min.",
+  b14: "1) Medallones de merluza al horno 20 min. 2) Arroz blanco aparte. 3) Tomate en cubitos con un hilo de aceite."
+};
+const recetaOf = d => d.receta || RECETAS[d.id] || "";
+
 // ── Info nutricional aproximada por porción: [kcal, proteínas g, carbos g, grasas g] ──
 const NUT = {
   c1: [680, 48, 42, 34], c2: [620, 45, 40, 28], c3: [560, 38, 38, 26], c4: [520, 40, 18, 32],
@@ -683,8 +747,17 @@ function migrate(s) {
   s.theme = s.theme || "dark";
   s.fuente = s.fuente || "casa";
   s.catalogoOcultos = s.catalogoOcultos || [];
+  s.noNosGusta = s.noNosGusta || ["aceitunas", "roquefort", "queso azul"];
   return s;
 }
+
+// ── "No nos gusta": ingredientes inaceptables para la familia ──
+const norm = t => t.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+const esBanned = txt => state.noNosGusta.some(b => norm(txt).includes(norm(b)));
+// El plato lleva el ingrediente pero se puede hacer sin él (ej: pastel de papa sin aceitunas)
+const ingsBanned = d => (d.ing || "").split(",").map(x => x.trim()).filter(x => x && esBanned(x));
+// El plato ES el ingrediente prohibido (ej: "salsa roquefort") → afuera del sorteo
+const nombreBanned = d => esBanned(d.nombre);
 
 const THEMES = ["dark", "light", "psico"];
 const THEME_ICON = { dark: "🌙", light: "☀️", psico: "🌈" };
@@ -711,14 +784,26 @@ const byId = id => state.recetario.find(d => d.id === id);
 const pool = tipo => state.recetario.filter(d => d.tipo === tipo);
 const sorteable = tipo => { const p = pool(tipo).filter(d => !d.veto); return p.length >= 5 ? p : pool(tipo); };
 // Recetas del catálogo argentino todavía no probadas por la familia
-const catalogoNuevos = tipo => CATALOGO.filter(d => (!tipo || d.tipo === tipo) && !byId(d.id) && !state.catalogoOcultos.includes(d.id));
-// Pool según el origen elegido para el sorteo
+const catalogoNuevos = tipo => CATALOGO.filter(d => (!tipo || d.tipo === tipo) && !byId(d.id) && !state.catalogoOcultos.includes(d.id) && !nombreBanned(d));
+// Pool según el origen elegido para el sorteo (sin platos con nombre vetado)
 function poolForGen(tipo) {
-  const casa = sorteable(tipo);
+  const casa = sorteable(tipo).filter(d => !nombreBanned(d));
   const nuevos = catalogoNuevos(tipo);
   if (state.fuente === "arg") return nuevos.length >= 5 ? nuevos : [...nuevos, ...casa];
   if (state.fuente === "mix") return [...casa, ...nuevos];
   return casa;
+}
+// 🇦🇷 Sorpresa para UN día puntual: siempre trae una receta nueva del catálogo
+function sorpresaDay(tipo, i) {
+  const key = tipo === "cena" ? "cenas" : "viandas";
+  const usados = state.week[key].filter((e, j) => j !== i && e && e.id).map(e => e.id);
+  const c = catalogoNuevos(tipo).filter(d => !usados.includes(d.id));
+  if (!c.length) { toast("No quedan recetas argentinas nuevas de ese tipo 😅"); return; }
+  const pick = ensureInRecetario(weightedSample(c, 1)[0]);
+  state.week[key][i] = { id: pick.id };
+  save(); render();
+  confetti(45);
+  toast(`🇦🇷 ¡Sorpresa! ${emojiFor(pick)} ${pick.nombre} el ${DIAS[i]}`);
 }
 // Al usar una receta del catálogo, pasa a formar parte del recetario familiar
 function ensureInRecetario(d) {
@@ -989,12 +1074,23 @@ function mealBlock(tipo, i) {
   const reB = document.createElement("button");
   reB.textContent = "🔁"; reB.title = "Sortear otro";
   reB.addEventListener("click", () => rerollDay(tipo, i));
-  head.appendChild(wheelB); head.appendChild(reB);
+  const surB = document.createElement("button");
+  surB.textContent = "🇦🇷"; surB.title = "Sorpresa: una receta argentina nueva solo para este día";
+  surB.addEventListener("click", () => sorpresaDay(tipo, i));
+  head.appendChild(surB); head.appendChild(wheelB); head.appendChild(reB);
   box.appendChild(head);
   box.appendChild(buildDishSelect(tipo, i));
   if (dish) {
     if (dish.lados) { const p = document.createElement("p"); p.className = "side"; p.textContent = "🥗 " + dish.lados; box.appendChild(p); }
     if (dish.chicos) { const p = document.createElement("p"); p.className = "side"; p.textContent = (tipo === "cena" ? "👧 Chicos: " : "🥣 ") + dish.chicos; box.appendChild(p); }
+    const banned = ingsBanned(dish);
+    if (banned.length) { const p = document.createElement("p"); p.className = "side"; p.textContent = `🚫 Sin ${banned.join(" ni ")} (no nos gusta)`; box.appendChild(p); }
+    if (recetaOf(dish)) {
+      const rb = document.createElement("button");
+      rb.textContent = "📖 Ver receta"; rb.style.marginTop = "8px";
+      rb.addEventListener("click", () => openRecipe(dish));
+      box.appendChild(rb);
+    }
     if (dish.nut) { const n = document.createElement("div"); n.innerHTML = nutPills(dish, true); box.appendChild(n.firstChild); }
     if (state.keto && tipo === "cena" && dish.keto) { const p = document.createElement("p"); p.className = "keto-note"; p.textContent = "👉 Mike: " + dish.keto; box.appendChild(p); }
     box.appendChild(fanRow(dish));
@@ -1054,6 +1150,7 @@ function renderFeed() {
         <p class="f-name">${d.nombre}</p>
         ${d.lados ? `<p class="f-sub">🥗 ${d.lados}</p>` : ""}
         ${d.chicos ? `<p class="f-sub">${d.tipo === "cena" ? "👧 Chicos:" : "🥣"} ${d.chicos}</p>` : ""}
+        ${ingsBanned(d).length ? `<p class="f-sub">🚫 Sin ${ingsBanned(d).join(" ni ")} (no nos gusta)</p>` : ""}
         ${nutPills(d)}
         ${state.keto && d.tipo === "cena" && d.keto ? `<p class="f-keto">👉 Mike: ${d.keto}</p>` : ""}
       </div>`;
@@ -1110,7 +1207,15 @@ function renderFeed() {
       document.querySelectorAll(".day-pick.open").forEach(p => { if (p !== pick) p.classList.remove("open"); });
       pick.classList.toggle("open");
     });
-    rail.appendChild(likeB); rail.appendChild(cnt); rail.appendChild(vetoB); rail.appendChild(addB);
+    const rcpB = document.createElement("button");
+    if (recetaOf(d)) {
+      rcpB.textContent = "📖";
+      rcpB.title = "Ver la receta paso a paso";
+      rcpB.addEventListener("click", () => openRecipe(d));
+    }
+    rail.appendChild(likeB); rail.appendChild(cnt); rail.appendChild(vetoB);
+    if (recetaOf(d)) rail.appendChild(rcpB);
+    rail.appendChild(addB);
     card.appendChild(rail);
     card.appendChild(pick);
     // doble tap = like (estilo Instagram)
@@ -1163,8 +1268,57 @@ for (const [btnId, val] of Object.entries(FILTROS)) {
   });
 }
 
+// ── No nos gusta ──
+function renderBanned() {
+  const box = $("#bannedChips"); box.innerHTML = "";
+  for (const b of state.noNosGusta) {
+    const chip = document.createElement("button");
+    chip.className = "fan on";
+    chip.textContent = `🚫 ${b} ✕`;
+    chip.title = `Sacar “${b}” de la lista de no-nos-gusta`;
+    chip.addEventListener("click", () => {
+      state.noNosGusta = state.noNosGusta.filter(x => x !== b);
+      save(); render();
+      toast(`Listo, ${b} vuelve a estar permitido`);
+    });
+    box.appendChild(chip);
+  }
+  if (!state.noNosGusta.length) box.innerHTML = "<p class='hint' style='margin:0'>Nada vetado: acá comemos de todo 💪</p>";
+}
+$("#bannedForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const v = $("#bannedInput").value.trim().toLowerCase();
+  if (!v) return;
+  if (!state.noNosGusta.includes(v)) state.noNosGusta.push(v);
+  $("#bannedInput").value = "";
+  save(); render();
+  toast(`🚫 ${v}: nunca más en el menú`);
+});
+
 // ── Recetario ──
+let editingId = null;
+function startEdit(d) {
+  editingId = d.id;
+  const f = $("#addDishForm");
+  f.nombre.value = d.nombre; f.tipo.value = d.tipo; f.prot.value = d.prot;
+  f.lados.value = d.lados || ""; f.chicos.value = d.chicos || ""; f.keto.value = d.keto || "";
+  f.ing.value = d.ing || ""; f.nut.value = d.nut ? d.nut.join(", ") : "";
+  f.receta.value = recetaOf(d);
+  $("#editBanner").hidden = false;
+  $("#editName").textContent = d.nombre;
+  $("#addDishBtn").textContent = "💾 Guardar cambios";
+  f.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+function cancelEdit() {
+  editingId = null;
+  $("#addDishForm").reset();
+  $("#editBanner").hidden = true;
+  $("#addDishBtn").textContent = "＋ Agregar";
+}
+$("#editCancel").addEventListener("click", e => { e.preventDefault(); cancelEdit(); });
+
 function renderRecetario() {
+  renderBanned();
   const list = $("#recList"); list.innerHTML = "";
   const sorted = [...state.recetario].sort((a, b) => a.tipo.localeCompare(b.tipo) || a.nombre.localeCompare(b.nombre));
   for (const d of sorted) {
@@ -1175,6 +1329,18 @@ function renderRecetario() {
       <span class="n">${d.veto ? "🚫 " : ""}${d.nombre}
         <small>${d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda"} · ${PROT_LABEL[d.prot]}${d.nut ? ` · 🔥 ${d.nut[0]} kcal` : ""}${d.fans.length ? ` · ❤️ ${d.fans.length}` : ""}${d.src ? ` · 🇦🇷 ${d.src}` : ""}</small>
       </span>`;
+    const ed = document.createElement("button");
+    ed.className = "del"; ed.style.color = "var(--muted)";
+    ed.textContent = "✏️"; ed.title = `Editar “${d.nombre}”`;
+    ed.addEventListener("click", () => startEdit(d));
+    row.appendChild(ed);
+    if (recetaOf(d)) {
+      const rb = document.createElement("button");
+      rb.className = "del"; rb.style.color = "var(--muted)";
+      rb.textContent = "📖"; rb.title = `Ver receta de “${d.nombre}”`;
+      rb.addEventListener("click", () => openRecipe(d));
+      row.appendChild(rb);
+    }
     const cam = document.createElement("button");
     cam.className = "del"; cam.style.color = "var(--muted)";
     cam.textContent = d.img ? "🖼️" : "📷";
@@ -1204,24 +1370,64 @@ function renderRecetario() {
 $("#addDishForm").addEventListener("submit", e => {
   e.preventDefault();
   const f = new FormData(e.target);
-  state.recetario.push({
-    id: "u" + Date.now().toString(36),
+  const campos = {
     tipo: f.get("tipo"), prot: f.get("prot"),
     nombre: f.get("nombre").trim(),
     lados: (f.get("lados") || "").trim(),
     chicos: (f.get("chicos") || "").trim(),
     keto: (f.get("keto") || "").trim(),
     ing: (f.get("ing") || "").trim(),
+    receta: (f.get("receta") || "").trim(),
     nut: (() => {
       const v = (f.get("nut") || "").split(",").map(x => parseInt(x.trim(), 10)).filter(x => !isNaN(x));
       return v.length === 4 ? v : null;
-    })(),
-    fans: [], veto: false
-  });
-  e.target.reset();
-  save(); render();
-  toast("Plato agregado al recetario 📖");
+    })()
+  };
+  if (editingId) {
+    const d = byId(editingId);
+    if (d) Object.assign(d, campos);
+    cancelEdit();
+    save(); render();
+    toast("Plato actualizado ✏️");
+  } else {
+    state.recetario.push({ id: "u" + Date.now().toString(36), ...campos, fans: [], veto: false });
+    e.target.reset();
+    save(); render();
+    toast("Plato agregado al recetario 📖");
+  }
 });
+
+// ── Receta 📖 ──
+function openRecipe(d) {
+  $("#rcpTitle").textContent = `${emojiFor(d)} ${d.nombre}`;
+  $("#rcpMeta").textContent = [
+    d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda",
+    PROT_LABEL[d.prot],
+    d.src ? `🇦🇷 ${d.src}` : null,
+    d.nut ? `🔥 ${d.nut[0]} kcal` : null
+  ].filter(Boolean).join(" · ");
+  const banned = ingsBanned(d);
+  const ings = (d.ing || "").split(",").map(x => x.trim()).filter(Boolean);
+  $("#rcpBody").innerHTML = `
+    ${d.lados ? `<p>🥗 <strong>Con:</strong> ${d.lados}</p>` : ""}
+    <h5>Ingredientes</h5>
+    <ul>${ings.map(x => `<li${esBanned(x) ? ' class="tachado"' : ""}>${x}${esBanned(x) ? " — no va (no nos gusta)" : ""}</li>`).join("")}</ul>
+    <h5>Preparación</h5>
+    <p>${recetaOf(d).replace(/(\d\))/g, "<br>$1").replace(/^<br>/, "")}</p>
+    ${banned.length ? `<p style="margin-top:8px">🚫 <strong>Versión familia:</strong> sin ${banned.join(" ni ")}.</p>` : ""}
+    ${d.nut ? `<h5>Nutrición por porción</h5><p>🔥 ${d.nut[0]} kcal · 💪 ${d.nut[1]}g proteínas · 🍞 ${d.nut[2]}g carbos · 🥑 ${d.nut[3]}g grasas</p>` : ""}
+    ${state.keto && d.keto ? `<h5>Keto Mike</h5><p>👉 ${d.keto}</p>` : ""}`;
+  const imp = $("#rcpImport");
+  imp.hidden = !!byId(d.id);
+  imp.onclick = () => {
+    ensureInRecetario(d);
+    save(); render();
+    imp.hidden = true;
+    toast(`📖 ${d.nombre} importada al recetario familiar`);
+  };
+  $("#recipeModal").showModal();
+}
+$("#rcpClose").addEventListener("click", () => $("#recipeModal").close());
 
 // ── Ruleta 🎡 ──
 const WHEEL_COLORS = ["#F5A623", "#FF5A5F", "#C77DFF", "#4CC9F0", "#F9C74F", "#80ED99", "#E22B6F", "#38BDF8"];
@@ -1366,6 +1572,7 @@ function textoViandas() {
     const nombre = entryName(e);
     L.push(nombre ? `${d ? emojiFor(d) : "•"} ${nombre}` : `• (a definir)`);
     if (d && d.lados) L.push(`• ${d.lados}`);
+    if (d && ingsBanned(d).length) L.push(`🚫 Sin ${ingsBanned(d).join(" ni ")}`);
     if (d && d.chicos) L.push(`🥣 ${d.chicos}`);
     const obs = state.week.obs[i] || (d && d.obs);
     if (obs) L.push(`📝 Obs: ${obs}`);
@@ -1381,6 +1588,7 @@ function textoCenas() {
     const nombre = entryName(e);
     L.push(nombre ? `${d ? emojiFor(d) : "•"} ${nombre}` : `• (a definir)`);
     if (d && d.lados) L.push(`• ${d.lados}`);
+    if (d && ingsBanned(d).length) L.push(`🚫 Sin ${ingsBanned(d).join(" ni ")}`);
     if (d && d.chicos) L.push(`👧 Chicos: ${d.chicos}`);
     if (state.keto && d && d.keto) L.push(`👉 Mike (keto): ${d.keto}`);
     L.push(``);
@@ -1420,7 +1628,7 @@ function listaCompras() {
     if (!d || !d.ing) continue;
     for (const raw of d.ing.split(",")) {
       const it = raw.trim().toLowerCase();
-      if (!it) continue;
+      if (!it || esBanned(it)) continue; // lo que no nos gusta no se compra
       items.set(it, (items.get(it) || 0) + 1);
     }
   }
