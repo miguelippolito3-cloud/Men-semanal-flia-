@@ -180,9 +180,14 @@
   /* ── Filas de platos por día ── */
   .rows { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
   .row {
-    display: flex; align-items: center; gap: 11px; text-align: left;
+    display: flex; align-items: center; gap: 9px; text-align: left;
     background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 9px 11px; width: 100%;
+    padding: 9px 11px; width: 100%; cursor: pointer;
+  }
+  .row .act {
+    flex: none; width: 34px; height: 34px; border-radius: 10px; padding: 0;
+    font-size: 15px; display: grid; place-items: center;
+    background: var(--card-2); border: 1px solid var(--line);
   }
   .row .r-emoji {
     flex: none; width: 46px; height: 46px; border-radius: 14px;
@@ -437,7 +442,7 @@
         <button id="btnCopyViandas">📋 Viandas</button>
         <button id="btnDone">✅ ¡Semana lista!</button>
       </div>
-      <p class="hint pad">Tocá un día para editarlo · los ❤️ de cada perfil hacen que ese plato salga más seguido en el sorteo.</p>
+      <p class="hint pad">Tocá un día para editarlo · 🇦🇷 sortea una receta argentina nueva para ese día · 🏠 vuelve a un plato de nuestro recetario · los ❤️ de cada perfil hacen que ese plato salga más seguido.</p>
     </section>
 
     <!-- ── DESCUBRIR ── -->
@@ -868,12 +873,28 @@ function candidatesFor(tipo, i) {
   const sinChoque = c.filter(d => !vecinos.includes(d.prot));
   return (sinChoque.length ? sinChoque : c);
 }
-function rerollDay(tipo, i) {
-  const c = candidatesFor(tipo, i);
-  if (!c.length) return;
+function rerollFrom(tipo, i, dishes) {
+  const key = tipo === "cena" ? "cenas" : "viandas";
+  const week = state.week[key];
+  const usados = week.filter((e, j) => j !== i && e && e.id).map(e => e.id);
+  const vecinos = [week[i - 1], week[i + 1]].map(entryProt).filter(Boolean);
+  const actual = week[i] && week[i].id;
+  let c = dishes.filter(d => d.id !== actual && !usados.includes(d.id));
+  const sinChoque = c.filter(d => !vecinos.includes(d.prot));
+  c = sinChoque.length ? sinChoque : c;
+  if (!c.length) { toast("No hay más platos disponibles 😅"); return null; }
   const pick = ensureInRecetario(weightedSample(c, 1)[0]);
-  state.week[tipo === "cena" ? "cenas" : "viandas"][i] = { id: pick.id };
+  state.week[key][i] = { id: pick.id };
   save(); render();
+  return pick;
+}
+function rerollDay(tipo, i) {
+  rerollFrom(tipo, i, poolForGen(tipo));
+}
+// 🏠 Volver a un plato del recetario familiar para ese día
+function casaDay(tipo, i) {
+  const pick = rerollFrom(tipo, i, sorteable(tipo).filter(d => !nombreBanned(d)));
+  if (pick) toast(`🏠 ${emojiFor(pick)} ${pick.nombre} el ${DIAS[i]}`);
 }
 
 // ── Render ──
@@ -941,8 +962,10 @@ function rowFor(tipo, i) {
   const key = tipo === "cena" ? "cenas" : "viandas";
   const e = state.week[key][i];
   const d = entryDish(e);
-  const row = document.createElement("button");
+  const row = document.createElement("div");
   row.className = "row";
+  row.setAttribute("role", "button");
+  row.setAttribute("tabindex", "0");
   row.setAttribute("aria-label", `Editar ${tipo} del ${DIAS[i]}`);
   const emoji = entryEmoji(e) || "＋";
   const name = entryName(e) || "Elegir plato…";
@@ -956,9 +979,20 @@ function rowFor(tipo, i) {
       ${d && d.lados ? `<p class="r-sub">🥗 ${d.lados}</p>` : ""}
       ${d ? `<span class="chip ${d.prot}">${PROT_LABEL[d.prot]}</span>` : ""}
     </span>
-    ${likes ? `<span class="r-likes">❤️ ${likes}</span>` : ""}
-    <span class="r-go">›</span>`;
+    ${likes ? `<span class="r-likes">❤️ ${likes}</span>` : ""}`;
+  const arB = document.createElement("button");
+  arB.className = "act"; arB.textContent = "🇦🇷";
+  arB.title = `Receta argentina nueva para el ${DIAS[i]}`;
+  arB.addEventListener("click", ev => { ev.stopPropagation(); sorpresaDay(tipo, i); });
+  const casaB = document.createElement("button");
+  casaB.className = "act"; casaB.textContent = "🏠";
+  casaB.title = `Volver a un plato de nuestro recetario el ${DIAS[i]}`;
+  casaB.addEventListener("click", ev => { ev.stopPropagation(); casaDay(tipo, i); });
+  const go = document.createElement("span");
+  go.className = "r-go"; go.textContent = "›";
+  row.appendChild(arB); row.appendChild(casaB); row.appendChild(go);
   row.addEventListener("click", () => openSheet(i, tipo));
+  row.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openSheet(i, tipo); } });
   return row;
 }
 
