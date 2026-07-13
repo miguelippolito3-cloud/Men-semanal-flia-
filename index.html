@@ -634,8 +634,7 @@ const CATALOGO = [
   { id: "a2",  tipo: "cena", prot: "carne",   nombre: "Guiso de lentejas con chorizo colorado", lados: "Pan casero", chicos: "", keto: "Porción chica, sin papa ni arroz", ing: "lentejas, chorizo colorado, panceta, papa, zanahoria, cebolla, morrón, tomate", nut: [650, 35, 70, 22], src: "Cookpad AR" },
   { id: "a3",  tipo: "cena", prot: "pasta",   nombre: "Ñoquis de papa con tuco", lados: "Queso rallado", chicos: "", keto: "Para Mike: carne del tuco + ensalada, sin ñoquis", ing: "papa, harina, huevo, salsa de tomate, carne, queso rallado", nut: [620, 18, 95, 18], src: "RecetasArgentinas.net" },
   { id: "a4",  tipo: "cena", prot: "carne",   nombre: "Matambre a la pizza", lados: "Papas al horno", chicos: "", keto: "Tal cual, sin papas + ensalada", ing: "matambre, salsa de tomate, mozzarella, orégano, papa", nut: [700, 48, 30, 42], src: "RecetasArgentinas.net" },
-  { id: "a5",  tipo: "cena", prot: "veggie",  nombre: "Polenta con tuco y queso", lados: "", chicos: "", keto: "Reemplazar por carne + ensalada", ing: "polenta, salsa de tomate, carne picada, queso cremoso", nut: [560, 20, 70, 20], src: "RecetasArgentinas.net" },
-  { id: "a6",  tipo: "cena", prot: "tarta",   nombre: "Tarta pascualina de acelga", lados: "Ensalada de tomate", chicos: "", keto: "Relleno sin masa (budín de acelga)", ing: "tapas de tarta, acelga, huevo, cebolla, queso rallado, tomate", nut: [480, 20, 38, 28], src: "Cookpad AR" },
+  { id: "a5",  tipo: "cena", prot: "carne",  nombre: "Polenta con tuco y queso", lados: "", chicos: "", keto: "Reemplazar por carne + ensalada", ing: "polenta, salsa de tomate, carne picada, queso cremoso", nut: [560, 20, 70, 20], src: "RecetasArgentinas.net" },
   { id: "a7",  tipo: "cena", prot: "pasta",   nombre: "Pizza casera de muzzarella", lados: "Aceitunas", chicos: "", keto: "Pizza de base de coliflor o sin base", ing: "harina, levadura, salsa de tomate, mozzarella, aceitunas", nut: [850, 35, 90, 35], src: "RecetasArgentinas.net" },
   { id: "a8",  tipo: "cena", prot: "pollo",   nombre: "Pollo al verdeo con arroz", lados: "", chicos: "", keto: "Pollo al verdeo con crema, sin arroz + ensalada", ing: "pollo, cebolla de verdeo, crema, arroz", nut: [640, 42, 50, 24], src: "Essen" },
   { id: "a9",  tipo: "cena", prot: "pollo",   nombre: "Wok de pollo y verduras", lados: "Arroz o fideos de arroz", chicos: "", keto: "Wok sin arroz, más verduras", ing: "pollo, zanahoria, morrón, cebolla, brócoli, salsa de soja, arroz", nut: [520, 38, 40, 18], src: "Essen" },
@@ -644,7 +643,6 @@ const CATALOGO = [
   { id: "a12", tipo: "cena", prot: "pasta",   nombre: "Canelones de verdura y ricota", lados: "Salsa blanca y tomate gratinados", chicos: "", keto: "Relleno sin masa + ensalada", ing: "tapas de canelones, acelga, ricota, salsa blanca, salsa de tomate, queso rallado", nut: [680, 28, 62, 32], src: "La Paulina" },
   { id: "a13", tipo: "cena", prot: "pasta",   nombre: "Lasaña de carne y queso", lados: "", chicos: "", keto: "Para Mike: carne de la salsa + ensalada", ing: "láminas de lasaña, carne picada, salsa de tomate, salsa blanca, mozzarella, queso rallado", nut: [780, 40, 60, 38], src: "La Paulina" },
   { id: "a14", tipo: "cena", prot: "carne",   nombre: "Zapallitos rellenos", lados: "Arroz", chicos: "", keto: "Tal cual, sin arroz", ing: "zapallitos redondos, carne picada, cebolla, huevo, queso rallado, arroz", nut: [540, 32, 28, 30], src: "Essen" },
-  { id: "a15", tipo: "cena", prot: "veggie",  nombre: "Tortilla de papas", lados: "Ensalada mixta", chicos: "", keto: "Omelette de huevo y queso en vez de papa", ing: "papa, huevo, cebolla, hojas verdes, tomate", nut: [560, 18, 55, 28], src: "Cookpad AR" },
   { id: "a16", tipo: "cena", prot: "pollo",   nombre: "Suprema a la Maryland", lados: "Puré, choclo y banana frita", chicos: "", keto: "Suprema grillada + ensalada, sin guarniciones", ing: "supremas de pollo, pan rallado, papa, choclo, banana, arvejas", nut: [820, 45, 70, 35], src: "RecetasArgentinas.net" },
   { id: "a17", tipo: "cena", prot: "pescado", nombre: "Merluza a la romana con puré", lados: "Limón", chicos: "", keto: "Merluza grillada sin rebozar + ensalada", ing: "filet de merluza, harina, huevo, papa, limón", nut: [580, 35, 48, 24], src: "Cookpad AR" },
   { id: "a18", tipo: "cena", prot: "pescado", nombre: "Chupín de pescado", lados: "Pan para la salsita", chicos: "", keto: "Tal cual, sin papa ni pan", ing: "pescado, papa, cebolla, tomate, morrón, vino blanco", nut: [480, 38, 30, 18], src: "RecetasArgentinas.net" },
@@ -1107,7 +1105,8 @@ function buildDishSelect(tipo, i) {
   const sel = document.createElement("select");
   sel.setAttribute("aria-label", `${tipo} del ${DIAS[i]}`);
   sel.appendChild(new Option("— elegir plato —", ""));
-  for (const d of pool(tipo)) sel.appendChild(new Option((d.veto ? "🚫 " : "") + `${emojiFor(d)} ${d.nombre}`, d.id));
+  const elegibles = tipo === "cena" ? pool(tipo).filter(d => !["tarta", "veggie"].includes(d.prot)) : pool(tipo);
+  for (const d of elegibles) sel.appendChild(new Option((d.veto ? "🚫 " : "") + `${emojiFor(d)} ${d.nombre}`, d.id));
   sel.appendChild(new Option("🥡 Sobras / aprovechar", "__sobras"));
   sel.appendChild(new Option("🍕 Salimos / pedimos", "__afuera"));
   sel.appendChild(new Option("✍️ Otro (escribir)…", "__custom"));
@@ -1353,7 +1352,7 @@ function renderFeed() {
     }
     rail.appendChild(likeB); rail.appendChild(cnt); rail.appendChild(vetoB);
     if (recetaOf(d)) rail.appendChild(rcpB);
-    rail.appendChild(addB);
+    if (!(d.tipo === "cena" && ["tarta", "veggie"].includes(d.prot))) rail.appendChild(addB);
     card.appendChild(rail);
     card.appendChild(pick);
     // doble tap = like (estilo Instagram)
@@ -1931,6 +1930,23 @@ $("#photoInput").addEventListener("change", () => {
   reader.readAsDataURL(file);
   $("#photoInput").value = "";
 });
+
+// Reparación: si alguna cena guardada tiene de principal una tarta/veggie
+// (tortilla, pascualina, etc.), se reemplaza por una carne — eso va de complemento.
+(function fixCenasPrincipal() {
+  let changed = false;
+  state.week.cenas.forEach((e, i) => {
+    const d = entryDish(e);
+    if (d && ["tarta", "veggie"].includes(d.prot)) {
+      const usados = state.week.cenas.filter((e2, j) => j !== i && e2 && e2.id).map(e2 => e2.id);
+      const pool = poolForGen("cena").filter(x => !usados.includes(x.id));
+      state.week.cenas[i] = pool.length ? { id: ensureInRecetario(weightedSample(pool, 1)[0]).id } : null;
+      ensureSides(i);
+      changed = true;
+    }
+  });
+  if (changed) { save(); toast("Ajusté cenas: el principal siempre es una carne 🥩 (tortilla y tarta van de complemento)"); }
+})();
 
 applyTheme();
 render();
