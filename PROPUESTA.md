@@ -32,6 +32,14 @@ Investigación basada en el artículo de [Xataka: 17 aplicaciones para organizar
 3. **El canal es WhatsApp**: no hay que convencer a nadie de instalar otra app; el resultado se pega en el grupo con el formato de siempre.
 4. **Keto integrado**: ninguna app generalista trae el ajuste de Mike por plato; acá viene precargado del chat.
 
+## 🇦🇷 Catálogo argentino (v5)
+
+Investigación de recetas familiares de todos los días en los recetarios argentinos más usados: [Cookpad Argentina](https://cookpad.com/ar) (las búsquedas de "cena familiar" y "comidas para la familia" superan las 4.000–7.000 recetas caseras), [RecetasArgentinas.net](https://recetasargentinas.net/) (más de 2.000 recetas tradicionales), [La Paulina](https://www.lapaulina.com.ar/es/recetas) (pastas gratinadas y quesos), [comunidad Essen](https://comunidad.essenla.com/recetas) (cocina de olla: arroz con pollo, wok, guisos) y [Cookidoo/Thermomix](https://cookidoo.es/collection/es/p/col341599) (colección "Cocina Argentina").
+
+Los platos que se repiten en todos los recetarios — el canon de la mesa argentina — quedaron en el **catálogo integrado de 34 recetas**: pastel de papa, guiso de lentejas, ñoquis con tuco, matambre a la pizza, polenta con tuco, pascualina, pizza casera, pollo al verdeo, wok de pollo, bifes a la criolla, pan de carne, canelones, lasaña, zapallitos rellenos, tortilla de papas, suprema a la Maryland, merluza a la romana, chupín de pescado, empanadas al horno, risotto de calabaza, y viandas como croquetas de pollo, arroz primavera, tarta caprese y budín de zapallitos. Cada una con ingredientes, nutrición estimada y su fuente.
+
+En la app, el sorteo tiene tres orígenes: **🏠 solo el recetario familiar**, **🔀 mezcla** (casa + catálogo) o **🇦🇷 sorprendeme** (solo recetas nuevas). El feed suma el filtro "🇦🇷 Nuevas" para descubrirlas una por una: ❤️ la guarda en el recetario familiar, ➕ la prueba en un día de la semana, 🚫 la oculta para siempre. Cuando una receta nueva se usa o se guarda, pasa a ser parte del recetario de la familia (votos, fotos, lista de compras y todo lo demás).
+
 ## Ideas para una v3 (no implementadas aún)
 
 - Recordatorios ("descongelar la carne") vía notificaciones (requiere PWA + service worker).
