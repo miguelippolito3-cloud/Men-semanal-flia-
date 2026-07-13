@@ -47,6 +47,17 @@
     --stat: #FFDE59;
     color-scheme: dark;
   }
+  /* ── Tema Argentina 🇦🇷: celeste y blanco, con el sol dorado ── */
+  :root[data-theme="argentina"] {
+    --bg: #CFE4F5; --shell: #F2F8FD; --card: #FFFFFF; --card-2: #E4F0F9;
+    --ink: #12365B; --muted: #58799B; --line: #C6DCEE;
+    --grad-ig: linear-gradient(45deg, #3E8DD6, #74ACDF 45%, #F6B40E);
+    --grad-ring: conic-gradient(from 210deg, #74ACDF, #FFFFFF, #F6B40E, #74ACDF);
+    --like: #E4536B;
+    --overlay: rgba(242,248,253,0.94); --glass: rgba(18,54,91,0.45);
+    --stat: #F6B40E;
+    color-scheme: light;
+  }
   :root[data-theme="psico"] #app { background: linear-gradient(160deg, #1B0733, #0E4D4A 45%, #4A0E5C 80%); }
   @media (prefers-reduced-motion: no-preference) {
     :root[data-theme="psico"] #app {
@@ -340,11 +351,20 @@
     transition: transform .25s ease; max-height: 86dvh; overflow-y: auto;
   }
   .sheet.open { transform: translate(-50%, 0); }
-  .sheet .handle { width: 42px; height: 4px; border-radius: 99px; background: var(--line); margin: 2px auto 12px; }
-  .sheet h3 { margin: 0 0 12px; font-size: 18px; font-weight: 900; }
-  .sheet .meal { margin-bottom: 16px; }
-  .sheet .meal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .sheet .handle { width: 42px; height: 4px; border-radius: 99px; background: var(--line); margin: 2px auto 10px; }
+  .sheet-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .sheet-head h3 { margin: 0; font-size: 19px; font-weight: 900; flex: 1; text-align: center; }
+  .s-nav { width: 38px; height: 38px; border-radius: 12px; padding: 0; font-size: 18px; display: grid; place-items: center; flex: none; }
+  .sheet .meal { margin-bottom: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px; }
+  .sheet .meal-head { display: flex; align-items: center; gap: 8px; margin-bottom: 9px; }
   .sheet .meal-head span { font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); flex: 1; }
+  .meal-acts { display: flex; gap: 6px; margin-bottom: 9px; flex-wrap: wrap; }
+  .meal-acts .pill { font-size: 12.5px; padding: 7px 11px; border-radius: 99px; background: var(--card-2); }
+  .chips-row { display: flex; gap: 6px; overflow-x: auto; padding: 5px 0 3px; scrollbar-width: none; }
+  .chips-row::-webkit-scrollbar { display: none; }
+  .pchip { flex: none; font-size: 12.5px; font-weight: 600; padding: 7px 13px; border-radius: 99px; background: var(--card-2); border: 1px solid var(--line); color: var(--ink); }
+  .pchip.on { background: var(--grad-ig); color: #fff; border-color: transparent; font-weight: 800; }
+  .pchip.lock { opacity: 0.95; cursor: default; }
   .sheet .side { font-size: 13px; color: var(--muted); margin: 7px 2px 0; }
   .sheet .keto-note { font-size: 13px; margin: 7px 0 0; background: var(--card); border-left: 3px solid #F5B841; padding: 6px 9px; border-radius: 0 9px 9px 0; }
   .fans { display: flex; gap: 5px; margin-top: 9px; flex-wrap: wrap; }
@@ -483,6 +503,7 @@
 
       <div class="export-bar">
         <button id="btnWhatsApp" class="grad">💬 Mandar al grupo</button>
+        <button id="btnWhatsAppTodo">📲 Menú + compras</button>
         <button id="btnCopyCenas">📋 Cenas</button>
         <button id="btnCopyViandas">📋 Viandas</button>
         <button id="btnDone">✅ ¡Semana lista!</button>
@@ -506,7 +527,10 @@
       <div class="shop-progress"><div class="bar" id="shopBar" style="width:0%"></div></div>
       <p class="shop-meta" id="shopMeta"></p>
       <div class="shop-cols" id="shopCols"></div>
-      <div class="export-bar"><button id="btnCopyShop" class="grad">📋 Copiar lo que falta</button></div>
+      <div class="export-bar">
+        <button id="btnWhatsAppShop" class="grad">💬 Mandar lista al grupo</button>
+        <button id="btnCopyShop">📋 Copiar lo que falta</button>
+      </div>
     </section>
 
     <!-- ── RECETARIO ── -->
@@ -571,7 +595,12 @@
 <div class="sheet-back" id="sheetBack"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
   <div class="handle"></div>
-  <h3 id="sheetTitle"></h3>
+  <div class="sheet-head">
+    <button class="s-nav" id="dayPrev" aria-label="Día anterior">‹</button>
+    <h3 id="sheetTitle"></h3>
+    <button class="s-nav" id="dayNext" aria-label="Día siguiente">›</button>
+    <button class="s-nav" id="sheetClose" aria-label="Cerrar">✕</button>
+  </div>
   <div id="sheetBody"></div>
 </div>
 
@@ -598,6 +627,7 @@
   <div id="rcpBody" style="font-size:14px; line-height:1.6"></div>
   <div class="wheel-actions" style="margin-top:14px">
     <button id="rcpImport" class="grad" hidden>➕ Importar al recetario</button>
+    <button id="rcpPrompt">✨ Prompt de foto</button>
     <button id="rcpClose" class="ghost">Cerrar</button>
   </div>
 </dialog>
@@ -896,8 +926,8 @@ const ingsBanned = d => (d.ing || "").split(",").map(x => x.trim()).filter(x => 
 // El plato ES el ingrediente prohibido (ej: "salsa roquefort") → afuera del sorteo
 const nombreBanned = d => esBanned(d.nombre);
 
-const THEMES = ["dark", "light", "psico"];
-const THEME_ICON = { dark: "🌙", light: "☀️", psico: "🌈" };
+const THEMES = ["dark", "light", "psico", "argentina"];
+const THEME_ICON = { dark: "🌙", light: "☀️", psico: "🌈", argentina: "🇦🇷" };
 function applyTheme() {
   document.documentElement.dataset.theme = state.theme;
   const b = document.getElementById("themeBtn");
@@ -1438,69 +1468,87 @@ function mealBlock(tipo, i) {
   const lbl = document.createElement("span");
   lbl.textContent = tipo === "cena" ? "🍽 Cena familia" : "🧺 Vianda chicos";
   head.appendChild(lbl);
-  const wheelB = document.createElement("button");
-  wheelB.textContent = "🎡"; wheelB.title = "Ruleta";
-  wheelB.addEventListener("click", () => openWheel(tipo, i));
-  const reB = document.createElement("button");
-  reB.textContent = "🔁"; reB.title = "Sortear otro";
-  reB.addEventListener("click", () => rerollDay(tipo, i));
-  const surB = document.createElement("button");
-  surB.textContent = "🇦🇷"; surB.title = "Sorpresa: una receta argentina nueva solo para este día";
-  surB.addEventListener("click", () => sorpresaDay(tipo, i));
-  head.appendChild(surB); head.appendChild(wheelB); head.appendChild(reB);
   box.appendChild(head);
+  // acciones con nombre, más claras que iconos sueltos
+  const acts = document.createElement("div");
+  acts.className = "meal-acts";
+  const mkAct = (txt, title, fn) => {
+    const b = document.createElement("button");
+    b.className = "pill"; b.textContent = txt; b.title = title;
+    b.addEventListener("click", fn);
+    return b;
+  };
+  acts.appendChild(mkAct("🇦🇷 Sorpresa", "Receta argentina nueva solo para este día", () => sorpresaDay(tipo, i)));
+  acts.appendChild(mkAct("🎡 Ruleta", "Que giren los chicos", () => openWheel(tipo, i)));
+  acts.appendChild(mkAct("🔁 Otro", "Sortear otro plato", () => rerollDay(tipo, i)));
+  box.appendChild(acts);
   box.appendChild(buildDishSelect(tipo, i));
   if (dish) {
-    if (dish.lados) { const p = document.createElement("p"); p.className = "side"; p.textContent = "🥗 " + dish.lados; box.appendChild(p); }
+    if (dish.lados) { const p = document.createElement("p"); p.className = "side"; p.textContent = "🍟 " + dish.lados; box.appendChild(p); }
     if (dish.chicos) { const p = document.createElement("p"); p.className = "side"; p.textContent = (tipo === "cena" ? "👧 Chicos: " : "🥣 ") + dish.chicos; box.appendChild(p); }
     const banned = ingsBanned(dish);
     if (banned.length) { const p = document.createElement("p"); p.className = "side"; p.textContent = `🚫 Sin ${banned.join(" ni ")} (no nos gusta)`; box.appendChild(p); }
     if (recetaOf(dish)) {
       const rb = document.createElement("button");
-      rb.textContent = "📖 Ver receta"; rb.style.marginTop = "8px";
+      rb.className = "pill"; rb.textContent = "📖 Ver receta"; rb.style.marginTop = "8px";
       rb.addEventListener("click", () => openRecipe(dish));
       box.appendChild(rb);
     }
     if (dish.nut) { const n = document.createElement("div"); n.innerHTML = nutPills(dish, true); box.appendChild(n.firstChild); }
     if (state.keto && tipo === "cena" && dish.keto) { const p = document.createElement("p"); p.className = "keto-note"; p.textContent = "👉 Mike: " + dish.keto; box.appendChild(p); }
+    const fLbl = document.createElement("p");
+    fLbl.className = "side"; fLbl.style.marginTop = "10px";
+    fLbl.textContent = "❤️ ¿A quién le encanta? Tocá tu nombre:";
+    box.appendChild(fLbl);
     box.appendChild(fanRow(dish));
   }
   if (tipo === "cena") {
     const side = ensureSides(i);
     const lbl1 = document.createElement("p");
-    lbl1.className = "side"; lbl1.style.marginTop = "10px";
+    lbl1.className = "side"; lbl1.style.marginTop = "12px";
     lbl1.textContent = "🥬 Ensaladas — la verde va siempre. ¿Sumamos otra?";
     box.appendChild(lbl1);
-    const ensSel = document.createElement("select");
-    ensSel.setAttribute("aria-label", "Segunda ensalada");
-    ensSel.appendChild(new Option("Solo ensalada verde", ""));
-    for (const sd of ENSALADAS.filter(x => !x.verde)) ensSel.appendChild(new Option("+ " + sd.nombre, sd.id));
-    ensSel.value = side.ens2 || "";
-    ensSel.addEventListener("change", () => { side.ens2 = ensSel.value || null; save(); render(); });
-    box.appendChild(ensSel);
+    const ensRow = document.createElement("div");
+    ensRow.className = "chips-row";
+    const verde = document.createElement("button");
+    verde.className = "pchip on lock"; verde.textContent = "🥬 Verde ✓";
+    verde.title = "La ensalada verde va siempre";
+    ensRow.appendChild(verde);
+    for (const sd of ENSALADAS.filter(x => !x.verde)) {
+      const c = document.createElement("button");
+      c.className = "pchip" + (side.ens2 === sd.id ? " on" : "");
+      c.textContent = sd.nombre;
+      c.addEventListener("click", () => { side.ens2 = side.ens2 === sd.id ? null : sd.id; save(); render(); });
+      ensRow.appendChild(c);
+    }
+    box.appendChild(ensRow);
     const lbl2 = document.createElement("p");
     lbl2.className = "side"; lbl2.style.marginTop = "10px";
-    lbl2.textContent = "➕ Complemento (burrata, tarta, tortilla, omelette…)";
+    lbl2.textContent = "➕ Complemento del día";
     box.appendChild(lbl2);
-    const compSel = document.createElement("select");
-    compSel.setAttribute("aria-label", "Complemento de la cena");
-    compSel.appendChild(new Option("Sin complemento", ""));
-    for (const k of COMPLEMENTOS) compSel.appendChild(new Option(k.nombre + (esBanned(k.nombre) ? " 🚫" : ""), k.id));
-    compSel.appendChild(new Option("✍️ Otro (escribir)…", "__custom"));
-    if (side.comp && side.comp.custom) {
-      const o = new Option(`✍️ ${side.comp.custom}`, "__current"); o.selected = true;
-      compSel.insertBefore(o, compSel.firstChild);
-    } else if (side.comp && side.comp.id) compSel.value = side.comp.id;
-    compSel.addEventListener("change", () => {
-      if (compSel.value === "__custom") {
-        const txt = prompt("¿Qué complemento?");
-        side.comp = txt ? { custom: txt.trim() } : null;
-      } else if (compSel.value && compSel.value !== "__current") {
-        side.comp = { id: compSel.value };
-      } else if (!compSel.value) side.comp = null;
-      save(); render();
+    const compRow = document.createElement("div");
+    compRow.className = "chips-row";
+    const ninguno = document.createElement("button");
+    ninguno.className = "pchip" + (!side.comp ? " on" : "");
+    ninguno.textContent = "Sin complemento";
+    ninguno.addEventListener("click", () => { side.comp = null; save(); render(); });
+    compRow.appendChild(ninguno);
+    for (const k of COMPLEMENTOS) {
+      const c = document.createElement("button");
+      c.className = "pchip" + (side.comp && side.comp.id === k.id ? " on" : "");
+      c.textContent = k.nombre + (esBanned(k.nombre) ? " 🚫" : "");
+      c.addEventListener("click", () => { side.comp = { id: k.id }; save(); render(); });
+      compRow.appendChild(c);
+    }
+    const otro = document.createElement("button");
+    otro.className = "pchip" + (side.comp && side.comp.custom ? " on" : "");
+    otro.textContent = side.comp && side.comp.custom ? `✍️ ${side.comp.custom}` : "✍️ Otro…";
+    otro.addEventListener("click", () => {
+      const txt = prompt("¿Qué complemento?");
+      if (txt) { side.comp = { custom: txt.trim() }; save(); render(); }
     });
-    box.appendChild(compSel);
+    compRow.appendChild(otro);
+    box.appendChild(compRow);
   }
   if (tipo === "vianda") {
     const obs = document.createElement("input");
@@ -1532,6 +1580,9 @@ function closeSheet() {
   $("#sheetBack").classList.remove("open");
 }
 $("#sheetBack").addEventListener("click", closeSheet);
+$("#sheetClose").addEventListener("click", closeSheet);
+$("#dayPrev").addEventListener("click", () => { sheetDay = (sheetDay + 4) % 5; renderSheet(); });
+$("#dayNext").addEventListener("click", () => { sheetDay = (sheetDay + 1) % 5; renderSheet(); });
 
 // ── Feed Descubrir ──
 function renderFeed() {
@@ -1829,6 +1880,7 @@ function openRecipe(d) {
     ${banned.length ? `<p style="margin-top:8px">🚫 <strong>Versión familia:</strong> sin ${banned.join(" ni ")}.</p>` : ""}
     ${d.nut ? `<h5>Nutrición por porción</h5><p>🔥 ${d.nut[0]} kcal · 💪 ${d.nut[1]}g proteínas · 🍞 ${d.nut[2]}g carbos · 🥑 ${d.nut[3]}g grasas</p>` : ""}
     ${state.keto && d.keto ? `<h5>Keto Mike</h5><p>👉 ${d.keto}</p>` : ""}`;
+  promptDish = d;
   const imp = $("#rcpImport");
   imp.hidden = !!byId(d.id);
   imp.onclick = () => {
@@ -1841,6 +1893,12 @@ function openRecipe(d) {
   logEvent("receta");
 }
 $("#rcpClose").addEventListener("click", () => $("#recipeModal").close());
+let promptDish = null;
+$("#rcpPrompt").addEventListener("click", () => {
+  if (!promptDish) return;
+  const p = `Foto realista y apetitosa de ${promptDish.nombre}${promptDish.lados ? " con " + promptDish.lados.toLowerCase() : ""}, plato casero argentino servido en la mesa familiar, luz cálida natural, fotografía gastronómica profesional, alta definición, formato vertical`;
+  copiar(p, "✨ Prompt copiado — pegalo en Gemini/Nano Banana y subí la foto con 📷");
+});
 
 // ── Ruleta 🎡 ──
 const WHEEL_COLORS = ["#F5A623", "#FF5A5F", "#C77DFF", "#4CC9F0", "#F9C74F", "#80ED99", "#E22B6F", "#38BDF8"];
@@ -2175,12 +2233,21 @@ $("#btnWhatsApp").addEventListener("click", () => {
   window.open("https://wa.me/?text=" + encodeURIComponent(txt), "_blank");
 });
 $("#btnCopyShop").addEventListener("click", () => copiar(textoCompras(), "Lista de compras copiada 🛒"));
+$("#btnWhatsAppTodo").addEventListener("click", () => {
+  logEvent("whatsapp");
+  const txt = textoCenas() + "\n\n" + textoViandas() + "\n\n" + textoCompras();
+  window.open("https://wa.me/?text=" + encodeURIComponent(txt), "_blank");
+});
+$("#btnWhatsAppShop").addEventListener("click", () => {
+  logEvent("whatsapp");
+  window.open("https://wa.me/?text=" + encodeURIComponent(textoCompras()), "_blank");
+});
 $("#btnPrint").addEventListener("click", () => window.print());
 
 $("#themeBtn").addEventListener("click", () => {
   state.theme = THEMES[(THEMES.indexOf(state.theme) + 1) % THEMES.length];
   save(); applyTheme();
-  toast({ dark: "🌙 Modo noche", light: "☀️ Modo claro", psico: "🌈 Modo psicodélico, ¡groovy!" }[state.theme]);
+  toast({ dark: "🌙 Modo noche", light: "☀️ Modo claro", psico: "🌈 Modo psicodélico, ¡groovy!", argentina: "🇦🇷 ¡Vamos Argentina! Celeste y blanco" }[state.theme]);
 });
 
 // ── Fotos de platos (generalas con Gemini/Nano Banana y subilas acá) ──
