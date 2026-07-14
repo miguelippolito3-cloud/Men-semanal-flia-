@@ -156,6 +156,19 @@
     border: 1px solid var(--line); border-left: 3px solid var(--stat);
     border-radius: 0 12px 12px 0; color: var(--ink);
   }
+  .write-btn { display: block; width: calc(100% - 32px); margin: 12px 16px 0; padding: 13px; font-size: 15px; }
+  body.kid .write-btn { display: none; }
+  dialog#writeModal { border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink); padding: 18px; width: 360px; max-width: 92vw; }
+  dialog#writeModal::backdrop { background: rgba(0,0,0,0.6); }
+  #writeModal h3 { margin: 0 0 4px; font-size: 19px; font-weight: 900; }
+  #writeModal p.sub { margin: 0 0 12px; font-size: 13px; color: var(--muted); }
+  #writeModal input { margin-bottom: 12px; }
+  #writeModal .seg { display: flex; gap: 8px; margin-bottom: 12px; }
+  #writeModal .seg button { flex: 1; padding: 10px; }
+  #writeModal .seg button.on { background: var(--grad-ig); color: #fff; border-color: transparent; font-weight: 800; }
+  #writeModal .days { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  #writeModal .days button { padding: 12px 4px; font-size: 13px; font-weight: 700; }
+  #writeModal .days button.hoy { border-color: var(--stat); color: var(--stat); }
   .empty-card {
     margin: 18px 16px 6px; padding: 26px 20px; text-align: center;
     background: var(--card); border: 2px dashed var(--line); border-radius: 22px;
@@ -664,6 +677,7 @@
         <button class="grad" id="emptyGo">🎲 ¡Armar la semana!</button>
       </div>
       <div class="next-hint" id="nextHint" hidden></div>
+      <button class="grad write-btn" id="btnEscribir">✍️ Escribir lo que quiero cocinar</button>
       <div class="hero" id="hero" hidden>
         <p class="h-label" id="heroLabel"></p>
         <div class="h-row"><span class="h-emoji" id="heroCenaEmoji"></span><div><p class="h-kind">Cena</p><p class="h-name" id="heroCenaName"></p></div></div>
@@ -841,6 +855,19 @@
   </div>
   <div id="sheetBody"></div>
 </div>
+
+<dialog id="writeModal">
+  <h3>✍️ ¿Qué querés cocinar?</h3>
+  <p class="sub">Escribilo y elegí el día. Si no está en el recetario, después te busco la receta.</p>
+  <input type="text" id="writeInput" placeholder="Ej: Matambre de cerdo al horno" autocomplete="off">
+  <div class="seg" id="writeSeg">
+    <button data-t="cena" class="on">🍽 Cena</button>
+    <button data-t="vianda">🧺 Vianda</button>
+  </div>
+  <p class="sub" style="margin-bottom:6px">¿Qué día?</p>
+  <div class="days" id="writeDays"></div>
+  <div class="wheel-actions" style="margin-top:14px"><button id="writeCancel" class="ghost">Cancelar</button></div>
+</dialog>
 
 <dialog id="badgesModal">
   <p class="wheel-head">🏅 Logros de la familia</p>
@@ -2310,8 +2337,8 @@ function mealBlock(tipo, i) {
 }
 
 // ── Escribir un plato propio (ej: "Matambre de cerdo") ──
-function escribirPlato(tipo, i) {
-  const txt = (prompt("Escribí el plato que querés hacer:\n(ej: Matambre de cerdo al horno)") || "").trim();
+function escribirPlato(tipo, i, nombreDado) {
+  const txt = (nombreDado !== undefined ? nombreDado : (prompt("Escribí el plato que querés hacer:\n(ej: Matambre de cerdo al horno)") || "")).trim();
   if (!txt) { render(); return; }
   const yaEsta = pool(tipo).find(d => norm(d.nombre) === norm(txt));
   let dish;
@@ -3131,6 +3158,36 @@ function textoCompras() {
 }
 
 // ── Eventos globales ──
+// ── Modal "Escribir un plato" desde la primera pantalla ──
+let writeTipo = "cena";
+function abrirEscribir() {
+  writeTipo = "cena";
+  $("#writeInput").value = "";
+  document.querySelectorAll("#writeSeg button").forEach(b => b.classList.toggle("on", b.dataset.t === "cena"));
+  const days = $("#writeDays"); days.innerHTML = "";
+  const ti = todayIndex();
+  for (let i = 0; i < 5; i++) {
+    const b = document.createElement("button");
+    b.className = i === ti ? "hoy" : "";
+    b.innerHTML = `${DIAS_CORTO[i]}${i === ti ? "<br><small>HOY</small>" : ""}`;
+    b.addEventListener("click", () => {
+      const nombre = $("#writeInput").value.trim();
+      if (!nombre) { $("#writeInput").focus(); toast("Escribí el plato primero 😊"); return; }
+      $("#writeModal").close();
+      escribirPlato(writeTipo, i, nombre);
+    });
+    days.appendChild(b);
+  }
+  $("#writeModal").showModal();
+  setTimeout(() => $("#writeInput").focus(), 100);
+}
+$("#btnEscribir").addEventListener("click", abrirEscribir);
+$("#writeCancel").addEventListener("click", () => $("#writeModal").close());
+document.querySelectorAll("#writeSeg button").forEach(b => b.addEventListener("click", () => {
+  writeTipo = b.dataset.t;
+  document.querySelectorAll("#writeSeg button").forEach(x => x.classList.toggle("on", x === b));
+}));
+
 $("#emptyGo").addEventListener("click", () => $("#btnGenerate").click());
 $("#btnGenerate").addEventListener("click", () => {
   if (state.kid.active) { toast("Pedile a mamá o papá que genere el menú 😄"); return; }
