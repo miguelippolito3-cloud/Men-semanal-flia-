@@ -167,13 +167,27 @@
   .row.today { border-color: var(--stat); box-shadow: 0 0 0 1px var(--stat); }
   .row.today .r-day { color: var(--stat); }
 
+  .avatar.kid-av { border-color: #4CC9F0; }
+  /* Banner alegre del modo niño */
+  .kid-banner {
+    display: none; align-items: center; gap: 10px;
+    margin: 6px 14px 0; padding: 12px 15px; border-radius: 18px;
+    background: linear-gradient(45deg, #4CC9F0, #80ED99 55%, #FFDE59);
+    color: #10233a; font-weight: 900;
+  }
+  body.kid .kid-banner { display: flex; }
+  .kid-banner .kb-emoji { font-size: 30px; }
+  .kid-banner h3 { margin: 0; font-size: 17px; }
+  .kid-banner p { margin: 1px 0 0; font-size: 12.5px; font-weight: 700; opacity: 0.8; }
   /* ── Modo niño: pantalla limitada, solo me gusta ── */
   body.kid .tabbar [data-tab="compras"], body.kid .tabbar [data-tab="recetario"],
   body.kid .tabbar .big, body.kid .export-bar, body.kid .conf,
   body.kid details.extra, body.kid #tipsBox, body.kid .row .act,
   body.kid .row .r-go, body.kid #desafioBtn, body.kid #adminBtn,
-  body.kid #nextHint, body.kid .mini { display: none !important; }
+  body.kid #nextHint, body.kid .mini, body.kid #saludo,
+  body.kid .rate-card, body.kid .desafio, body.kid .stories { display: none !important; }
   body.kid .row { cursor: default; }
+  body.kid .rail button:first-child { width: 64px; height: 64px; font-size: 30px; }
 
   /* ── Pantalla de bienvenida / login ── */
   .welcome {
@@ -317,7 +331,7 @@
   .feed-filters button { border: none; border-radius: 99px; padding: 6px 14px; font-size: 13px; background: transparent; color: #fff; opacity: 0.7; }
   .feed-filters button.on { background: #fff; color: #000; opacity: 1; }
   .feed {
-    height: calc(100dvh - var(--tabbar-h) - 10px);
+    height: 60vh; /* fallback; se recalcula por JS a la altura real disponible */
     overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none;
     border-radius: var(--radius); margin: 0 6px;
   }
@@ -637,6 +651,10 @@
   <main>
     <!-- ── SEMANA ── -->
     <section class="tab active" id="tab-semana">
+      <div class="kid-banner" id="kidBanner">
+        <span class="kb-emoji">😋</span>
+        <div><h3 id="kidHi"></h3><p>Deslizá en Descubrir y tocá ❤️ en lo que más te guste</p></div>
+      </div>
       <p class="saludo" id="saludo"></p>
       <div class="stories" id="stories"></div>
       <div class="empty-card" id="emptyCard" hidden>
@@ -752,6 +770,7 @@
       </form>
 
       <h2 class="sec pad">📖 Recetario (<span id="recCount"></span>)</h2>
+      <div class="next-hint" id="pendHint" hidden></div>
       <div class="rec-list" id="recList"></div>
       <form class="add-dish" id="addDishForm">
         <p class="hint full" id="editBanner" hidden style="margin:0">✏️ Editando <strong id="editName"></strong> — <a href="#" id="editCancel">cancelar</a></p>
@@ -1153,6 +1172,7 @@ function migrate(s) {
   s.precios = s.precios || {};
   s.desafiosDone = s.desafiosDone || 0;
   s.emails = s.emails || {};
+  for (const d of s.recetario) if (d.pendiente === undefined) d.pendiente = false;
   return s;
 }
 
@@ -1448,36 +1468,30 @@ function renderProfiles() {
   }
   for (const m of FAMILIA) {
     const b = document.createElement("button");
-    b.className = "avatar" + (state.currentUser === m.k ? " active" : "");
+    const esNino = NINOS.includes(m.k);
+    b.className = "avatar" + (state.currentUser === m.k ? " active" : "") + (esNino ? " kid-av" : "");
     b.textContent = m.label;
-    b.title = `Usar como ${m.title}`;
+    b.title = esNino ? `Modo ${m.title} (queda bloqueado, se sale con PIN)` : `Usar como ${m.title}`;
     b.setAttribute("aria-pressed", state.currentUser === m.k);
     b.addEventListener("click", () => {
+      if (esNino) { entrarModoNino(m.k); return; }
       setLocalUser(m.k); save(); render();
       toast(`Hola ${m.title} 👋 tus ❤️ cuentan para el sorteo`);
     });
     box.appendChild(b);
   }
-  // 🧒 activar modo niño (solo adultos)
-  if (ADULTOS.includes(state.currentUser)) {
-    const kid = document.createElement("button");
-    kid.className = "avatar"; kid.textContent = "🧒";
-    kid.title = "Modo niño: le prestás el teléfono a uno de los chicos";
-    kid.addEventListener("click", () => {
-      const quien = (prompt("¿Quién lo va a usar? (fran / luca / martu)") || "").trim().toLowerCase();
-      if (!NINOS.includes(quien)) { if (quien) toast("Escribí fran, luca o martu"); return; }
-      if (!state.kid.pin) {
-        const pin = prompt("Creá un PIN de adulto (4 números) para poder salir del modo niño:");
-        if (!pin || !/^\d{4}$/.test(pin.trim())) { toast("El PIN tienen que ser 4 números"); return; }
-        state.kid.pin = pin.trim();
-      }
-      setLocalKid(quien); setLocalUser(quien);
-      save();
-      document.querySelector('.tabbar [data-tab="descubrir"]').click();
-      toast(`🧒 Modo niño: ${FAMILIA.find(f => f.k === quien).title} puede dar ❤️ y nada más (PIN para salir)`);
-    });
-    box.appendChild(kid);
+}
+// Entrar al modo niño para un chico (crea PIN la primera vez)
+function entrarModoNino(quien) {
+  if (!state.kid.pin) {
+    const pin = prompt(`Le vas a pasar el teléfono a ${FAMILIA.find(f => f.k === quien).title}.\nCreá un PIN de adulto (4 números) para poder volver:`);
+    if (!pin || !/^\d{4}$/.test(pin.trim())) { toast("El PIN tienen que ser 4 números"); return; }
+    state.kid.pin = pin.trim();
   }
+  setLocalKid(quien); setLocalUser(quien);
+  save();
+  document.querySelector('.tabbar [data-tab="descubrir"]').click();
+  toast(`😋 ¡Hola ${FAMILIA.find(f => f.k === quien).title}! Tocá ❤️ en lo que más te guste`);
 }
 // límite de 3 ❤️ por día en modo niño
 function kidPuedeLikear() {
@@ -1600,11 +1614,12 @@ function render() {
   $("#weekDate").value = state.week.monday;
   $("#ketoToggle").checked = !!state.keto;
   $("#fuenteSel").value = state.fuente;
-  if (activeTab === "descubrir") renderFeed();
+  if (activeTab === "descubrir") { renderFeed(); requestAnimationFrame(ajustarFeed); }
   if (activeTab === "compras") renderShop();
   if (activeTab === "recetario") renderRecetario();
   if (activeTab === "admin") renderAdmin();
   document.body.classList.toggle("kid", !!state.kid.active);
+  if (state.kid.active) { const m = FAMILIA.find(f => f.k === state.kid.active); $("#kidHi").textContent = `¡Hola ${m ? m.title : ""}! 🌟`; }
   renderSaludo(); renderRate(); renderDesafio(); renderFinde(); renderTips(); renderBatch(); renderHistorial();
   $("#adminBtn").hidden = !ADMIN_USERS.includes(state.currentUser) || !!state.kid.active;
   if (sheetDay !== null) renderSheet();
@@ -2135,8 +2150,7 @@ function buildDishSelect(tipo, i) {
   } else if (dish) sel.value = dish.id;
   sel.addEventListener("change", () => {
     if (sel.value === "__custom") {
-      const txt = prompt("¿Qué plato?");
-      state.week[key][i] = txt ? { custom: txt.trim() } : null;
+      escribirPlato(tipo, i);
     } else if (sel.value === "__sobras") {
       state.week[key][i] = { custom: "Sobras 🥡 (aprovechar lo que quedó)" };
     } else if (sel.value === "__afuera") {
@@ -2196,6 +2210,7 @@ function mealBlock(tipo, i) {
     b.addEventListener("click", fn);
     return b;
   };
+  acts.appendChild(mkAct("✍️ Escribir", "Escribir el plato que quieras", () => escribirPlato(tipo, i)));
   acts.appendChild(mkAct("🇦🇷 Sorpresa", "Receta argentina nueva solo para este día", () => sorpresaDay(tipo, i)));
   acts.appendChild(mkAct("🎡 Ruleta", "Que giren los chicos", () => openWheel(tipo, i)));
   acts.appendChild(mkAct("🔁 Otro", "Sortear otro plato", () => rerollDay(tipo, i)));
@@ -2292,6 +2307,67 @@ function mealBlock(tipo, i) {
     box.appendChild(row);
   }
   return box;
+}
+
+// ── Escribir un plato propio (ej: "Matambre de cerdo") ──
+function escribirPlato(tipo, i) {
+  const txt = (prompt("Escribí el plato que querés hacer:\n(ej: Matambre de cerdo al horno)") || "").trim();
+  if (!txt) { render(); return; }
+  const yaEsta = pool(tipo).find(d => norm(d.nombre) === norm(txt));
+  let dish;
+  if (yaEsta) dish = yaEsta;
+  else {
+    dish = {
+      id: "u" + Date.now().toString(36),
+      tipo, prot: adivinarProt(txt), nombre: txt,
+      lados: "", chicos: "", keto: "", ing: "", nut: null,
+      receta: "", pendiente: true, fans: [], veto: false
+    };
+    state.recetario.push(dish);
+  }
+  state.week[tipo === "cena" ? "cenas" : "viandas"][i] = { id: dish.id };
+  logEvent("plato");
+  save(); render();
+  if (dish.pendiente) {
+    setTimeout(() => {
+      if (confirm(`Anoté "${dish.nombre}" 📝\n¿Querés que te busque la receta y los ingredientes?`)) buscarReceta(dish);
+      else toast(`Listo. Queda como pendiente — después podés buscar la receta 🔍`);
+    }, 300);
+  }
+}
+function adivinarProt(nombre) {
+  const n = norm(nombre);
+  if (/cerdo|carre|panceta|bondiola|matambre de cerdo/.test(n)) return "cerdo";
+  if (/pollo|suprema|pechuga|kansas/.test(n)) return "pollo";
+  if (/pescado|merluza|salmon|atun|trucha|mariscos/.test(n)) return "pescado";
+  if (/fideo|pasta|raviol|noqui|ñoqui|lasagna|lasaña|canelon/.test(n)) return "pasta";
+  if (/tarta|empanada/.test(n)) return "tarta";
+  if (/verdura|ensalada|vegetari|calabaza|zapallo/.test(n)) return "veggie";
+  return "carne";
+}
+// Buscar/generar la receta de un plato pendiente con Gemini (Nano Banana / texto)
+function buscarReceta(dish) {
+  if (typeof google === "undefined" || !google.script) {
+    toast("La búsqueda de recetas funciona en la app de la familia (Apps Script)");
+    return;
+  }
+  toast(`🔍 Buscando la receta de ${dish.nombre}…`);
+  google.script.run
+    .withSuccessHandler(json => {
+      try {
+        const r = JSON.parse(json);
+        dish.lados = r.lados || dish.lados;
+        dish.ing = r.ing || dish.ing;
+        dish.receta = r.receta || dish.receta;
+        dish.keto = r.keto || dish.keto;
+        if (Array.isArray(r.nut) && r.nut.length === 4) dish.nut = r.nut;
+        dish.pendiente = false;
+        save(); render();
+        toast(`✅ ¡Receta de ${dish.nombre} lista! Miralla con 📖`);
+      } catch (e) { toast("No pude leer la receta, probá de nuevo"); }
+    })
+    .withFailureHandler(e => toast("🔍 " + (e && e.message ? e.message : "No pude buscar la receta")))
+    .generarReceta(dish.nombre, dish.tipo);
 }
 
 // ── Nota de voz: graba hasta 20 s y transcribe con el reconocimiento del navegador ──
@@ -2395,6 +2471,15 @@ $("#dayPrev").addEventListener("click", () => { sheetDay = (sheetDay + 4) % 5; r
 $("#dayNext").addEventListener("click", () => { sheetDay = (sheetDay + 1) % 5; renderSheet(); });
 
 // ── Feed Descubrir ──
+function ajustarFeed() {
+  const feed = $("#feed");
+  if (!feed || $("#tab-descubrir").classList.contains("active") === false) return;
+  const top = feed.getBoundingClientRect().top;
+  const tab = parseInt(getComputedStyle(document.documentElement).getPropertyValue("--tabbar-h")) || 64;
+  const h = window.innerHeight - top - tab - 8;
+  feed.style.height = Math.max(320, h) + "px";
+}
+window.addEventListener("resize", ajustarFeed);
 function renderFeed() {
   const feed = $("#feed"); feed.innerHTML = "";
   try {
@@ -2627,9 +2712,16 @@ function renderRecetario() {
     row.className = "rec-row";
     row.innerHTML = `
       <span class="r-emoji" style="background:${d.img ? `url(${d.img}) center/cover no-repeat` : PROT_GRAD[d.prot]}">${d.img ? "" : emojiFor(d)}</span>
-      <span class="n">${d.veto ? "🚫 " : ""}${d.nombre}
-        <small>${d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda"} · ${PROT_LABEL[d.prot]}${d.nut ? ` · 🔥 ${d.nut[0]} kcal` : ""}${d.fans.length ? ` · ❤️ ${d.fans.length}` : ""}${d.src ? ` · 🇦🇷 ${d.src}` : ""}</small>
+      <span class="n">${d.veto ? "🚫 " : ""}${d.nombre}${d.pendiente ? " 📝" : ""}
+        <small>${d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda"} · ${PROT_LABEL[d.prot]}${d.pendiente ? " · receta pendiente" : ""}${d.nut ? ` · 🔥 ${d.nut[0]} kcal` : ""}${d.fans.length ? ` · ❤️ ${d.fans.length}` : ""}${d.src ? ` · 🇦🇷 ${d.src}` : ""}</small>
       </span>`;
+    if (d.pendiente) {
+      const bus = document.createElement("button");
+      bus.className = "del"; bus.style.color = "var(--stat)";
+      bus.textContent = "🔍"; bus.title = `Buscar la receta de “${d.nombre}”`;
+      bus.addEventListener("click", () => buscarReceta(d));
+      row.appendChild(bus);
+    }
     const ed = document.createElement("button");
     ed.className = "del"; ed.style.color = "var(--muted)";
     ed.textContent = "✏️"; ed.title = `Editar “${d.nombre}”`;
@@ -2666,6 +2758,10 @@ function renderRecetario() {
     list.appendChild(row);
   }
   $("#recCount").textContent = state.recetario.length;
+  const pend = state.recetario.filter(d => d.pendiente);
+  const ph = $("#pendHint");
+  if (pend.length) { ph.hidden = false; ph.textContent = `📝 ${pend.length} plato(s) sin receta — tocá 🔍 para que te la busque`; }
+  else ph.hidden = true;
 }
 
 $("#addDishForm").addEventListener("submit", e => {

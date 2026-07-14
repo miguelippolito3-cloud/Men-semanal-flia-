@@ -70,10 +70,32 @@ function getUserEmail() {
 // Creá una API key gratis en https://aistudio.google.com/apikey y pegala acá.
 const GEMINI_API_KEY = '';
 
+// Toma la key del código o, si está vacía, de las Propiedades del script
+// (Configuración del proyecto → Propiedades de la secuencia → GEMINI_API_KEY).
+function geminiKey_() {
+  if (GEMINI_API_KEY) return GEMINI_API_KEY;
+  var p = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
+  return p || '';
+}
+
+// Diagnóstico: ejecutá esta función desde el editor (▶) para ver si la key anda.
+function probarGemini() {
+  var k = geminiKey_();
+  if (!k) { Logger.log('❌ No hay API key. Pegala en GEMINI_API_KEY o en Propiedades del script.'); return; }
+  Logger.log('Key detectada (empieza con ' + k.substring(0, 6) + '…). Probando…');
+  var res = UrlFetchApp.fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + k,
+    { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({ contents: [{ parts: [{ text: 'Decí solo: OK' }] }] }) }
+  );
+  Logger.log('Respuesta HTTP ' + res.getResponseCode() + ': ' + res.getContentText().substring(0, 300));
+}
+
 function generarFoto(prompt) {
-  if (!GEMINI_API_KEY) throw new Error('Falta la GEMINI_API_KEY: creala gratis en aistudio.google.com/apikey y pegala en Código.gs');
+  var key = geminiKey_();
+  if (!key) throw new Error('Falta la GEMINI_API_KEY: creala gratis en aistudio.google.com/apikey y pegala en Código.gs (o en Propiedades del script). Después publicá NUEVA VERSIÓN.');
   const res = UrlFetchApp.fetch(
-    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=' + GEMINI_API_KEY,
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=' + key,
     {
       method: 'post',
       contentType: 'application/json',
@@ -92,6 +114,33 @@ function generarFoto(prompt) {
     }
   }
   throw new Error('Gemini no devolvió imagen, probá de nuevo');
+}
+
+// Genera la receta de un plato escrito a mano (devuelve JSON como texto).
+function generarReceta(nombre, tipo) {
+  var key = geminiKey_();
+  if (!key) throw new Error('Falta la GEMINI_API_KEY para buscar recetas.');
+  var prompt = 'Sos un cocinero argentino. Para el plato "' + nombre + '" (' + (tipo === 'vianda' ? 'vianda para el colegio' : 'cena familiar') + '), ' +
+    'devolvé SOLO un JSON válido, sin texto extra, con estas claves: ' +
+    '"lados" (acompañamiento sugerido, string corto), ' +
+    '"ing" (ingredientes separados por coma, en minúscula, para lista de compras), ' +
+    '"receta" (preparación paso a paso numerada 1) 2) 3)... en un solo string), ' +
+    '"keto" (ajuste keto/low-carb en un string corto), ' +
+    '"nut" (array de 4 enteros: calorías, proteínas g, carbohidratos g, grasas g por porción). ' +
+    'Todo en español rioplatense.';
+  var res = UrlFetchApp.fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + key,
+    { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: 'application/json' }
+      }) }
+  );
+  var data = JSON.parse(res.getContentText());
+  if (res.getResponseCode() !== 200) {
+    throw new Error((data.error && data.error.message) || 'Error de Gemini (' + res.getResponseCode() + ')');
+  }
+  return data.candidates[0].content.parts[0].text;
 }
 
 // ═══════════════ Telegram: recordatorio de la cena de mañana ═══════════════
