@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" id="metaTheme" content="#101017">
 <title>MenuFam — Menú Semanal</title>
 <style>
   /* ── Identidad: app social oscura (estilo IG/TikTok), committed dark ── */
@@ -106,9 +107,9 @@
   button.ghost { background: transparent; }
 
   select, input[type="date"], input[type="text"] {
-    font: inherit; font-size: 14px; color: var(--ink);
+    font: inherit; font-size: 15px; color: var(--ink);
     background: var(--card-2); border: 1px solid var(--line); border-radius: 12px;
-    padding: 8px 10px; width: 100%;
+    padding: 10px 11px; width: 100%; min-height: 44px;
   }
 
   /* ── Header ── */
@@ -142,7 +143,38 @@
 
   main { padding: 0 0 8px; }
   .tab { display: none; }
-  .tab.active { display: block; }
+  .tab.active { display: block; animation: fadeUp .22s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } }
+  @media (prefers-reduced-motion: reduce) { .tab.active { animation: none; } }
+
+  .saludo { margin: 2px 16px 0; font-size: 14px; color: var(--muted); }
+  .saludo strong { color: var(--ink); }
+  .next-hint {
+    display: flex; align-items: center; gap: 8px;
+    margin: 10px 16px 0; padding: 9px 13px; font-size: 13px; font-weight: 600;
+    background: var(--accent-soft, var(--card)); background: var(--card);
+    border: 1px solid var(--line); border-left: 3px solid var(--stat);
+    border-radius: 0 12px 12px 0; color: var(--ink);
+  }
+  .empty-card {
+    margin: 18px 16px 6px; padding: 26px 20px; text-align: center;
+    background: var(--card); border: 2px dashed var(--line); border-radius: 22px;
+  }
+  .empty-card .e-emoji { font-size: 52px; display: block; margin-bottom: 8px; }
+  .empty-card h3 { margin: 0 0 6px; font-size: 19px; font-weight: 900; }
+  .empty-card p { margin: 0 0 14px; font-size: 14px; color: var(--muted); }
+  .empty-card .grad { font-size: 16px; padding: 12px 22px; }
+  .row.today { border-color: var(--stat); box-shadow: 0 0 0 1px var(--stat); }
+  .row.today .r-day { color: var(--stat); }
+
+  .coach {
+    position: absolute; inset: 0; z-index: 20;
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+    color: #fff; font-size: 17px; font-weight: 800; text-align: center;
+    border-radius: var(--radius);
+  }
+  .coach span { background: rgba(0,0,0,0.5); padding: 10px 18px; border-radius: 99px; }
   .pad { padding: 0 16px; }
 
   h2.sec {
@@ -554,7 +586,15 @@
   <main>
     <!-- ── SEMANA ── -->
     <section class="tab active" id="tab-semana">
+      <p class="saludo" id="saludo"></p>
       <div class="stories" id="stories"></div>
+      <div class="empty-card" id="emptyCard" hidden>
+        <span class="e-emoji">🍽️</span>
+        <h3>¿Qué comemos esta semana?</h3>
+        <p>Un toque y armamos cenas y viandas para los 5 días — después ajustan entre todos.</p>
+        <button class="grad" id="emptyGo">🎲 ¡Armar la semana!</button>
+      </div>
+      <div class="next-hint" id="nextHint" hidden></div>
       <div class="hero" id="hero" hidden>
         <p class="h-label" id="heroLabel"></p>
         <div class="h-row"><span class="h-emoji" id="heroCenaEmoji"></span><div><p class="h-kind">Cena</p><p class="h-name" id="heroCenaName"></p></div></div>
@@ -1102,11 +1142,34 @@ const nombreBanned = d => esBanned(d.nombre);
 
 const THEMES = ["dark", "light", "psico", "argentina"];
 const THEME_ICON = { dark: "🌙", light: "☀️", psico: "🌈", argentina: "🇦🇷" };
+const THEME_BG = { dark: "#101017", light: "#FAF9F5", psico: "#180733", argentina: "#F2F8FD" };
 function applyTheme() {
   document.documentElement.dataset.theme = state.theme;
   const b = document.getElementById("themeBtn");
   if (b) b.textContent = THEME_ICON[state.theme] || "🌙";
+  const meta = document.getElementById("metaTheme");
+  if (meta) meta.content = THEME_BG[state.theme] || "#101017";
 }
+// ícono para "Agregar a pantalla de inicio" (generado al vuelo)
+(function appIcon() {
+  try {
+    const cv = document.createElement("canvas");
+    cv.width = cv.height = 192;
+    const ctx = cv.getContext("2d");
+    const g = ctx.createLinearGradient(0, 0, 192, 192);
+    g.addColorStop(0, "#F5B841"); g.addColorStop(0.5, "#E22B6F"); g.addColorStop(1, "#9B36C9");
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.roundRect(0, 0, 192, 192, 42); ctx.fill();
+    ctx.font = "110px serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("🍽️", 96, 104);
+    const url = cv.toDataURL("image/png");
+    for (const rel of ["icon", "apple-touch-icon"]) {
+      const l = document.createElement("link");
+      l.rel = rel; l.href = url;
+      document.head.appendChild(l);
+    }
+  } catch (e) { /* sin canvas */ }
+})();
 function load() {
   try {
     const raw = localStorage.getItem(STORE_KEY);
@@ -1394,7 +1457,7 @@ function rowFor(tipo, i) {
   const e = state.week[key][i];
   const d = entryDish(e);
   const row = document.createElement("div");
-  row.className = "row";
+  row.className = "row" + (i === todayIndex() ? " today" : "");
   row.setAttribute("role", "button");
   row.setAttribute("tabindex", "0");
   row.setAttribute("aria-label", `Editar ${tipo} del ${DIAS[i]}`);
@@ -1455,7 +1518,7 @@ function render() {
   if (activeTab === "compras") renderShop();
   if (activeTab === "recetario") renderRecetario();
   if (activeTab === "admin") renderAdmin();
-  renderRate(); renderDesafio(); renderFinde(); renderTips(); renderBatch(); renderHistorial();
+  renderSaludo(); renderRate(); renderDesafio(); renderFinde(); renderTips(); renderBatch(); renderHistorial();
   $("#adminBtn").hidden = !ADMIN_USERS.includes(state.currentUser) || !!state.kid.active;
   if (sheetDay !== null) renderSheet();
 }
@@ -1638,6 +1701,27 @@ $("#adminBtn").addEventListener("click", () => {
   document.querySelectorAll(".tab").forEach(sec => sec.classList.toggle("active", sec.id === "tab-admin"));
   renderAdmin();
 });
+
+// ── Vibración háptica suave (Android; en iPhone no hace nada) ──
+function vib() { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} }
+
+// ── Saludo + "qué sigue" según el estado ──
+function renderSaludo() {
+  const m = FAMILIA.find(f => f.k === state.currentUser);
+  const hoy = new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" });
+  $("#saludo").innerHTML = `¡Hola <strong>${m ? m.title : ""}</strong>! 👋 <span style="text-transform:capitalize">${hoy}</span>`;
+  const filled = [...state.week.cenas, ...state.week.viandas].filter(e => e && (e.id || e.custom)).length;
+  const empty = $("#emptyCard"), hint = $("#nextHint");
+  empty.hidden = filled > 0;
+  if (filled === 0) { hint.hidden = true; return; }
+  let txt = null;
+  if (filled < 10) txt = `👇 Faltan ${10 - filled} platos: tocá los días vacíos, o 🎲 para completar`;
+  else if (state.streak.last !== state.week.monday) txt = `🎉 ¡Semana completa! Tocá «✅ ¡Semana lista!» y mandala al grupo 💬`;
+  else if (!state.week.shopChecked.length) txt = `🛒 Armá el changuito en Compras — el presupuesto ya está calculado`;
+  else if (!state.week.desafioOk) txt = `🎯 Desafío pendiente: ${desafioSemana()}`;
+  hint.hidden = !txt;
+  if (txt) hint.textContent = txt;
+}
 
 // ── ¿Cómo estuvo la cena de ayer? (voto tipo like de Instagram) ──
 function ayerInfo() {
@@ -2145,12 +2229,47 @@ function closeSheet() {
 }
 $("#sheetBack").addEventListener("click", closeSheet);
 $("#sheetClose").addEventListener("click", closeSheet);
+// deslizar hacia abajo para cerrar (desde el título o la manija)
+(function sheetSwipe() {
+  const sheet = $("#sheet");
+  let y0 = null;
+  const zona = ev => ev.target.closest(".sheet-head") || ev.target.classList.contains("handle");
+  sheet.addEventListener("pointerdown", ev => {
+    if (!zona(ev) || ev.target.closest("button")) return;
+    y0 = ev.clientY;
+    sheet.style.transition = "none";
+  });
+  sheet.addEventListener("pointermove", ev => {
+    if (y0 === null) return;
+    const dy = Math.max(0, ev.clientY - y0);
+    sheet.style.transform = `translate(-50%, ${dy}px)`;
+  });
+  const fin = ev => {
+    if (y0 === null) return;
+    const dy = ev.clientY - y0;
+    y0 = null;
+    sheet.style.transition = "";
+    sheet.style.transform = "";
+    if (dy > 110) closeSheet();
+  };
+  sheet.addEventListener("pointerup", fin);
+  sheet.addEventListener("pointercancel", fin);
+})();
 $("#dayPrev").addEventListener("click", () => { sheetDay = (sheetDay + 4) % 5; renderSheet(); });
 $("#dayNext").addEventListener("click", () => { sheetDay = (sheetDay + 1) % 5; renderSheet(); });
 
 // ── Feed Descubrir ──
 function renderFeed() {
   const feed = $("#feed"); feed.innerHTML = "";
+  try {
+    if (!localStorage.getItem("menufamCoach")) {
+      const c = document.createElement("div");
+      c.className = "coach";
+      c.innerHTML = "<span>⬆️ Deslizá para ver platos</span><span>❤️ Doble tap si te encanta</span><span>➕ Lo mandás a un día</span><span style='font-size:13px;opacity:.85'>tocá para empezar</span>";
+      c.addEventListener("click", () => { c.remove(); try { localStorage.setItem("menufamCoach", "1"); } catch (e) {} });
+      $("#tab-descubrir").appendChild(c);
+    }
+  } catch (e) { /* sin storage */ }
   const nuevos = feedTipo === "nuevos";
   const dishes = nuevos ? catalogoNuevos() : pool(feedTipo);
   if (nuevos && !dishes.length) {
@@ -2280,7 +2399,7 @@ function toggleLike(d, card, ev) {
   const on = d.fans.includes(me);
   if (!on && !kidPuedeLikear()) return;
   d.fans = on ? d.fans.filter(k => k !== me) : [...d.fans, me];
-  if (!on) { heartBurst(card, ev); logEvent("like"); }
+  if (!on) { heartBurst(card, ev); vib(); logEvent("like"); }
   save();
   render();
 }
@@ -2558,6 +2677,7 @@ function spinWheel() {
 $("#wheelSpin").addEventListener("click", spinWheel);
 $("#wheelApply").addEventListener("click", () => {
   if (!wheel.winner) return;
+  vib();
   ensureInRecetario(wheel.winner);
   state.week[wheel.tipo === "cena" ? "cenas" : "viandas"][wheel.i] = { id: wheel.winner.id };
   if (wheel.tipo === "cena") ensureSides(wheel.i);
@@ -2759,8 +2879,10 @@ function textoCompras() {
 }
 
 // ── Eventos globales ──
+$("#emptyGo").addEventListener("click", () => $("#btnGenerate").click());
 $("#btnGenerate").addEventListener("click", () => {
   if (state.kid.active) { toast("Pedile a mamá o papá que genere el menú 😄"); return; }
+  vib();
   state.week.cenas = generateWeek("cena");
   state.week.viandas = generateWeek("vianda");
   state.week.sides = genSides();
@@ -2816,8 +2938,9 @@ $("#btnDone").addEventListener("click", () => {
   if (state.streak.last !== state.week.monday) {
     state.streak.count += 1;
     state.streak.last = state.week.monday;
-    save(); renderStreak();
+    save(); render();
   }
+  vib();
   logEvent("semana");
   confetti(150);
   toast(`🎉 ¡Semana planificada! Llevan ${state.streak.count} ${state.streak.count === 1 ? "semana" : "semanas"} organizados`);
