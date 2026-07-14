@@ -105,6 +105,20 @@ en tu Drive, y actualizaciones automáticas desde el repo.
 Desde ahí el archivo vive en la unidad compartida: sobrevive a cambios de
 cuenta, y cualquier miembro de la unidad puede verlo y respaldarlo.
 
+## 🍌 Fotos con Nano Banana (generadas desde la app)
+
+1. Entrá a [aistudio.google.com/apikey](https://aistudio.google.com/apikey) con
+   tu cuenta → **Create API key** → copiala.
+2. En el proyecto de Apps Script, pegala en `GEMINI_API_KEY = '...'` (arriba de
+   la función `generarFoto`).
+3. **Administrar implementaciones → ✏️ → Nueva versión → Implementar.**
+
+Con eso, el botón ✨ de cada tarjeta de Descubrir genera la foto del plato al
+toque, y en el panel 📊 el botón «🍌 Generar fotos faltantes» completa todo el
+recetario de a tandas de 12. La capa gratuita de AI Studio alcanza de sobra
+para el recetario completo; cuando se agota el cupo diario, la app avisa y se
+sigue otro día.
+
 ## 🤖 Telegram: recordatorio nocturno de la cena de mañana
 
 1. En Telegram hablale a **@BotFather** → `/newbot` → nombralo (ej: MenuFam)

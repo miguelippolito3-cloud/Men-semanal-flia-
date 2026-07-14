@@ -66,6 +66,34 @@ function getUserEmail() {
   return Session.getActiveUser().getEmail() || '';
 }
 
+// ═══════════════ Nano Banana 🍌: genera la foto de un plato ═══════════════
+// Creá una API key gratis en https://aistudio.google.com/apikey y pegala acá.
+const GEMINI_API_KEY = '';
+
+function generarFoto(prompt) {
+  if (!GEMINI_API_KEY) throw new Error('Falta la GEMINI_API_KEY: creala gratis en aistudio.google.com/apikey y pegala en Código.gs');
+  const res = UrlFetchApp.fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=' + GEMINI_API_KEY,
+    {
+      method: 'post',
+      contentType: 'application/json',
+      muteHttpExceptions: true,
+      payload: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    }
+  );
+  const data = JSON.parse(res.getContentText());
+  if (res.getResponseCode() !== 200) {
+    throw new Error((data.error && data.error.message) || 'Error de Gemini (' + res.getResponseCode() + ')');
+  }
+  const parts = data.candidates[0].content.parts;
+  for (var i = 0; i < parts.length; i++) {
+    if (parts[i].inlineData) {
+      return 'data:' + parts[i].inlineData.mimeType + ';base64,' + parts[i].inlineData.data;
+    }
+  }
+  throw new Error('Gemini no devolvió imagen, probá de nuevo');
+}
+
 // ═══════════════ Telegram: recordatorio de la cena de mañana ═══════════════
 // 1) Hablale a @BotFather en Telegram → /newbot → copiá el TOKEN acá.
 // 2) Agregá el bot al grupo familiar (o hablale directo), mandá un mensaje,
