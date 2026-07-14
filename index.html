@@ -167,6 +167,14 @@
   .row.today { border-color: var(--stat); box-shadow: 0 0 0 1px var(--stat); }
   .row.today .r-day { color: var(--stat); }
 
+  /* ── Modo niño: pantalla limitada, solo me gusta ── */
+  body.kid .tabbar [data-tab="compras"], body.kid .tabbar [data-tab="recetario"],
+  body.kid .tabbar .big, body.kid .export-bar, body.kid .conf,
+  body.kid details.extra, body.kid #tipsBox, body.kid .row .act,
+  body.kid .row .r-go, body.kid #desafioBtn, body.kid #adminBtn,
+  body.kid #nextHint, body.kid .mini { display: none !important; }
+  body.kid .row { cursor: default; }
+
   .coach {
     position: absolute; inset: 0; z-index: 20;
     background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
@@ -734,6 +742,9 @@
       <h2 class="sec pad">❤️ Platos más queridos</h2>
       <ul class="rank" id="admTop"></ul>
       <div class="admin-cards" id="admGlobal" style="margin-top:14px"></div>
+      <h2 class="sec pad">📧 Cuentas de Google vinculadas</h2>
+      <p class="hint pad" style="margin:0 0 6px">La primera vez que alguien entra con su mail, elige quién es y queda vinculado. Tocá ✕ para desvincular.</p>
+      <ul class="ev-list" id="admEmails"></ul>
       <h2 class="sec pad">🕐 Últimos movimientos</h2>
       <ul class="ev-list" id="admEvents"></ul>
     </section>
@@ -1090,6 +1101,7 @@ function migrate(s) {
   s.historial = s.historial || [];
   s.precios = s.precios || {};
   s.desafiosDone = s.desafiosDone || 0;
+  s.emails = s.emails || {};
   return s;
 }
 
@@ -1184,6 +1196,22 @@ function save() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* incógnito */ }
   if (window.__pushState && !window.__applying) window.__pushState(); // sync familiar (Apps Script)
 }
+
+// ── Perfil y modo niño son de ESTE dispositivo (no viajan a los otros celulares) ──
+const DEV_USER_KEY = "menufamUser", DEV_KID_KEY = "menufamKid";
+function localUser() { try { return localStorage.getItem(DEV_USER_KEY); } catch (e) { return null; } }
+function setLocalUser(u) { state.currentUser = u; try { localStorage.setItem(DEV_USER_KEY, u); } catch (e) {} }
+function localKid() { try { return localStorage.getItem(DEV_KID_KEY) || null; } catch (e) { return null; } }
+function setLocalKid(k) {
+  state.kid.active = k;
+  try { k ? localStorage.setItem(DEV_KID_KEY, k) : localStorage.removeItem(DEV_KID_KEY); } catch (e) {}
+}
+function aplicarPerfilLocal() {
+  const u = localUser();
+  if (u && FAMILIA.some(f => f.k === u)) state.currentUser = u;
+  state.kid.active = localKid();
+}
+aplicarPerfilLocal();
 
 // ── Registro de uso por usuario (se ve en el panel 📊 Admin) ──
 const ACC_LABEL = {
@@ -1352,12 +1380,17 @@ function renderProfiles() {
     lock.className = "avatar"; lock.textContent = "🔒";
     lock.title = "Salir del modo niño (PIN de adulto)";
     lock.addEventListener("click", () => {
-      if (pedirPin("PIN de adulto para salir del modo niño:")) {
-        state.kid.active = null;
-        state.currentUser = "mike";
+      if (!pedirPin("PIN de adulto:")) { toast("PIN incorrecto 🙅"); return; }
+      const r = (prompt("Escribí «salir», o el nombre del próximo niño (fran / luca / martu):") || "salir").trim().toLowerCase();
+      if (NINOS.includes(r)) {
+        setLocalKid(r); setLocalUser(r);
+        save(); render();
+        toast(`🧒 Ahora vota ${FAMILIA.find(f => f.k === r).title} (máx. 3 ❤️ por día)`);
+      } else {
+        setLocalKid(null); setLocalUser("mike");
         save(); render();
         toast("🔓 Modo niño desactivado");
-      } else toast("PIN incorrecto 🙅");
+      }
     });
     box.appendChild(lock);
     return;
@@ -1369,7 +1402,7 @@ function renderProfiles() {
     b.title = `Usar como ${m.title}`;
     b.setAttribute("aria-pressed", state.currentUser === m.k);
     b.addEventListener("click", () => {
-      state.currentUser = m.k; save(); render();
+      setLocalUser(m.k); save(); render();
       toast(`Hola ${m.title} 👋 tus ❤️ cuentan para el sorteo`);
     });
     box.appendChild(b);
@@ -1387,10 +1420,10 @@ function renderProfiles() {
         if (!pin || !/^\d{4}$/.test(pin.trim())) { toast("El PIN tienen que ser 4 números"); return; }
         state.kid.pin = pin.trim();
       }
-      state.kid.active = quien;
-      state.currentUser = quien;
-      save(); render();
-      toast(`🧒 Modo niño: ahora vota ${FAMILIA.find(f => f.k === quien).title} (máx. 3 ❤️ por día)`);
+      setLocalKid(quien); setLocalUser(quien);
+      save();
+      document.querySelector('.tabbar [data-tab="descubrir"]').click();
+      toast(`🧒 Modo niño: ${FAMILIA.find(f => f.k === quien).title} puede dar ❤️ y nada más (PIN para salir)`);
     });
     box.appendChild(kid);
   }
@@ -1486,8 +1519,10 @@ function rowFor(tipo, i) {
   const go = document.createElement("span");
   go.className = "r-go"; go.textContent = "›";
   row.appendChild(arB); row.appendChild(casaB); row.appendChild(go);
-  row.addEventListener("click", () => openSheet(i, tipo));
-  row.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openSheet(i, tipo); } });
+  if (!state.kid.active) {
+    row.addEventListener("click", () => openSheet(i, tipo));
+    row.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openSheet(i, tipo); } });
+  }
   return row;
 }
 
@@ -1518,6 +1553,7 @@ function render() {
   if (activeTab === "compras") renderShop();
   if (activeTab === "recetario") renderRecetario();
   if (activeTab === "admin") renderAdmin();
+  document.body.classList.toggle("kid", !!state.kid.active);
   renderSaludo(); renderRate(); renderDesafio(); renderFinde(); renderTips(); renderBatch(); renderHistorial();
   $("#adminBtn").hidden = !ADMIN_USERS.includes(state.currentUser) || !!state.kid.active;
   if (sheetDay !== null) renderSheet();
@@ -1552,7 +1588,8 @@ const HELP_KB = [
   { k: /historial|semanas pasadas|repetir semana|archivo/, a: "En «📚 Semanas pasadas» quedan todas las semanas archivadas con sus ❤️ (la mejor tiene 🏆). El botón «🔁 Repetir» carga ese menú en la semana actual." },
   { k: /presupuesto|precio|plata|cuanto sale|cuánto sale/, a: "En Compras, cada ítem tiene su precio estimado y arriba se ve el total de la semana. Los precios son estimaciones editables: tocá cualquier precio para corregirlo con lo que viste en el súper." },
   { k: /batch|domingo cocina|adelantar|freezer|frizar/, a: "En «👨‍🍳 Batch cooking del domingo» la app arma sola el plan: empanar todas las milanesas juntas, puré doble, la salsa de la semana… Tildá lo que vayas haciendo." },
-  { k: /nino|niño|modo martu|prestar|chicos solos|pin/, a: "Modo niño 🧒: desde el perfil de Mike o Xime, tocá 🧒 y elegí quién usa el teléfono. El nene puede votar la cena y dar hasta 3 ❤️ por día, y no puede cambiar de perfil ni generar menús. Para salir hace falta el PIN de adulto 🔒." },
+  { k: /nino|niño|modo martu|prestar|chicos solos|pin/, a: "Modo niño 🧒: desde el perfil de Mike o Xime, tocá 🧒 y elegí quién usa el teléfono. La pantalla queda limitada: solo puede ver el menú, deslizar por Descubrir y dar hasta 3 ❤️ por día (nada de editar, comprar ni generar). Para salir o cambiar de hijo: 🔒 + PIN de adulto." },
+  { k: /login|mail|correo|cuenta de google|quien soy|quién soy/, a: "El login es con tu cuenta de Google (la app lo pide sola al entrar). La primera vez elegís quién sos y tu mail queda vinculado a tu perfil: cada vez que entres, la app ya sabe que sos vos. Papá puede ver y desvincular cuentas en el panel 📊." },
   { k: /logro|medalla|premio|🏅/, a: "Tocá el 🏅 del header: medallas por rachas, recetas nuevas probadas, corazones dados, fotos, desafíos cumplidos y más. ¡A destrabarlas en familia!" },
   { k: /desafio|desafío|🎯/, a: "Cada semana hay un desafío nuevo (probar un pescado, sumar ensaladas, que elijan los chicos…). Cuando lo logran, tóquenle «Marcar cumplido»: suma confeti y medallas." },
   { k: /voz|audio|microfono|micrófono|🎤/, a: "En las observaciones de cada vianda está el 🎤: grabás la nota (máx. 20 s), se guarda el audio para escuchar con ▶️ y la transcripción queda escrita en la observación. Ideal para la Xime apurada a la mañana 😄." },
@@ -1684,6 +1721,24 @@ function renderAdmin() {
     c.className = "acard";
     c.innerHTML = `<h4>${t}</h4><div class="big">${v}</div>`;
     gl.appendChild(c);
+  }
+  // cuentas vinculadas
+  const em = $("#admEmails"); em.innerHTML = "";
+  const mails = Object.entries(state.emails);
+  if (!mails.length) em.innerHTML = "<li class='hint'>Nadie vinculó su mail todavía.</li>";
+  for (const [mail, quien] of mails) {
+    const m = FAMILIA.find(f => f.k === quien);
+    const li = document.createElement("li");
+    li.innerHTML = `<span style="flex:1;overflow-wrap:anywhere">${mail}</span><strong>${m ? m.title : quien}</strong>`;
+    const del = document.createElement("button");
+    del.className = "del"; del.textContent = "✕"; del.title = "Desvincular";
+    del.addEventListener("click", () => {
+      if (!confirm(`¿Desvincular ${mail}?`)) return;
+      delete state.emails[mail];
+      save(); render();
+    });
+    li.appendChild(del);
+    em.appendChild(li);
   }
   // últimos eventos
   const ev = $("#admEvents"); ev.innerHTML = "";
@@ -2217,6 +2272,7 @@ function renderSheet() {
   body.appendChild(mealBlock("vianda", i));
 }
 function openSheet(i) {
+  if (state.kid.active) return; // en modo niño no se edita
   sheetDay = i;
   renderSheet();
   $("#sheet").classList.add("open");
@@ -2368,10 +2424,13 @@ function renderFeed() {
       photoTarget = mine;
       $("#photoInput").click();
     });
-    rail.appendChild(likeB); rail.appendChild(cnt); rail.appendChild(vetoB);
-    if (recetaOf(d)) rail.appendChild(rcpB);
-    rail.appendChild(camB);
-    if (!(d.tipo === "cena" && ["tarta", "veggie"].includes(d.prot))) rail.appendChild(addB);
+    rail.appendChild(likeB); rail.appendChild(cnt);
+    if (!state.kid.active) {
+      rail.appendChild(vetoB);
+      if (recetaOf(d)) rail.appendChild(rcpB);
+      rail.appendChild(camB);
+      if (!(d.tipo === "cena" && ["tarta", "veggie"].includes(d.prot))) rail.appendChild(addB);
+    } else if (recetaOf(d)) rail.appendChild(rcpB);
     card.appendChild(rail);
     card.appendChild(pick);
     // doble tap = like (estilo Instagram)
@@ -3075,6 +3134,7 @@ try {
           lastServer = data.t;
           window.__applying = true;
           state = migrate(data.state);
+          aplicarPerfilLocal();
           try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) { /* sin espacio local */ }
           applyTheme(); render();
           window.__applying = false;
@@ -3087,7 +3147,25 @@ try {
   setInterval(() => { if (document.visibilityState === "visible") pull(false); }, 45000);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pull(false); });
   google.script.run.withSuccessHandler(email => {
-    if (email) toast(`👋 Conectados como ${email} — todos ven el mismo menú`);
+    window.__email = email || "";
+    if (!email) return;
+    const who = state.emails[email];
+    if (who && FAMILIA.some(f => f.k === who)) {
+      // login con mail: este dispositivo ya sabe quién sos
+      if (!state.kid.active && state.currentUser !== who) { setLocalUser(who); render(); }
+      toast(`👋 ¡Hola ${FAMILIA.find(f => f.k === who).title}! Entraste con ${email}`);
+    } else {
+      // primera vez con este mail: se vincula al perfil elegido
+      setTimeout(() => {
+        const r = (prompt(`¡Hola! Entraste con ${email}.\n¿Quién sos? Escribí: mike, xime, fran, luca o martu`) || "").trim().toLowerCase();
+        if (FAMILIA.some(f => f.k === r)) {
+          state.emails[email] = r;
+          setLocalUser(r);
+          save(); render();
+          toast(`✔ ${email} quedó vinculado a ${FAMILIA.find(f => f.k === r).title}`);
+        }
+      }, 1600);
+    }
   }).getUserEmail();
   const calBtn = document.getElementById("btnCalendar");
   calBtn.hidden = false;
