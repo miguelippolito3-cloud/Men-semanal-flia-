@@ -1538,7 +1538,7 @@ const HELP_KB = [
   { k: /no nos gusta|aceituna|roquefort|odio|no me gusta|prohibi/, a: "En Recetario → «🚫 No nos gusta» está la lista negra de ingredientes (arranca con aceitunas, roquefort y queso azul). Lo que esté ahí se tacha de las recetas, no entra en la lista de compras y sale del sorteo. Agregá o sacá lo que quieras." },
   { k: /compra|super|súper|changuito|lista/, a: "La pestaña 🛒 Compras arma la lista sola con los ingredientes de todo lo elegido esa semana, agrupada por carnicería, verdulería, lácteos y almacén. Tildá lo que ya tenés y «Copiar lo que falta» manda al súper solo lo pendiente." },
   { k: /whatsapp|compartir|mandar|grupo|enviar/, a: "En Semana está «💬 Mandar al grupo»: arma el mensaje con el formato de siempre (días en negrita, emojis, keto de Mike incluido) y abre WhatsApp directo. También podés copiar cenas y viandas por separado." },
-  { k: /foto|imagen|nano banana|gemini|📷/, a: "En el Recetario, cada plato tiene 📷 para ponerle foto — podés generarlas con Gemini/Nano Banana y subirlas. La foto queda de fondo en el feed y en las tarjetas. Se guardan en el dispositivo." },
+  { k: /foto|imagen|nano banana|gemini|📷/, a: "Tocá el 📷 en la tarjeta de Descubrir (o en el Recetario): generá la imagen con Gemini/Nano Banana (el botón ✨ de cada receta te copia el prompt listo), guardala en Fotos y subila. Queda de fondo a pantalla completa en el feed, en las filas de la semana y en el héroe del día — y se sincroniza a toda la familia." },
   { k: /tema|color|oscuro|claro|psicodelico|psicodélico|🌈/, a: "El botón junto a los perfiles cambia el tema: 🌙 oscuro, ☀️ claro y 🌈 psicodélico (con colores que giran, groovy). Queda guardado para la próxima." },
   { k: /guarda|datos|sincroniz|drive|nube|donde vive|dónde vive|compartido/, a: "El menú vive en un archivo (menufam-data.json) en el Drive de Mike: todos ven y editan EL MISMO menú desde cualquier celular. Cada teléfono guarda además una copia local, así funciona sin internet y sincroniza al volver." },
   { k: /racha|semana lista|confeti|🔥/, a: "Cuando la semana está completa (5 cenas + 5 viandas), tocá «✅ ¡Semana lista!»: confeti 🎉 y suma a la racha 🔥 de semanas organizadas que se ve arriba." },
@@ -2357,8 +2357,20 @@ function renderFeed() {
       rcpB.title = "Ver la receta paso a paso";
       rcpB.addEventListener("click", () => openRecipe(d));
     }
+    const camB = document.createElement("button");
+    camB.textContent = "📷";
+    camB.title = d.img ? "Cambiar o sacar la foto" : "Ponerle foto HD (ej: generada con Gemini / Nano Banana)";
+    camB.addEventListener("click", () => {
+      const mine = ensureInRecetario(d);
+      if (mine.img && confirm(`“${mine.nombre}” ya tiene foto. ¿Sacarla? (Cancelar = elegir otra)`)) {
+        delete mine.img; save(); render(); return;
+      }
+      photoTarget = mine;
+      $("#photoInput").click();
+    });
     rail.appendChild(likeB); rail.appendChild(cnt); rail.appendChild(vetoB);
     if (recetaOf(d)) rail.appendChild(rcpB);
+    rail.appendChild(camB);
     if (!(d.tipo === "cena" && ["tarta", "veggie"].includes(d.prot))) rail.appendChild(addB);
     card.appendChild(rail);
     card.appendChild(pick);
