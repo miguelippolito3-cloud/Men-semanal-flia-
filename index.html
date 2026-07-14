@@ -175,6 +175,35 @@
   body.kid #nextHint, body.kid .mini { display: none !important; }
   body.kid .row { cursor: default; }
 
+  /* ── Pantalla de bienvenida / login ── */
+  .welcome {
+    position: fixed; inset: 0; z-index: 80;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; padding: 30px 24px calc(30px + env(safe-area-inset-bottom, 0px));
+    background: var(--shell); text-align: center;
+  }
+  .welcome .w-logo {
+    font-size: 30px; font-weight: 900; letter-spacing: -0.03em; margin: 0 0 2px;
+    background: var(--grad-ig); -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .welcome .w-emoji { font-size: 56px; margin-bottom: 8px; }
+  .welcome h2 { margin: 0 0 4px; font-size: 22px; font-weight: 900; }
+  .welcome .w-mail { margin: 0 0 4px; font-size: 13px; color: var(--muted); overflow-wrap: anywhere; }
+  .welcome .w-q { margin: 16px 0 12px; font-size: 15px; font-weight: 700; }
+  .welcome .w-people { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; max-width: 340px; }
+  .w-person {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    width: 88px; padding: 14px 6px; border-radius: 18px;
+    background: var(--card); border: 1px solid var(--line); font: inherit; cursor: pointer;
+    color: var(--ink);
+  }
+  .w-person:active { transform: scale(0.95); }
+  .w-person .w-av { width: 46px; height: 46px; border-radius: 50%; background: var(--grad-ig); color: #fff; font-size: 17px; font-weight: 800; display: grid; place-items: center; }
+  .w-person span.n { font-size: 13.5px; font-weight: 700; }
+  .w-person small { font-size: 10.5px; color: var(--muted); }
+  .welcome .w-go { margin-top: 22px; font-size: 16px; padding: 13px 30px; }
+  .welcome .w-skip { margin-top: 12px; background: none; border: none; color: var(--muted); font-size: 13px; text-decoration: underline; }
+
   .coach {
     position: absolute; inset: 0; z-index: 20;
     background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
@@ -584,6 +613,16 @@
 </head>
 <body>
 <div id="app">
+  <div class="welcome" id="welcome" hidden>
+    <p class="w-logo">MenuFam</p>
+    <span class="w-emoji">🍽️</span>
+    <h2 id="welHi">¡Bienvenido!</h2>
+    <p class="w-mail" id="welMail"></p>
+    <p class="w-q" id="welQ">¿Quién sos?</p>
+    <div class="w-people" id="welPeople"></div>
+    <button class="w-skip" id="welSkip" hidden>No soy yo / entrar como otro</button>
+  </div>
+
   <header class="top">
     <h1 class="logo">MenuFam</h1>
     <span class="streak" id="streakBadge" hidden>🔥 <span id="streakN"></span></span>
@@ -1804,7 +1843,8 @@ function vib() { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e)
 function renderSaludo() {
   const m = FAMILIA.find(f => f.k === state.currentUser);
   const hoy = new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" });
-  $("#saludo").innerHTML = `¡Hola <strong>${m ? m.title : ""}</strong>! 👋 <span style="text-transform:capitalize">${hoy}</span>`;
+  $("#saludo").innerHTML = `¡Hola <strong>${m ? m.title : ""}</strong>! 👋 <span style="text-transform:capitalize">${hoy}</span> <span style="opacity:.6">· ¿no sos vos? tocá acá</span>`;
+  $("#saludo").style.cursor = "pointer";
   const filled = [...state.week.cenas, ...state.week.viandas].filter(e => e && (e.id || e.custom)).length;
   const empty = $("#emptyCard"), hint = $("#nextHint");
   empty.hidden = filled > 0;
@@ -3191,6 +3231,36 @@ try {
   }
 } catch (e) { /* sin sessionStorage */ }
 
+// ── Pantalla de bienvenida / identidad ──
+function abrirBienvenida(email) {
+  const wel = document.getElementById("welcome");
+  const mapped = email ? state.emails[email] : null;
+  document.getElementById("welHi").textContent = email ? "¡Hola! 👋" : "¿Quién sos?";
+  document.getElementById("welMail").textContent = email ? `Entraste con ${email}` : "Elegí tu perfil para arrancar";
+  document.getElementById("welQ").textContent = email ? "¿Quién sos? (lo vinculamos a tu cuenta)" : "¿Quién sos?";
+  const box = document.getElementById("welPeople"); box.innerHTML = "";
+  for (const m of FAMILIA) {
+    const b = document.createElement("button");
+    b.className = "w-person";
+    const yaEs = email && state.emails[email] === m.k;
+    b.innerHTML = `<span class="w-av">${m.label}</span><span class="n">${m.title}</span>${yaEs ? "<small>tu cuenta</small>" : ""}`;
+    b.addEventListener("click", () => {
+      if (email) state.emails[email] = m.k;
+      setLocalUser(m.k);
+      save(); render();
+      wel.hidden = true;
+      toast(`👋 ¡Hola ${m.title}!${email ? " Quedó vinculado a tu cuenta" : ""}`);
+    });
+    box.appendChild(b);
+  }
+  wel.hidden = false;
+}
+// permitir reabrir la bienvenida tocando el saludo (por si dice mal quién sos)
+document.getElementById("saludo").addEventListener("click", () => {
+  if (state.kid.active) return;
+  abrirBienvenida(window.__email || "");
+});
+
 // ── Sincronización familiar via Google Apps Script (no hace nada fuera de GAS) ──
 (function initSync() {
   if (typeof google === "undefined" || !google.script || !google.script.run) return;
@@ -3230,23 +3300,13 @@ try {
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pull(false); });
   google.script.run.withSuccessHandler(email => {
     window.__email = email || "";
-    if (!email) return;
+    if (state.kid.active) return; // en modo niño no molestamos con login
     const who = state.emails[email];
-    if (who && FAMILIA.some(f => f.k === who)) {
-      // login con mail: este dispositivo ya sabe quién sos
-      if (!state.kid.active && state.currentUser !== who) { setLocalUser(who); render(); }
-      toast(`👋 ¡Hola ${FAMILIA.find(f => f.k === who).title}! Entraste con ${email}`);
+    if (email && who && FAMILIA.some(f => f.k === who)) {
+      if (state.currentUser !== who) { setLocalUser(who); render(); }
+      toast(`👋 ¡Hola ${FAMILIA.find(f => f.k === who).title}!`);
     } else {
-      // primera vez con este mail: se vincula al perfil elegido
-      setTimeout(() => {
-        const r = (prompt(`¡Hola! Entraste con ${email}.\n¿Quién sos? Escribí: mike, xime, fran, luca o martu`) || "").trim().toLowerCase();
-        if (FAMILIA.some(f => f.k === r)) {
-          state.emails[email] = r;
-          setLocalUser(r);
-          save(); render();
-          toast(`✔ ${email} quedó vinculado a ${FAMILIA.find(f => f.k === r).title}`);
-        }
-      }, 1600);
+      abrirBienvenida(email); // primera vez, o mail no vinculado
     }
   }).getUserEmail();
   const calBtn = document.getElementById("btnCalendar");
