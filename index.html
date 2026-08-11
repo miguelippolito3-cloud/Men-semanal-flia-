@@ -141,6 +141,18 @@
   }
   .avatar.active { border-color: transparent; background: var(--grad-ig); color: #fff; }
 
+  .menu-wrap { position: relative; }
+  .menu-pop {
+    position: absolute; right: 0; top: 42px; z-index: 30;
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 6px; display: flex; flex-direction: column; gap: 2px; min-width: 190px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  }
+  .menu-pop button {
+    background: none; border: none; text-align: left; padding: 10px 12px; border-radius: 9px;
+    font-size: 14.5px; color: var(--ink); font-weight: 600;
+  }
+  .menu-pop button:active { background: var(--card-2); }
   main { padding: 0 0 8px; }
   .tab { display: none; }
   .tab.active { display: block; animation: fadeUp .22s ease; }
@@ -157,6 +169,14 @@
     border-radius: 0 12px 12px 0; color: var(--ink);
   }
   .write-btn { display: block; width: calc(100% - 32px); margin: 12px 16px 0; padding: 13px; font-size: 15px; }
+  .main-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 16px 6px; }
+  .main-actions button { width: 100%; padding: 13px 8px; font-size: 14.5px; }
+  dialog#shareModal { border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink); padding: 18px; width: 340px; max-width: 92vw; }
+  dialog#shareModal::backdrop { background: rgba(0,0,0,0.6); }
+  dialog#shareModal button { padding: 12px; font-size: 14.5px; }
+  dialog#changeModal { border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink); padding: 18px; width: 320px; max-width: 92vw; }
+  dialog#changeModal::backdrop { background: rgba(0,0,0,0.6); }
+  dialog#changeModal button { padding: 13px; font-size: 15px; }
   body.kid .write-btn { display: none; }
   dialog#writeModal { border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink); padding: 18px; width: 360px; max-width: 92vw; }
   dialog#writeModal::backdrop { background: rgba(0,0,0,0.6); }
@@ -231,6 +251,16 @@
   .welcome .w-go { margin-top: 22px; font-size: 16px; padding: 13px 30px; }
   .welcome .w-skip { margin-top: 12px; background: none; border: none; color: var(--muted); font-size: 13px; text-decoration: underline; }
 
+  .onboard { position: fixed; inset: 0; z-index: 90; background: rgba(8,8,14,0.72); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .ob-card { background: var(--shell); border: 1px solid var(--line); border-radius: 24px; padding: 28px 22px; max-width: 340px; width: 100%; text-align: center; }
+  .ob-emoji { font-size: 56px; display: block; margin-bottom: 10px; }
+  .ob-card h2 { margin: 0 0 6px; font-size: 21px; font-weight: 900; }
+  .ob-card p { margin: 0 0 16px; font-size: 15px; color: var(--muted); line-height: 1.5; }
+  .ob-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 16px; }
+  .ob-dots span { width: 8px; height: 8px; border-radius: 50%; background: var(--line); }
+  .ob-dots span.on { background: var(--stat); }
+  .ob-card .grad { width: 100%; padding: 13px; font-size: 16px; }
+  .ob-skip { margin-top: 10px; background: none; border: none; color: var(--muted); font-size: 13px; text-decoration: underline; }
   .coach {
     position: absolute; inset: 0; z-index: 20;
     background: rgba(0,0,0,0.55); backdrop-filter: blur(3px);
@@ -386,6 +416,14 @@
   .rail .cnt { font-size: 11.5px; font-weight: 800; color: #fff; margin-top: -9px; text-shadow: 0 1px 3px rgba(0,0,0,.6); }
   .rail button.liked { color: var(--like); }
   .rail button.vetoed { opacity: 0.55; }
+  .card-pop {
+    position: absolute; right: 68px; bottom: 70px; z-index: 8;
+    background: rgba(15,15,22,0.95); backdrop-filter: blur(8px);
+    border: 1px solid var(--line); border-radius: 14px; padding: 8px; display: none; flex-direction: column; gap: 4px;
+  }
+  .card-pop.open { display: flex; }
+  .card-pop button { background: none; border: none; color: #fff; text-align: left; padding: 8px 12px; border-radius: 8px; font-size: 14px; }
+  .card-pop button:active { background: rgba(255,255,255,0.12); }
   .heart-burst {
     position: absolute; font-size: 84px; pointer-events: none; z-index: 6;
     animation: burst .8s ease-out forwards;
@@ -418,6 +456,20 @@
   .shop-meta { font-size: 12.5px; color: var(--muted); margin: 6px 16px 0; }
 
   /* ── Recetario ── */
+  .rec-search-wrap { padding: 0 16px; }
+  #recSearch { margin-bottom: 8px; }
+  .rec-filters { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding-bottom: 6px; }
+  .rec-filters::-webkit-scrollbar { display: none; }
+  .rec-filters button { flex: none; font-size: 12.5px; padding: 6px 12px; border-radius: 99px; }
+  .rec-filters button.on { background: var(--grad-ig); color: #fff; border-color: transparent; font-weight: 800; }
+  .rec-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 4px 16px; }
+  .rcard { background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; position: relative; }
+  .rcard .rc-photo { height: 92px; display: grid; place-items: center; font-size: 40px; }
+  .rcard .rc-body { padding: 8px 10px 10px; }
+  .rcard .rc-name { font-size: 13.5px; font-weight: 700; line-height: 1.25; margin: 0; }
+  .rcard .rc-meta { font-size: 11px; color: var(--muted); margin: 3px 0 0; }
+  .rcard .rc-acts { position: absolute; top: 6px; right: 6px; display: flex; gap: 4px; }
+  .rcard .rc-acts button { width: 28px; height: 28px; padding: 0; border-radius: 8px; font-size: 13px; background: rgba(0,0,0,0.35); border: none; color: #fff; display: grid; place-items: center; }
   .rec-list { display: flex; flex-direction: column; gap: 8px; padding: 0 16px; }
   .rec-row { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 8px 10px; }
   .rec-row .r-emoji { width: 38px; height: 38px; font-size: 20px; border-radius: 11px; background: var(--card-2); display: grid; place-items: center; flex: none; }
@@ -654,10 +706,15 @@
     <h1 class="logo">MenuFam</h1>
     <span class="streak" id="streakBadge" hidden>🔥 <span id="streakN"></span></span>
     <span class="spacer"></span>
-    <button class="avatar" id="badgesBtn" title="Logros de la familia">🏅</button>
-    <button class="avatar" id="helpBtn" title="Ayuda: preguntale a Menú cómo funciona la app">💬</button>
-    <button class="avatar" id="adminBtn" title="Panel de uso de la app (solo Mike)" hidden>📊</button>
-    <button class="avatar" id="themeBtn" title="Cambiar tema (oscuro / claro / psicodélico)">🌙</button>
+    <button class="avatar" id="themeBtn" title="Cambiar tema">🌙</button>
+    <div class="menu-wrap">
+      <button class="avatar" id="moreBtn" title="Más" aria-haspopup="true" aria-expanded="false">⋯</button>
+      <div class="menu-pop" id="morePop" hidden role="menu">
+        <button id="badgesBtn" role="menuitem">🏅 Logros</button>
+        <button id="helpBtn" role="menuitem">💬 Ayuda (Menucito)</button>
+        <button id="adminBtn" role="menuitem" hidden>📊 Panel de uso</button>
+      </div>
+    </div>
     <div class="profiles" id="profiles" role="group" aria-label="¿Quién está usando la app?"></div>
   </header>
 
@@ -693,44 +750,53 @@
         <button class="rc-heart" id="rateBtn" aria-label="Me gustó">🤍</button>
       </div>
 
-      <div class="desafio" id="desafioCard">
-        <span style="font-size:22px">🎯</span>
-        <div style="flex:1;min-width:0">
-          <p class="d-lbl">Desafío de la semana</p>
-          <p class="d-txt" id="desafioTxt"></p>
-        </div>
-        <button id="desafioBtn" class="pill"></button>
-      </div>
+      <div class="next-hint" id="nextHint" hidden></div>
 
-      <div class="conf">
-        <label>📆 <input type="date" id="weekDate" aria-label="Lunes de la semana"></label>
-        <label class="switch"><input type="checkbox" id="ketoToggle"> Keto Mike</label>
-        <span class="spacer"></span>
-        <button id="btnNewWeek" class="ghost">🗓️ Nueva semana</button>
-        <label style="width:100%">🎲 El sorteo usa:
-          <select id="fuenteSel" style="margin-top:5px">
-            <option value="casa">🏠 Solo nuestro recetario</option>
-            <option value="mix">🔀 Nuestro recetario + recetas argentinas nuevas</option>
-            <option value="arg">🇦🇷 Sorprendeme con recetas argentinas nuevas</option>
-          </select>
-        </label>
-      </div>
-
-      <h2 class="sec pad">🍽 Cenas familia <button class="mini" data-regen="cenas">🎲</button></h2>
+      <h2 class="sec pad">🍽 Cenas</h2>
       <div class="rows" id="rowsCenas"></div>
 
-      <h2 class="sec pad">🧺 Viandas chicos <button class="mini" data-regen="viandas">🎲</button></h2>
+      <h2 class="sec pad">🧺 Viandas del cole</h2>
       <div class="rows" id="rowsViandas"></div>
+
+      <div class="main-actions">
+        <button class="grad" id="btnShareMenu">📤 Compartir menú</button>
+        <button id="btnDone">✅ ¡Semana lista!</button>
+      </div>
+
+      <details class="extra">
+        <summary>⚙️ Ajustes y extras</summary>
+        <div style="padding:6px 14px 14px">
+          <div class="conf" style="margin:8px 0 0">
+            <label>📆 Semana del <input type="date" id="weekDate" aria-label="Lunes de la semana"></label>
+            <label class="switch"><input type="checkbox" id="ketoToggle"> Keto Mike</label>
+            <label style="width:100%">🎲 El sorteo usa:
+              <select id="fuenteSel" style="margin-top:5px">
+                <option value="casa">🏠 Solo nuestro recetario</option>
+                <option value="mix">🔀 Recetario + recetas argentinas nuevas</option>
+                <option value="arg">🇦🇷 Sorprendeme con recetas nuevas</option>
+              </select>
+            </label>
+            <button id="btnNewWeek" class="ghost" style="width:100%;margin-top:4px">🗓️ Arrancar semana nueva</button>
+          </div>
+          <div class="desafio" id="desafioCard" style="margin:12px 0 0">
+            <span style="font-size:22px">🎯</span>
+            <div style="flex:1;min-width:0">
+              <p class="d-lbl">Desafío de la semana</p>
+              <p class="d-txt" id="desafioTxt"></p>
+            </div>
+            <button id="desafioBtn" class="pill"></button>
+          </div>
+          <div id="tipsBox" style="margin-top:4px"></div>
+        </div>
+      </details>
 
       <details class="extra finde-box">
         <summary>🌞 Finde (opcional) — asado, salidas o libre</summary>
         <div class="rows" id="rowsFinde" style="padding:10px 12px 12px"></div>
       </details>
 
-      <div class="pad" id="tipsBox"></div>
-
       <details class="extra">
-        <summary>👨‍🍳 Batch cooking del domingo — dejá media semana lista</summary>
+        <summary>👨‍🍳 Batch cooking del domingo</summary>
         <div id="batchBox" style="padding:4px 14px 12px"></div>
       </details>
 
@@ -738,17 +804,6 @@
         <summary>📚 Semanas pasadas</summary>
         <div id="histBox" style="padding:4px 14px 12px"></div>
       </details>
-
-      <div class="export-bar">
-        <button id="btnWhatsApp" class="grad">💬 Mandar al grupo</button>
-        <button id="btnWhatsAppTodo">📲 Menú + compras</button>
-        <button id="btnPDF">🖨️ PDF heladera</button>
-        <button id="btnCalendar" hidden>📅 Al calendario</button>
-        <button id="btnCopyCenas">📋 Cenas</button>
-        <button id="btnCopyViandas">📋 Viandas</button>
-        <button id="btnDone">✅ ¡Semana lista!</button>
-      </div>
-      <p class="hint pad">Tocá un día para editarlo · 🇦🇷 sortea una receta argentina nueva para ese día · 🏠 vuelve a un plato de nuestro recetario · los ❤️ de cada perfil hacen que ese plato salga más seguido.</p>
     </section>
 
     <!-- ── DESCUBRIR ── -->
@@ -775,18 +830,17 @@
 
     <!-- ── RECETARIO ── -->
     <section class="tab" id="tab-recetario">
-      <h2 class="sec pad">🚫 No nos gusta</h2>
-      <p class="hint" style="padding:0 16px;margin:0">Ingredientes que nunca entran: se sacan de las recetas, del sorteo y de la lista de compras.</p>
-      <div class="fans" id="bannedChips" style="padding:8px 16px 0"></div>
-      <form id="bannedForm" style="display:flex;gap:8px;margin:8px 16px 0">
-        <input type="text" id="bannedInput" placeholder="Ej: mostaza, morcilla…" style="flex:1">
-        <button type="submit">＋</button>
-      </form>
-
       <h2 class="sec pad">📖 Recetario (<span id="recCount"></span>)</h2>
+      <div class="rec-search-wrap">
+        <input type="search" id="recSearch" placeholder="🔍 Buscar plato…" autocomplete="off">
+        <div class="rec-filters" id="recFilters"></div>
+      </div>
       <div class="next-hint" id="pendHint" hidden></div>
-      <div class="rec-list" id="recList"></div>
-      <form class="add-dish" id="addDishForm">
+      <div class="rec-grid" id="recList"></div>
+
+      <details class="extra">
+        <summary>➕ Agregar un plato nuevo</summary>
+      <form class="add-dish" id="addDishForm" style="margin:8px 16px 0">
         <p class="hint full" id="editBanner" hidden style="margin:0">✏️ Editando <strong id="editName"></strong> — <a href="#" id="editCancel">cancelar</a></p>
         <input name="nombre" placeholder="Nuevo plato (ej: Wok de pollo)" required class="full" type="text">
         <select name="tipo"><option value="cena">Cena familia</option><option value="vianda">Vianda chicos</option></select>
@@ -804,8 +858,20 @@
         <textarea name="receta" placeholder="Receta paso a paso (opcional)" class="full" rows="3" style="font:inherit;font-size:14px;color:var(--ink);background:var(--paper, var(--card-2));background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:8px 10px"></textarea>
         <button type="submit" class="grad" id="addDishBtn">＋ Agregar</button>
       </form>
-      <p class="hint pad" style="margin-top:12px">📷 Tocá la cámara de cada plato para ponerle una foto HD (podés generarlas con Gemini / Nano Banana y subirlas acá — quedan guardadas en este dispositivo y aparecen en el feed).</p>
-      <div class="export-bar"><button id="btnPrint">🖨️ Imprimir semana</button></div>
+      </details>
+
+      <details class="extra">
+        <summary>🚫 No nos gusta (ingredientes vetados)</summary>
+        <div style="padding:6px 16px 14px">
+          <p class="hint" style="margin:0 0 6px">Nunca entran: se sacan de recetas, sorteo y compras.</p>
+          <div class="fans" id="bannedChips"></div>
+          <form id="bannedForm" style="display:flex;gap:8px;margin-top:8px">
+            <input type="text" id="bannedInput" placeholder="Ej: mostaza, morcilla…" style="flex:1">
+            <button type="submit">＋</button>
+          </form>
+        </div>
+      </details>
+      <p class="hint pad">📷 Tocá 📷 en cada plato para ponerle foto (o ✨ para generarla con Nano Banana).</p>
       <input type="file" id="photoInput" accept="image/*" hidden>
     </section>
     <!-- ── ADMIN ── -->
@@ -855,6 +921,30 @@
   </div>
   <div id="sheetBody"></div>
 </div>
+
+<dialog id="changeModal">
+  <h3 id="changeTitle" style="margin:0 0 12px;font-size:18px;font-weight:900"></h3>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <button id="chgOtro">🔁 Otro plato de casa</button>
+    <button id="chgArg">🇦🇷 Receta argentina nueva</button>
+    <button id="chgRuleta">🎡 Ruleta (que elijan los chicos)</button>
+    <button id="chgEscribir" class="grad">✍️ Escribir uno yo</button>
+  </div>
+  <div class="wheel-actions" style="margin-top:12px"><button id="changeClose" class="ghost">Cerrar</button></div>
+</dialog>
+
+<dialog id="shareModal">
+  <h3 style="margin:0 0 12px;font-size:19px;font-weight:900">📤 Compartir el menú</h3>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <button id="btnWhatsApp" class="grad">💬 Menú al grupo de WhatsApp</button>
+    <button id="btnWhatsAppTodo">📲 Menú + lista de compras</button>
+    <button id="btnPDF">🖨️ PDF para la heladera</button>
+    <button id="btnCalendar" hidden>📅 Al calendario MenuFam</button>
+    <button id="btnCopyCenas">📋 Copiar solo cenas</button>
+    <button id="btnCopyViandas">📋 Copiar solo viandas</button>
+  </div>
+  <div class="wheel-actions" style="margin-top:12px"><button id="shareClose" class="ghost">Cerrar</button></div>
+</dialog>
 
 <dialog id="writeModal">
   <h3>✍️ ¿Qué querés cocinar?</h3>
@@ -919,6 +1009,17 @@
     <button id="wheelClose" class="ghost">Cerrar</button>
   </div>
 </dialog>
+
+<div class="onboard" id="onboard" hidden>
+  <div class="ob-card">
+    <span class="ob-emoji" id="obEmoji"></span>
+    <h2 id="obTitle"></h2>
+    <p id="obText"></p>
+    <div class="ob-dots" id="obDots"></div>
+    <button class="grad" id="obNext"></button>
+    <button class="ob-skip" id="obSkip">Saltar</button>
+  </div>
+</div>
 
 <canvas id="confetti" hidden></canvas>
 <div class="toast" id="toast" role="status"></div>
@@ -2107,6 +2208,16 @@ function calcBadges() {
     { e: "🌞", n: "Finde resuelto", d: "Planificaron un finde", ok: !!(state.week.finde.sab || state.week.finde.dom), meta: "Cargá el finde" }
   ];
 }
+const morePop = $("#morePop"), moreBtn = $("#moreBtn");
+moreBtn.addEventListener("click", e => {
+  e.stopPropagation();
+  const open = morePop.hidden;
+  morePop.hidden = !open;
+  moreBtn.setAttribute("aria-expanded", open);
+});
+document.addEventListener("click", e => { if (!e.target.closest(".menu-wrap")) morePop.hidden = true; });
+morePop.querySelectorAll("button").forEach(b => b.addEventListener("click", () => { morePop.hidden = true; }));
+
 $("#badgesBtn").addEventListener("click", () => {
   const grid = $("#badgesGrid"); grid.innerHTML = "";
   for (const b of calcBadges()) {
@@ -2237,10 +2348,7 @@ function mealBlock(tipo, i) {
     b.addEventListener("click", fn);
     return b;
   };
-  acts.appendChild(mkAct("✍️ Escribir", "Escribir el plato que quieras", () => escribirPlato(tipo, i)));
-  acts.appendChild(mkAct("🇦🇷 Sorpresa", "Receta argentina nueva solo para este día", () => sorpresaDay(tipo, i)));
-  acts.appendChild(mkAct("🎡 Ruleta", "Que giren los chicos", () => openWheel(tipo, i)));
-  acts.appendChild(mkAct("🔁 Otro", "Sortear otro plato", () => rerollDay(tipo, i)));
+  acts.appendChild(mkAct("🔄 Cambiar plato", "Ver todas las formas de cambiarlo", () => abrirCambiar(tipo, i)));
   box.appendChild(acts);
   box.appendChild(buildDishSelect(tipo, i));
   if (dish) {
@@ -2622,11 +2730,19 @@ function renderFeed() {
     });
     rail.appendChild(likeB); rail.appendChild(cnt);
     if (!state.kid.active) {
-      rail.appendChild(vetoB);
-      if (recetaOf(d)) rail.appendChild(rcpB);
-      if (!d.img) rail.appendChild(genB);
-      rail.appendChild(camB);
       if (!(d.tipo === "cena" && ["tarta", "veggie"].includes(d.prot))) rail.appendChild(addB);
+      const moreB = document.createElement("button");
+      moreB.textContent = "⋯"; moreB.title = "Más opciones";
+      const pop = document.createElement("div");
+      pop.className = "card-pop";
+      const addPop = (txt, fn) => { const b = document.createElement("button"); b.textContent = txt; b.addEventListener("click", () => { pop.classList.remove("open"); fn(); }); pop.appendChild(b); };
+      if (recetaOf(d)) addPop("📖 Ver receta", () => openRecipe(d));
+      if (!d.img) addPop("✨ Generar foto", () => generarFotoIA(d, null));
+      addPop(d.img ? "📷 Cambiar foto" : "📷 Subir foto", () => { const m = ensureInRecetario(d); if (m.img && confirm(`¿Sacar la foto de “${m.nombre}”? (Cancelar = elegir otra)`)) { delete m.img; save(); render(); return; } photoTarget = m; $("#photoInput").click(); });
+      addPop("🚫 Que no salga más", () => { d.veto = !d.veto; save(); render(); toast(d.veto ? `🚫 ${d.nombre} fuera del sorteo` : `✅ vuelve al sorteo`); });
+      moreB.addEventListener("click", ev => { ev.stopPropagation(); document.querySelectorAll(".card-pop.open").forEach(p => { if (p !== pop) p.classList.remove("open"); }); pop.classList.toggle("open"); });
+      rail.appendChild(moreB);
+      card.appendChild(pop);
     } else if (recetaOf(d)) rail.appendChild(rcpB);
     card.appendChild(rail);
     card.appendChild(pick);
@@ -2730,64 +2846,64 @@ function cancelEdit() {
 }
 $("#editCancel").addEventListener("click", e => { e.preventDefault(); cancelEdit(); });
 
+let recQuery = "", recFilter = "todos";
 function renderRecetario() {
   renderBanned();
-  const list = $("#recList"); list.innerHTML = "";
-  const sorted = [...state.recetario].sort((a, b) => a.tipo.localeCompare(b.tipo) || a.nombre.localeCompare(b.nombre));
-  for (const d of sorted) {
-    const row = document.createElement("div");
-    row.className = "rec-row";
-    row.innerHTML = `
-      <span class="r-emoji" style="background:${d.img ? `url(${d.img}) center/cover no-repeat` : PROT_GRAD[d.prot]}">${d.img ? "" : emojiFor(d)}</span>
-      <span class="n">${d.veto ? "🚫 " : ""}${d.nombre}${d.pendiente ? " 📝" : ""}
-        <small>${d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda"} · ${PROT_LABEL[d.prot]}${d.pendiente ? " · receta pendiente" : ""}${d.nut ? ` · 🔥 ${d.nut[0]} kcal` : ""}${d.fans.length ? ` · ❤️ ${d.fans.length}` : ""}${d.src ? ` · 🇦🇷 ${d.src}` : ""}</small>
-      </span>`;
-    if (d.pendiente) {
-      const bus = document.createElement("button");
-      bus.className = "del"; bus.style.color = "var(--stat)";
-      bus.textContent = "🔍"; bus.title = `Buscar la receta de “${d.nombre}”`;
-      bus.addEventListener("click", () => buscarReceta(d));
-      row.appendChild(bus);
+  // filtros
+  const fbox = $("#recFilters");
+  if (!fbox.dataset.init) {
+    fbox.dataset.init = "1";
+    const opts = [["todos","Todos"],["cena","🍽 Cenas"],["vianda","🧺 Viandas"],["pendiente","📝 Pendientes"],["foto","📷 Con foto"]];
+    for (const [k, lbl] of opts) {
+      const b = document.createElement("button");
+      b.textContent = lbl; b.dataset.f = k;
+      b.className = k === recFilter ? "on" : "";
+      b.addEventListener("click", () => { recFilter = k; fbox.querySelectorAll("button").forEach(x => x.classList.toggle("on", x.dataset.f === k)); renderRecetario(); });
+      fbox.appendChild(b);
     }
-    const ed = document.createElement("button");
-    ed.className = "del"; ed.style.color = "var(--muted)";
-    ed.textContent = "✏️"; ed.title = `Editar “${d.nombre}”`;
-    ed.addEventListener("click", () => startEdit(d));
-    row.appendChild(ed);
-    if (recetaOf(d)) {
-      const rb = document.createElement("button");
-      rb.className = "del"; rb.style.color = "var(--muted)";
-      rb.textContent = "📖"; rb.title = `Ver receta de “${d.nombre}”`;
-      rb.addEventListener("click", () => openRecipe(d));
-      row.appendChild(rb);
-    }
-    const cam = document.createElement("button");
-    cam.className = "del"; cam.style.color = "var(--muted)";
-    cam.textContent = d.img ? "🖼️" : "📷";
-    cam.title = d.img ? `Cambiar o sacar la foto de “${d.nombre}”` : `Ponerle foto a “${d.nombre}” (ej: generada con Nano Banana)`;
-    cam.addEventListener("click", () => {
-      if (d.img && confirm(`“${d.nombre}” ya tiene foto. ¿Sacarla? (Cancelar = elegir otra)`)) {
-        delete d.img; save(); render(); return;
-      }
-      photoTarget = d;
-      $("#photoInput").click();
-    });
-    row.appendChild(cam);
-    const del = document.createElement("button");
-    del.className = "del"; del.textContent = "✕"; del.title = `Sacar “${d.nombre}”`;
-    del.addEventListener("click", () => {
+    $("#recSearch").addEventListener("input", e => { recQuery = norm(e.target.value); renderRecetario(); });
+  }
+  const grid = $("#recList"); grid.innerHTML = "";
+  let items = [...state.recetario].sort((a, b) => a.nombre.localeCompare(b.nombre));
+  if (recQuery) items = items.filter(d => norm(d.nombre).includes(recQuery) || norm(d.ing || "").includes(recQuery));
+  if (recFilter === "cena" || recFilter === "vianda") items = items.filter(d => d.tipo === recFilter);
+  else if (recFilter === "pendiente") items = items.filter(d => d.pendiente);
+  else if (recFilter === "foto") items = items.filter(d => d.img);
+
+  for (const d of items) {
+    const card = document.createElement("div");
+    card.className = "rcard";
+    card.innerHTML = `
+      <div class="rc-photo" style="background:${d.img ? `url(${d.img}) center/cover no-repeat` : PROT_GRAD[d.prot]}">${d.img ? "" : emojiFor(d)}</div>
+      <div class="rc-body">
+        <p class="rc-name">${d.veto ? "🚫 " : ""}${d.nombre}${d.pendiente ? " 📝" : ""}</p>
+        <p class="rc-meta">${d.tipo === "cena" ? "🍽" : "🧺"} ${PROT_LABEL[d.prot]}${d.nut ? ` · 🔥${d.nut[0]}` : ""}${d.fans.length ? ` · ❤️${d.fans.length}` : ""}</p>
+      </div>`;
+    // tocar la tarjeta = ver receta (si hay) o editar
+    card.addEventListener("click", ev => { if (ev.target.closest(".rc-acts")) return; recetaOf(d) ? openRecipe(d) : startEdit(d); });
+    const acts = document.createElement("div");
+    acts.className = "rc-acts";
+    const mk = (txt, title, fn) => { const b = document.createElement("button"); b.textContent = txt; b.title = title; b.addEventListener("click", e => { e.stopPropagation(); fn(); }); return b; };
+    if (d.pendiente) acts.appendChild(mk("🔍", "Buscar receta", () => buscarReceta(d)));
+    acts.appendChild(mk("✏️", "Editar", () => startEdit(d)));
+    acts.appendChild(mk(d.img ? "🖼️" : "📷", d.img ? "Cambiar foto" : "Poner foto", () => {
+      if (d.img && confirm(`¿Sacar la foto de “${d.nombre}”? (Cancelar = elegir otra)`)) { delete d.img; save(); render(); return; }
+      photoTarget = d; $("#photoInput").click();
+    }));
+    acts.appendChild(mk("✕", "Sacar del recetario", () => {
       if (!confirm(`¿Sacar “${d.nombre}” del recetario?`)) return;
       state.recetario = state.recetario.filter(x => x.id !== d.id);
       for (const k of ["cenas", "viandas"]) state.week[k] = state.week[k].map(e => (e && e.id === d.id) ? null : e);
       save(); render();
-    });
-    row.appendChild(del);
-    list.appendChild(row);
+    }));
+    card.appendChild(acts);
+    grid.appendChild(card);
   }
+  if (!items.length) grid.innerHTML = "<p class='hint' style='grid-column:1/-1'>No hay platos con ese filtro.</p>";
   $("#recCount").textContent = state.recetario.length;
   const pend = state.recetario.filter(d => d.pendiente);
   const ph = $("#pendHint");
-  if (pend.length) { ph.hidden = false; ph.textContent = `📝 ${pend.length} plato(s) sin receta — tocá 🔍 para que te la busque`; }
+  if (pend.length) { ph.hidden = false; ph.textContent = `📝 ${pend.length} plato(s) sin receta — tocá 🔍 en la tarjeta para buscarla`; }
   else ph.hidden = true;
 }
 
@@ -2822,6 +2938,20 @@ $("#addDishForm").addEventListener("submit", e => {
     toast("Plato agregado al recetario 📖");
   }
 });
+
+// ── Cambiar plato: menú unificado ──
+let changeCtx = { tipo: "cena", i: 0 };
+function abrirCambiar(tipo, i) {
+  changeCtx = { tipo, i };
+  $("#changeTitle").textContent = `🔄 ${tipo === "cena" ? "Cena" : "Vianda"} del ${DIAS[i]}`;
+  $("#changeModal").showModal();
+}
+function cerrarCambiar() { const m = $("#changeModal"); if (m.open) m.close(); }
+$("#chgOtro").addEventListener("click", () => { cerrarCambiar(); rerollDay(changeCtx.tipo, changeCtx.i); });
+$("#chgArg").addEventListener("click", () => { cerrarCambiar(); sorpresaDay(changeCtx.tipo, changeCtx.i); });
+$("#chgRuleta").addEventListener("click", () => { cerrarCambiar(); openWheel(changeCtx.tipo, changeCtx.i); });
+$("#chgEscribir").addEventListener("click", () => { cerrarCambiar(); escribirPlato(changeCtx.tipo, changeCtx.i); });
+$("#changeClose").addEventListener("click", cerrarCambiar);
 
 // ── Receta 📖 ──
 function openRecipe(d) {
@@ -3188,6 +3318,12 @@ document.querySelectorAll("#writeSeg button").forEach(b => b.addEventListener("c
   document.querySelectorAll("#writeSeg button").forEach(x => x.classList.toggle("on", x === b));
 }));
 
+$("#btnShareMenu").addEventListener("click", () => {
+  const filled = [...state.week.cenas, ...state.week.viandas].filter(e => e && (e.id || e.custom)).length;
+  if (!filled) { toast("Primero armá el menú 😊"); return; }
+  $("#shareModal").showModal();
+});
+$("#shareClose").addEventListener("click", () => $("#shareModal").close());
 $("#emptyGo").addEventListener("click", () => $("#btnGenerate").click());
 $("#btnGenerate").addEventListener("click", () => {
   if (state.kid.active) { toast("Pedile a mamá o papá que genere el menú 😄"); return; }
@@ -3204,14 +3340,7 @@ $("#btnGenerate").addEventListener("click", () => {
   confetti(70);
   toast("🎲 ¡Menú generado! Tocá un día para ajustarlo");
 });
-document.querySelectorAll("[data-regen]").forEach(b => b.addEventListener("click", ev => {
-  ev.stopPropagation();
-  const which = b.dataset.regen;
-  state.week[which] = generateWeek(which === "cenas" ? "cena" : "vianda");
-  if (which === "cenas") state.week.sides = genSides();
-  logEvent("generar");
-  save(); render();
-}));
+// (el sorteo por sección ahora vive en el dado central; se quitó el 🎲 por sección)
 $("#btnNewWeek").addEventListener("click", () => {
   if (state.kid.active) { toast("Solo mamá o papá pueden cambiar de semana 😄"); return; }
   if (!confirm("¿Archivar esta semana y arrancar una nueva? El generador va a evitar repetir estos platos.")) return;
@@ -3273,12 +3402,12 @@ $("#btnWhatsAppTodo").addEventListener("click", () => {
   logEvent("whatsapp");
   const txt = textoCenas() + "\n\n" + textoViandas() + "\n\n" + textoCompras();
   window.open("https://wa.me/?text=" + encodeURIComponent(txt), "_blank");
+  const sm = $("#shareModal"); if (sm.open) sm.close();
 });
 $("#btnWhatsAppShop").addEventListener("click", () => {
   logEvent("whatsapp");
   window.open("https://wa.me/?text=" + encodeURIComponent(textoCompras()), "_blank");
 });
-$("#btnPrint").addEventListener("click", () => window.print());
 
 $("#themeBtn").addEventListener("click", () => {
   state.theme = THEMES[(THEMES.indexOf(state.theme) + 1) % THEMES.length];
@@ -3375,6 +3504,33 @@ $("#photoInput").addEventListener("change", () => {
 
 applyTheme();
 render();
+
+// ── Onboarding la primera vez ──
+const OB_STEPS = [
+  { e: "🍽️", t: "Bienvenidos a MenuFam", x: "El menú de la semana de toda la familia, en un solo lugar. Cenas, viandas del cole y lista de compras." },
+  { e: "🎲", t: "Armá la semana", x: "Tocá el dado grande de abajo y se completan los 5 días solos. ¿Querés algo puntual? Usá «✍️ Escribir»." },
+  { e: "❤️", t: "Que voten todos", x: "Cada uno elige su carita arriba y da ❤️ en Descubrir. Los platos más queridos salen más seguido." },
+  { e: "📤", t: "Compartilo", x: "Con «Compartir menú» lo mandás al grupo de WhatsApp o lo imprimís para la heladera. ¡Listo!" }
+];
+let obIdx = 0;
+function showOnboard() {
+  try { if (localStorage.getItem("menufamOnboard")) return; } catch (e) { return; }
+  obIdx = 0; pintarOnboard();
+  $("#onboard").hidden = false;
+}
+function pintarOnboard() {
+  const st = OB_STEPS[obIdx];
+  $("#obEmoji").textContent = st.e;
+  $("#obTitle").textContent = st.t;
+  $("#obText").textContent = st.x;
+  $("#obNext").textContent = obIdx === OB_STEPS.length - 1 ? "¡Empezar! 🎉" : "Siguiente";
+  const dots = $("#obDots"); dots.innerHTML = "";
+  OB_STEPS.forEach((_, i) => { const d = document.createElement("span"); if (i === obIdx) d.className = "on"; dots.appendChild(d); });
+}
+function cerrarOnboard() { $("#onboard").hidden = true; try { localStorage.setItem("menufamOnboard", "1"); } catch (e) {} }
+$("#obNext").addEventListener("click", () => { if (obIdx < OB_STEPS.length - 1) { obIdx++; pintarOnboard(); } else cerrarOnboard(); });
+$("#obSkip").addEventListener("click", cerrarOnboard);
+showOnboard();
 
 // registrar la apertura (una vez por sesión de navegación)
 try {
