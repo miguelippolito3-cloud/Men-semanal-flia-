@@ -591,6 +591,11 @@
   details.extra[open] > summary::before { content: "▾ "; }
   details.finde-box { border-color: var(--stat); background: color-mix(in srgb, var(--stat) 8%, var(--card)); }
   .finde-box .row { border-color: var(--stat); }
+  .semaforo { display: flex; gap: 6px; flex-wrap: wrap; }
+  .semaforo span { font-size: 12px; font-weight: 700; padding: 5px 11px; border-radius: 99px; border: 1px solid var(--line); background: var(--card); }
+  .semaforo span.ok { border-color: var(--ok); }
+  .semaforo span.warn { border-color: var(--stat); }
+  .semaforo span.bad { border-color: var(--like); }
   .tip {
     display: flex; gap: 9px; align-items: flex-start;
     margin: 10px 0 0; padding: 9px 12px; font-size: 13px;
@@ -726,6 +731,8 @@
         <div><h3 id="kidHi"></h3><p>Deslizá en Descubrir y tocá ❤️ en lo que más te guste</p></div>
       </div>
       <p class="saludo" id="saludo"></p>
+      <p class="saludo" id="chefLine" style="margin-top:2px"></p>
+      <p class="saludo" id="climaLine" hidden style="margin-top:2px"></p>
       <div class="stories" id="stories"></div>
       <div class="empty-card" id="emptyCard" hidden>
         <span class="e-emoji">🍽️</span>
@@ -776,7 +783,26 @@
                 <option value="arg">🇦🇷 Sorprendeme con recetas nuevas</option>
               </select>
             </label>
+            <label class="switch" style="width:100%"><input type="checkbox" id="quincenaToggle"> Planificar 2 semanas (quincena)</label>
             <button id="btnNewWeek" class="ghost" style="width:100%;margin-top:4px">🗓️ Arrancar semana nueva</button>
+          </div>
+          <div id="nextWeekBox" hidden style="margin-top:10px">
+            <p class="side" style="margin:0 0 4px"><strong>🗓️ Semana que viene (ya armada):</strong></p>
+            <p class="side" id="nextWeekTxt" style="margin:0"></p>
+          </div>
+          <div id="semaforoBox" style="margin-top:12px"></div>
+          <div style="margin-top:12px">
+            <p class="side" style="margin:0 0 4px"><strong>🎂 Fechas especiales</strong> (cumples, aniversarios)</p>
+            <div class="fans" id="fechasChips"></div>
+            <form id="fechaForm" style="display:flex;gap:6px;margin-top:6px">
+              <input type="text" id="fechaDia" placeholder="dd-mm" style="width:84px" maxlength="5">
+              <input type="text" id="fechaNombre" placeholder="Cumple de Fran" style="flex:1">
+              <button type="submit">＋</button>
+            </form>
+          </div>
+          <div class="main-actions" style="margin:14px 0 0">
+            <button id="btnHeladera">🧊 ¿Qué cocino con lo que tengo?</button>
+            <button id="btnTorneo">🏆 Torneo del mes</button>
           </div>
           <div class="desafio" id="desafioCard" style="margin:12px 0 0">
             <span style="font-size:22px">🎯</span>
@@ -1300,7 +1326,22 @@ function migrate(s) {
   s.precios = s.precios || {};
   s.desafiosDone = s.desafiosDone || 0;
   s.emails = s.emails || {};
-  for (const d of s.recetario) if (d.pendiente === undefined) d.pendiente = false;
+  for (const d of s.recetario) { if (d.pendiente === undefined) d.pendiente = false; d.reacts = d.reacts || {}; }
+  s.lastServido = s.lastServido || {};
+  s.pins = s.pins || { cenas: {}, viandas: {} };
+  s.fechas = s.fechas || [];
+  s.preciosHist = s.preciosHist || {};
+  s.despensa = s.despensa || [];
+  s.presupuestoTope = s.presupuestoTope || null;
+  s.torneo = s.torneo || null;
+  s.champ = s.champ || null;
+  s.rachaKid = s.rachaKid || {};
+  s.adivina = s.adivina || {};
+  s.nextWeek = s.nextWeek || null;
+  s.quincena = !!s.quincena;
+  s.famNames = s.famNames || {};
+  s.week.votaronTodos = !!s.week.votaronTodos;
+  for (const x of s.week.sides) if (x && x.pers === undefined) x.pers = null;
   return s;
 }
 
@@ -1409,6 +1450,13 @@ function aplicarPerfilLocal() {
   const u = localUser();
   if (u && FAMILIA.some(f => f.k === u)) state.currentUser = u;
   state.kid.active = localKid();
+  // nombres configurables (43)
+  for (const m of FAMILIA) {
+    if (state.famNames[m.k]) {
+      m.title = state.famNames[m.k];
+      m.label = m.k === "martu" ? m.title.slice(0, 2) : m.title.slice(0, 1).toUpperCase();
+    }
+  }
 }
 aplicarPerfilLocal();
 
@@ -1485,9 +1533,24 @@ const entryEmoji = e => {
 };
 
 // ── Generador: reglas de variedad + los ❤️ pesan ──
+const RX_INVIERNO = /guiso|estofado|polenta|lentejas|pastel de papa|chup[ií]n|sopa|risotto|al horno|carbonada/;
+const RX_VERANO = /ensalada|fajita|wok|caprese|salpic[oó]n|s[aá]ndwich|grillad|plancha/;
+function esInvierno() { const m = new Date().getMonth(); return m >= 4 && m <= 8; }
+function pesoDe(d) {
+  let p = 1 + (d.fans ? d.fans.length : 0) * 0.7;
+  const n = norm(d.nombre + " " + (d.ing || ""));
+  if (esInvierno()) { if (RX_INVIERNO.test(n)) p *= 1.3; if (RX_VERANO.test(n)) p *= 0.8; }
+  else { if (RX_VERANO.test(n)) p *= 1.3; if (RX_INVIERNO.test(n)) p *= 0.85; }
+  if (d.fans && d.fans.length >= 2 && d.id) {
+    const last = state.lastServido[d.id];
+    if (!last || (Date.now() - new Date(last + "T12:00:00").getTime()) > 28 * 86400000) p *= 1.4;
+  }
+  if (state.champ && state.champ.id === d.id) p *= 1.25;
+  return p;
+}
 function weightedSample(arr, n) {
   return arr
-    .map(d => ({ d, k: Math.pow(Math.random(), 1 / (1 + (d.fans ? d.fans.length : 0) * 0.7)) }))
+    .map(d => ({ d, k: Math.pow(Math.random(), 1 / pesoDe(d)) }))
     .sort((a, b) => b.k - a.k)
     .slice(0, n)
     .map(x => x.d);
@@ -1507,17 +1570,21 @@ function scoreWeek(dishes, lastIds) {
   }
   return s;
 }
-function generateWeek(tipo) {
+function generateWeek(tipo, lastIdsOverride) {
   const dishes = poolForGen(tipo);
   if (dishes.length < 5) return dishes.map(d => ({ id: ensureInRecetario(d).id }));
-  const lastIds = state.lastWeek[tipo === "cena" ? "cenas" : "viandas"] || [];
+  const lastIds = lastIdsOverride || state.lastWeek[tipo === "cena" ? "cenas" : "viandas"] || [];
   let best = null, bestScore = Infinity;
   for (let t = 0; t < 400; t++) {
     const pick = weightedSample(dishes, 5);
     const sc = scoreWeek(pick, lastIds);
     if (sc < bestScore) { bestScore = sc; best = pick; if (sc === 0) break; }
   }
-  return best.map(d => ({ id: ensureInRecetario(d).id }));
+  const week = best.map(d => ({ id: ensureInRecetario(d).id }));
+  // pines 📌 (modo clásico): los días fijados no se sortean
+  const pins = state.pins[tipo === "cena" ? "cenas" : "viandas"];
+  for (const i in pins) if (byId(pins[i])) week[i] = { id: pins[i] };
+  return week;
 }
 function candidatesFor(tipo, i) {
   const key = tipo === "cena" ? "cenas" : "viandas";
@@ -1627,6 +1694,11 @@ function kidPuedeLikear() {
   const hoy = new Date().toISOString().slice(0, 10);
   if (state.kidLikes.date !== hoy || state.kidLikes.kid !== state.kid.active) {
     state.kidLikes = { date: hoy, kid: state.kid.active, n: 0 };
+    // racha personal (35): primer ❤️ del día
+    const r = state.rachaKid[state.kid.active] = state.rachaKid[state.kid.active] || { last: null, n: 0 };
+    const ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
+    r.n = r.last === ayer.toISOString().slice(0, 10) ? r.n + 1 : 1;
+    r.last = hoy;
   }
   if (state.kidLikes.n >= 3) {
     toast("Ya usaste tus 3 ❤️ de hoy 😄 mañana hay más");
@@ -1694,10 +1766,10 @@ function rowFor(tipo, i) {
   row.innerHTML = `
     <span class="r-emoji" style="background:${thumbBg}">${d && d.img ? "" : emoji}</span>
     <span class="r-main">
-      <p class="r-day">${DIAS[i]}</p>
+      <p class="r-day">${DIAS[i]}${state.pins[key][i] ? " 📌" : ""}${fechaEspecial(i) ? " 🎂" : ""}</p>
       <p class="r-name">${name}</p>
       ${d && d.lados ? `<p class="r-sub">🍟 ${d.lados}</p>` : ""}
-      ${tipo === "cena" && e ? `<p class="r-sub">🥬 ${saladLine(state.week.sides[i])}${compName(state.week.sides[i]) ? ` · ➕ ${compName(state.week.sides[i])}` : ""}</p>` : ""}
+      ${tipo === "cena" && e ? `<p class="r-sub">🥬 ${saladLine(state.week.sides[i])}${compName(state.week.sides[i]) ? ` · ➕ ${compName(state.week.sides[i])}` : ""}${state.week.sides[i] && state.week.sides[i].pers ? ` · 👥${state.week.sides[i].pers}` : ""}</p>` : ""}
       ${d ? `<span class="chip ${d.prot}">${PROT_LABEL[d.prot]}</span>` : ""}
     </span>
     ${likes ? `<span class="r-likes">❤️ ${likes}</span>` : ""}`;
@@ -1747,8 +1819,13 @@ function render() {
   if (activeTab === "recetario") renderRecetario();
   if (activeTab === "admin") renderAdmin();
   document.body.classList.toggle("kid", !!state.kid.active);
-  if (state.kid.active) { const m = FAMILIA.find(f => f.k === state.kid.active); $("#kidHi").textContent = `¡Hola ${m ? m.title : ""}! 🌟`; }
+  if (state.kid.active) {
+    const m = FAMILIA.find(f => f.k === state.kid.active);
+    const r = state.rachaKid[state.kid.active];
+    $("#kidHi").textContent = `¡Hola ${m ? m.title : ""}! 🌟${r && r.n > 1 ? ` · 🔥 ${r.n} días votando` : ""}`;
+  }
   renderSaludo(); renderRate(); renderDesafio(); renderFinde(); renderTips(); renderBatch(); renderHistorial();
+  renderSemaforo(); renderFechas(); renderQuincena();
   $("#adminBtn").hidden = !ADMIN_USERS.includes(state.currentUser) || !!state.kid.active;
   if (sheetDay !== null) renderSheet();
 }
@@ -1988,6 +2065,9 @@ function renderSaludo() {
   const hoy = new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" });
   $("#saludo").innerHTML = `¡Hola <strong>${m ? m.title : ""}</strong>! 👋 <span style="text-transform:capitalize">${hoy}</span> <span style="opacity:.6">· ¿no sos vos? tocá acá</span>`;
   $("#saludo").style.cursor = "pointer";
+  const chef = chefSemana();
+  $("#chefLine").innerHTML = `👨‍🍳 Chef de la semana: <strong>${chef.title}</strong> — elige un plato comodín`;
+  if (window.__climaTip) { $("#climaLine").hidden = false; $("#climaLine").textContent = window.__climaTip; }
   const filled = [...state.week.cenas, ...state.week.viandas].filter(e => e && (e.id || e.custom)).length;
   const empty = $("#emptyCard"), hint = $("#nextHint");
   empty.hidden = filled > 0;
@@ -2092,8 +2172,27 @@ function renderFinde() {
 
 // ── Tips de porciones inteligentes 💡 ──
 const BASE_TOKENS = ["milanesa", "pollo", "carne", "arroz", "puré", "pure", "fideos", "hamburgues", "merluza", "pescado", "tarta"];
+function fechaEspecial(i) {
+  const d = new Date(state.week.monday + "T12:00:00");
+  d.setDate(d.getDate() + i);
+  const key = String(d.getDate()).padStart(2, "0") + "-" + String(d.getMonth() + 1).padStart(2, "0");
+  const f = state.fechas.find(x => x.d === key);
+  return f ? f.nombre : null;
+}
+function chefSemana() {
+  const dias = Math.floor(new Date(state.week.monday + "T12:00:00").getTime() / 86400000);
+  return FAMILIA.find(f => f.k === NINOS[Math.floor(dias / 7) % NINOS.length]);
+}
 function tipsSemana() {
   const tips = [];
+  // fechas especiales (36)
+  for (let i = 0; i < 5; i++) {
+    const f = fechaEspecial(i);
+    if (f) tips.push(`🎂 ${f} el ${DIAS[i].toLowerCase()} — ¿menú festivo ese día?`);
+  }
+  // queridos olvidados (16)
+  const olvidados = state.recetario.filter(d => d.fans.length >= 2 && (!state.lastServido[d.id] || (Date.now() - new Date(state.lastServido[d.id] + "T12:00:00").getTime()) > 35 * 86400000)).slice(0, 2);
+  for (const d of olvidados) tips.push(`💚 Hace mucho que no comen ${d.nombre} (❤️ ${d.fans.length}) — ¿lo sumamos?`);
   for (let i = 0; i < 4; i++) {
     const cena = entryDish(state.week.cenas[i]);
     const via = entryDish(state.week.viandas[i + 1]);
@@ -2104,6 +2203,44 @@ function tipsSemana() {
     if (tok) tips.push(`💡 Cociná de más el ${DIAS[i].toLowerCase()}: la cena (${cena.nombre}) sirve de base para la vianda del ${DIAS[i + 1].toLowerCase()} (${via.nombre}).`);
   }
   return tips;
+}
+// semáforo nutricional (17)
+function renderSemaforo() {
+  const box = $("#semaforoBox"); box.innerHTML = "";
+  const cenas = state.week.cenas.map(entryDish).filter(Boolean);
+  if (!cenas.length) return;
+  const kcals = cenas.filter(d => d.nut).map(d => d.nut[0]);
+  const kcalProm = kcals.length ? Math.round(kcals.reduce((a, b) => a + b, 0) / kcals.length) : 0;
+  const conExtra = state.week.sides.filter((x, i) => state.week.cenas[i] && x && x.ens2).length;
+  const frituras = [...state.week.cenas, ...state.week.viandas].map(entryDish).filter(d => d && /frit|milanesa|empanad/.test(norm(d.nombre + (d.lados || "")))).length;
+  const chips = [
+    [`🔥 ${kcalProm} kcal prom.`, kcalProm <= 650 ? "ok" : kcalProm <= 750 ? "warn" : "bad"],
+    [`🥬 ${conExtra + 5} ensaladas`, conExtra >= 2 ? "ok" : "warn"],
+    [`🍟 ${frituras} frituras`, frituras <= 2 ? "ok" : frituras <= 4 ? "warn" : "bad"]
+  ];
+  const div = document.createElement("div");
+  div.className = "semaforo";
+  div.innerHTML = `<strong style="width:100%;font-size:12px;margin-bottom:2px">🚦 Semáforo de la semana</strong>` + chips.map(([t, c]) => `<span class="${c}">${t}</span>`).join("");
+  box.appendChild(div);
+}
+function renderFechas() {
+  const box = $("#fechasChips"); box.innerHTML = "";
+  for (const f of state.fechas) {
+    const chip = document.createElement("button");
+    chip.className = "fan on";
+    chip.textContent = `🎂 ${f.d} ${f.nombre} ✕`;
+    chip.addEventListener("click", () => { state.fechas = state.fechas.filter(x => x !== f); save(); render(); });
+    box.appendChild(chip);
+  }
+  if (!state.fechas.length) box.innerHTML = "<span class='hint'>Sin fechas cargadas.</span>";
+}
+function renderQuincena() {
+  $("#quincenaToggle").checked = state.quincena;
+  const box = $("#nextWeekBox");
+  if (state.nextWeek) {
+    box.hidden = false;
+    $("#nextWeekTxt").textContent = "🍽 " + state.nextWeek.cenas.map(e => entryName(e)).filter(Boolean).join(" · ");
+  } else box.hidden = true;
 }
 function renderTips() {
   const box = $("#tipsBox"); box.innerHTML = "";
@@ -2349,6 +2486,24 @@ function mealBlock(tipo, i) {
     return b;
   };
   acts.appendChild(mkAct("🔄 Cambiar plato", "Ver todas las formas de cambiarlo", () => abrirCambiar(tipo, i)));
+  const pins = state.pins[key];
+  const pinned = dish && pins[i] === dish.id;
+  const pinB = mkAct(pinned ? "📌 Fijo" : "📌", pinned ? `Fijado: todos los ${DIAS[i].toLowerCase()} sale este plato` : `Fijar este plato para todos los ${DIAS[i].toLowerCase()}`, () => {
+    if (!dish) { toast("Primero elegí un plato"); return; }
+    if (pins[i] === dish.id) { delete pins[i]; toast("📌 Ya no está fijo"); }
+    else { pins[i] = dish.id; toast(`📌 ${dish.nombre} fijo para los ${DIAS[i].toLowerCase()}`); }
+    save(); render();
+  });
+  if (pinned) pinB.style.background = "var(--grad-ig)", pinB.style.color = "#fff";
+  acts.appendChild(pinB);
+  if (tipo === "cena") {
+    const side0 = ensureSides(i);
+    const pers = side0.pers || 5;
+    acts.appendChild(mkAct(`👥 ${pers}`, "¿Cuántos comen este día? (invitados)", () => {
+      const v = parseInt(prompt(`¿Cuántos comen el ${DIAS[i].toLowerCase()}? (normal: 5)`, pers), 10);
+      if (!isNaN(v) && v >= 1 && v <= 15) { side0.pers = v === 5 ? null : v; save(); render(); }
+    }));
+  }
   box.appendChild(acts);
   box.appendChild(buildDishSelect(tipo, i));
   if (dish) {
@@ -2778,12 +2933,24 @@ function heartBurst(card, ev) {
   setTimeout(() => h.remove(), 850);
 }
 
+function checkVotaronTodos() {
+  if (state.week.votaronTodos) return;
+  const ids = [...state.week.cenas, ...state.week.viandas].filter(e => e && e.id).map(e => e.id);
+  const votantes = new Set();
+  for (const id of ids) { const d = byId(id); if (d) d.fans.forEach(k => votantes.add(k)); }
+  if (FAMILIA.every(m => votantes.has(m.k))) {
+    state.week.votaronTodos = true;
+    save();
+    confetti(100);
+    toast("🗳️ ¡Votaron los 5! Menú con aprobación total 🏅");
+  }
+}
 function toggleLike(d, card, ev) {
   const me = state.currentUser;
   const on = d.fans.includes(me);
   if (!on && !kidPuedeLikear()) return;
   d.fans = on ? d.fans.filter(k => k !== me) : [...d.fans, me];
-  if (!on) { heartBurst(card, ev); vib(); logEvent("like"); }
+  if (!on) { heartBurst(card, ev); vib(); logEvent("like"); checkVotaronTodos(); }
   save();
   render();
 }
@@ -3318,6 +3485,21 @@ document.querySelectorAll("#writeSeg button").forEach(b => b.addEventListener("c
   document.querySelectorAll("#writeSeg button").forEach(x => x.classList.toggle("on", x === b));
 }));
 
+$("#quincenaToggle").addEventListener("change", e => {
+  state.quincena = e.target.checked;
+  if (!state.quincena) state.nextWeek = null;
+  save(); render();
+  toast(state.quincena ? "🗓️ Al generar se arman 2 semanas y la compra es doble" : "Volvemos a semana por semana");
+});
+$("#fechaForm").addEventListener("submit", e => {
+  e.preventDefault();
+  const d = $("#fechaDia").value.trim(), n = $("#fechaNombre").value.trim();
+  if (!/^\d{2}-\d{2}$/.test(d) || !n) { toast("Formato: dd-mm y un nombre"); return; }
+  state.fechas.push({ d, nombre: n });
+  $("#fechaDia").value = ""; $("#fechaNombre").value = "";
+  save(); render();
+  toast(`🎂 ${n} agendado (${d})`);
+});
 $("#btnShareMenu").addEventListener("click", () => {
   const filled = [...state.week.cenas, ...state.week.viandas].filter(e => e && (e.id || e.custom)).length;
   if (!filled) { toast("Primero armá el menú 😊"); return; }
@@ -3331,6 +3513,13 @@ $("#btnGenerate").addEventListener("click", () => {
   state.week.cenas = generateWeek("cena");
   state.week.viandas = generateWeek("vianda");
   state.week.sides = genSides();
+  if (state.quincena) {
+    state.nextWeek = {
+      cenas: generateWeek("cena", state.week.cenas.filter(e => e && e.id).map(e => e.id)),
+      viandas: generateWeek("vianda", state.week.viandas.filter(e => e && e.id).map(e => e.id)),
+      sides: genSides()
+    };
+  }
   save();
   activeTab = "semana";
   document.querySelectorAll(".tabbar [data-tab]").forEach(x => x.classList.toggle("on", x.dataset.tab === "semana"));
@@ -3367,7 +3556,19 @@ $("#btnNewWeek").addEventListener("click", () => {
     cenas: state.week.cenas.filter(e => e && e.id).map(e => e.id),
     viandas: state.week.viandas.filter(e => e && e.id).map(e => e.id)
   };
-  state.week = freshWeek();
+  for (const e of [...state.week.cenas, ...state.week.viandas]) if (e && e.id) state.lastServido[e.id] = state.week.monday;
+  // quincena (19): la semana que viene ya planificada pasa a ser la actual
+  if (state.nextWeek) {
+    const fw = freshWeek();
+    const m = new Date(state.week.monday + "T12:00:00"); m.setDate(m.getDate() + 7);
+    fw.monday = m.toISOString().slice(0, 10);
+    fw.cenas = state.nextWeek.cenas; fw.viandas = state.nextWeek.viandas; fw.sides = state.nextWeek.sides;
+    state.week = fw;
+    state.nextWeek = null;
+    toast("🗓️ La semana que ya habían planificado quedó activa");
+  } else {
+    state.week = freshWeek();
+  }
   save(); render();
 });
 $("#btnDone").addEventListener("click", () => {
@@ -3531,6 +3732,25 @@ function cerrarOnboard() { $("#onboard").hidden = true; try { localStorage.setIt
 $("#obNext").addEventListener("click", () => { if (obIdx < OB_STEPS.length - 1) { obIdx++; pintarOnboard(); } else cerrarOnboard(); });
 $("#obSkip").addEventListener("click", cerrarOnboard);
 showOnboard();
+
+// ── Clima de mañana (15): si llueve o hace frío, día de guiso ──
+(async function clima() {
+  try {
+    const cached = JSON.parse(sessionStorage.getItem("menufamClima") || "null");
+    let data = cached && (Date.now() - cached.t < 6 * 3600000) ? cached.d : null;
+    if (!data) {
+      const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=-34.6&longitude=-58.4&daily=precipitation_probability_max,temperature_2m_max&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=2");
+      data = await r.json();
+      sessionStorage.setItem("menufamClima", JSON.stringify({ t: Date.now(), d: data }));
+    }
+    const lluvia = data.daily.precipitation_probability_max[1];
+    const tmax = data.daily.temperature_2m_max[1];
+    if (lluvia >= 60) window.__climaTip = `🌧️ Mañana llueve (${lluvia}%) — día ideal para guiso o pastel de papa`;
+    else if (tmax <= 12) window.__climaTip = `🥶 Mañana hace frío (máx ${Math.round(tmax)}°) — ¿un guiso o polenta?`;
+    else if (tmax >= 30) window.__climaTip = `🥵 Mañana hace calor (máx ${Math.round(tmax)}°) — algo fresco a la plancha`;
+    if (window.__climaTip) { $("#climaLine").hidden = false; $("#climaLine").textContent = window.__climaTip; }
+  } catch (e) { /* sin internet o CSP: se omite */ }
+})();
 
 // registrar la apertura (una vez por sesión de navegación)
 try {
