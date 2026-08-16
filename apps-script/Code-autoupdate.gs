@@ -116,6 +116,20 @@ function generarFoto(prompt) {
   throw new Error('Gemini no devolvió imagen, probá de nuevo');
 }
 
+// Sugiere un reemplazo para un ingrediente que falta (23).
+function sugerirSustituto(plato, ingrediente) {
+  var key = geminiKey_();
+  if (!key) throw new Error('Falta la GEMINI_API_KEY.');
+  var res = UrlFetchApp.fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + key,
+    { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({ contents: [{ parts: [{ text: 'Estoy cocinando ' + plato + ' y no tengo ' + ingrediente + '. En 2 o 3 líneas, en español rioplatense: ¿con qué lo reemplazo usando cosas comunes de una casa argentina, o cómo sigo sin eso?' }] }] }) }
+  );
+  var data = JSON.parse(res.getContentText());
+  if (res.getResponseCode() !== 200) throw new Error((data.error && data.error.message) || 'Error de Gemini');
+  return data.candidates[0].content.parts[0].text;
+}
+
 // Genera la receta de un plato escrito a mano (devuelve JSON como texto).
 function generarReceta(nombre, tipo) {
   var key = geminiKey_();
@@ -201,6 +215,90 @@ function probarTelegram() {
   UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendMessage', {
     method: 'post',
     payload: { chat_id: TELEGRAM_CHAT_ID, text: '🍽️ ¡Hola! Soy MenuFam. Todas las noches les aviso la cena de mañana y si hay que descongelar 🧊' }
+  });
+}
+
+// ═══ Bot bidireccional (37): respondé /hoy /manana /semana /lista en Telegram ═══
+// Después de pegar el token: ejecutá una vez configurarWebhookTelegram() ▶.
+function configurarWebhookTelegram() {
+  const url = ScriptApp.getService().getUrl();
+  const res = UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/setWebhook?url=' + encodeURIComponent(url));
+  Logger.log(res.getContentText());
+}
+
+function textoDia_(st, i, titulo) {
+  const cena = nombreDe_(st, st.week.cenas[i]);
+  const via = nombreDe_(st, st.week.viandas[i]);
+  if (!cena && !via) return titulo + ': todavía no hay nada cargado 😅';
+  let t = '🍽️ *' + titulo + '*';
+  if (cena) t += '\n🌙 Cena: *' + cena + '*';
+  if (via) t += '\n🧺 Vianda: *' + via + '*';
+  const obs = st.week.obs[i];
+  if (obs) t += '\n📝 ' + obs;
+  return t;
+}
+
+function textoSemana_(st) {
+  let t = '🍽️ *Semana del ' + st.week.monday + '*';
+  for (let i = 0; i < 5; i++) {
+    const cena = nombreDe_(st, st.week.cenas[i]) || '—';
+    const via = nombreDe_(st, st.week.viandas[i]) || '—';
+    t += '\n\n*' + DIAS_[i] + '*\n🌙 ' + cena + '\n🧺 ' + via;
+  }
+  return t;
+}
+
+function textoLista_(st) {
+  const items = {};
+  [].concat(st.week.cenas, st.week.viandas).forEach(function (e) {
+    if (!e || !e.id) return;
+    const d = st.recetario.find(function (x) { return x.id === e.id; });
+    if (!d || !d.ing) return;
+    d.ing.split(',').forEach(function (raw) {
+      const it = raw.trim().toLowerCase();
+      if (it && (st.despensa || []).indexOf(it) < 0) items[it] = (items[it] || 0) + 1;
+    });
+  });
+  const keys = Object.keys(items).sort();
+  if (!keys.length) return '🛒 Todavía no hay lista — armen el menú primero.';
+  return '🛒 *Lista de compras*\n' + keys.map(function (k) { return '• ' + k + (items[k] > 1 ? ' (×' + items[k] + ')' : ''); }).join('\n');
+}
+
+function doPost(e) {
+  try {
+    const up = JSON.parse(e.postData.contents);
+    const msg = up.message;
+    if (!msg || !msg.text) return ContentService.createTextOutput('ok');
+    // solo respondemos en el chat de la familia
+    if (String(msg.chat.id) !== String(TELEGRAM_CHAT_ID)) return ContentService.createTextOutput('ok');
+    const st = leerEstado_();
+    const txt = msg.text.toLowerCase();
+    let resp = null;
+    const dow = new Date().getDay();
+    if (/\/?hoy/.test(txt)) resp = (dow >= 1 && dow <= 5) ? textoDia_(st, dow - 1, 'Hoy ' + DIAS_[dow - 1]) : '🌞 ¡Es finde! Miren la app para ver si hay plan.';
+    else if (/\/?ma[nñ]ana/.test(txt)) { const m2 = (dow + 1) % 7; resp = (m2 >= 1 && m2 <= 5) ? textoDia_(st, m2 - 1, 'Mañana ' + DIAS_[m2 - 1]) : '🌞 Mañana es finde, ¡a disfrutar!'; }
+    else if (/\/?semana/.test(txt)) resp = textoSemana_(st);
+    else if (/\/?lista|compra/.test(txt)) resp = textoLista_(st);
+    else if (/hola|start/.test(txt)) resp = '👋 ¡Hola! Soy MenuFam. Escribime:\n/hoy — la cena de hoy\n/manana — la de mañana\n/semana — todo el menú\n/lista — las compras';
+    if (resp) {
+      UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendMessage', {
+        method: 'post',
+        payload: { chat_id: String(msg.chat.id), text: resp, parse_mode: 'Markdown' }
+      });
+    }
+  } catch (err) { /* nunca romper el webhook */ }
+  return ContentService.createTextOutput('ok');
+}
+
+// ═══ Resumen dominical (38): Activadores → resumenSemanal → semanal → domingo 19-20 h ═══
+function resumenSemanal() {
+  if (!TELEGRAM_TOKEN || !TELEGRAM_CHAT_ID) return;
+  const st = leerEstado_();
+  if (!st) return;
+  const msg = '🗓️ *¡Arranca la semana!*\n\n' + textoSemana_(st) + '\n\n' + textoLista_(st);
+  UrlFetchApp.fetch('https://api.telegram.org/bot' + TELEGRAM_TOKEN + '/sendMessage', {
+    method: 'post',
+    payload: { chat_id: TELEGRAM_CHAT_ID, text: msg, parse_mode: 'Markdown' }
   });
 }
 

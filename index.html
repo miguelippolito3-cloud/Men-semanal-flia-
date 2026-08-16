@@ -174,6 +174,17 @@
   dialog#shareModal { border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink); padding: 18px; width: 340px; max-width: 92vw; }
   dialog#shareModal::backdrop { background: rgba(0,0,0,0.6); }
   dialog#shareModal button { padding: 12px; font-size: 14.5px; }
+  dialog#torneoModal, dialog#adivinaModal { border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink); padding: 18px; width: 360px; max-width: 92vw; }
+  dialog#torneoModal::backdrop, dialog#adivinaModal::backdrop { background: rgba(0,0,0,0.6); }
+  .tn-match { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; }
+  .tn-card { background: var(--card); border: 2px solid var(--line); border-radius: 16px; padding: 14px 8px; text-align: center; font: inherit; color: var(--ink); }
+  .tn-card:active { transform: scale(0.95); }
+  .tn-card .e { font-size: 38px; display: block; }
+  .tn-card .n { font-size: 13px; font-weight: 800; }
+  .tn-vs { font-size: 15px; font-weight: 900; color: var(--stat); }
+  #adOpts button { padding: 14px; font-size: 15px; font-weight: 700; }
+  dialog#fridgeModal { border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink); padding: 18px; width: 360px; max-width: 92vw; }
+  dialog#fridgeModal::backdrop { background: rgba(0,0,0,0.6); }
   dialog#changeModal { border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink); padding: 18px; width: 320px; max-width: 92vw; }
   dialog#changeModal::backdrop { background: rgba(0,0,0,0.6); }
   dialog#changeModal button { padding: 13px; font-size: 15px; }
@@ -251,6 +262,20 @@
   .welcome .w-go { margin-top: 22px; font-size: 16px; padding: 13px 30px; }
   .welcome .w-skip { margin-top: 12px; background: none; border: none; color: var(--muted); font-size: 13px; text-decoration: underline; }
 
+  .cook {
+    position: fixed; inset: 0; z-index: 85; background: var(--shell);
+    display: flex; flex-direction: column; padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+  }
+  .cook-head { display: flex; align-items: center; gap: 10px; }
+  .ck-lbl { margin: 0; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .cook-head h3 { margin: 0; font-size: 19px; font-weight: 900; }
+  .ck-step-n { margin: 26px 0 6px; font-size: 13px; font-weight: 800; color: var(--stat); }
+  .ck-step { flex: 1; margin: 0; font-size: 24px; line-height: 1.5; font-weight: 600; overflow-y: auto; }
+  .ck-timer { display: flex; align-items: center; gap: 12px; margin: 10px 0; }
+  .ck-timer span { font-size: 44px; font-weight: 900; font-variant-numeric: tabular-nums; color: var(--stat); }
+  #ckTimerStart { align-self: flex-start; margin: 10px 0; font-size: 15px; padding: 11px 16px; }
+  .cook-nav { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 10px; }
+  .cook-nav button { padding: 16px; font-size: 16px; }
   .onboard { position: fixed; inset: 0; z-index: 90; background: rgba(8,8,14,0.72); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 24px; }
   .ob-card { background: var(--shell); border: 1px solid var(--line); border-radius: 24px; padding: 28px 22px; max-width: 340px; width: 100%; text-align: center; }
   .ob-emoji { font-size: 56px; display: block; margin-bottom: 10px; }
@@ -728,7 +753,8 @@
     <section class="tab active" id="tab-semana">
       <div class="kid-banner" id="kidBanner">
         <span class="kb-emoji">😋</span>
-        <div><h3 id="kidHi"></h3><p>Deslizá en Descubrir y tocá ❤️ en lo que más te guste</p></div>
+        <div style="flex:1"><h3 id="kidHi"></h3><p>Deslizá en Descubrir y tocá ❤️ en lo que más te guste</p></div>
+        <button class="pill" id="btnAdivina" style="background:rgba(255,255,255,.4);border:none;font-weight:800">🎮 Adiviná</button>
       </div>
       <p class="saludo" id="saludo"></p>
       <p class="saludo" id="chefLine" style="margin-top:2px"></p>
@@ -848,10 +874,17 @@
       <div class="shop-progress"><div class="bar" id="shopBar" style="width:0%"></div></div>
       <p class="shop-meta" id="shopMeta"></p>
       <div class="shop-cols" id="shopCols"></div>
+      <div class="next-hint" id="topeSugg" hidden></div>
       <div class="export-bar">
         <button id="btnWhatsAppShop" class="grad">💬 Mandar lista al grupo</button>
+        <button id="btnShareShop">📤 Compartir (Keep, notas…)</button>
         <button id="btnCopyShop">📋 Copiar lo que falta</button>
+        <button id="btnTope">🎯 Tope semanal</button>
       </div>
+      <details class="extra">
+        <summary>🏠 Despensa — lo que siempre tenemos (<span id="despCount">0</span>)</summary>
+        <div class="fans" id="despChips" style="padding:8px 16px 14px"></div>
+      </details>
     </section>
 
     <!-- ── RECETARIO ── -->
@@ -918,6 +951,20 @@
       </div>
       <p class="hint pad" id="genFotosStatus" style="margin:4px 0 0"></p>
 
+      <h2 class="sec pad">📈 Del año</h2>
+      <div class="admin-cards" id="admYear"></div>
+
+      <h2 class="sec pad">👨‍👩‍👧‍👦 Nombres de la familia</h2>
+      <p class="hint pad" style="margin:0 0 6px">Para regalar la app a otra familia: renombrá a los 5 y listo.</p>
+      <div id="famNamesBox" style="padding:0 16px;display:flex;flex-direction:column;gap:6px"></div>
+
+      <h2 class="sec pad">💾 Datos</h2>
+      <div class="export-bar" style="margin-top:0">
+        <button id="btnBackup">⬇️ Exportar backup</button>
+        <button id="btnRestore">📥 Restaurar backup</button>
+      </div>
+      <input type="file" id="restoreInput" accept="application/json" hidden>
+
       <h2 class="sec pad">📧 Cuentas de Google vinculadas</h2>
       <p class="hint pad" style="margin:0 0 6px">La primera vez que alguien entra con su mail, elige quién es y queda vinculado. Tocá ✕ para desvincular.</p>
       <ul class="ev-list" id="admEmails"></ul>
@@ -947,6 +994,28 @@
   </div>
   <div id="sheetBody"></div>
 </div>
+
+<dialog id="torneoModal">
+  <h3 style="margin:0 0 4px;font-size:19px;font-weight:900" id="tnTitle">🏆 Torneo del mes</h3>
+  <p class="hint" style="margin:0 0 12px" id="tnSub"></p>
+  <div id="tnBody"></div>
+  <div class="wheel-actions" style="margin-top:12px"><button id="tnClose" class="ghost">Cerrar</button></div>
+</dialog>
+
+<dialog id="adivinaModal">
+  <h3 style="margin:0 0 4px;font-size:19px;font-weight:900">🎮 ¿Adivinás la cena de hoy?</h3>
+  <p style="font-size:46px;text-align:center;margin:10px 0" id="adPista"></p>
+  <div id="adOpts" style="display:flex;flex-direction:column;gap:8px"></div>
+  <div class="wheel-actions" style="margin-top:12px"><button id="adClose" class="ghost">Cerrar</button></div>
+</dialog>
+
+<dialog id="fridgeModal">
+  <h3 style="margin:0 0 4px;font-size:18px;font-weight:900">🧊 ¿Qué hay en casa?</h3>
+  <p class="hint" style="margin:0 0 10px">Marcá ingredientes y te digo qué platos salen.</p>
+  <div class="chips-row" id="fridgeChips" style="flex-wrap:wrap;max-height:150px;overflow-y:auto"></div>
+  <div id="fridgeRes" style="margin-top:10px;max-height:220px;overflow-y:auto"></div>
+  <div class="wheel-actions" style="margin-top:12px"><button id="fridgeClose" class="ghost">Cerrar</button></div>
+</dialog>
 
 <dialog id="changeModal">
   <h3 id="changeTitle" style="margin:0 0 12px;font-size:18px;font-weight:900"></h3>
@@ -1015,7 +1084,10 @@
   <p class="wheel-sub" id="rcpMeta"></p>
   <div id="rcpBody" style="font-size:14px; line-height:1.6"></div>
   <div class="wheel-actions" style="margin-top:14px">
+    <button id="rcpCook" class="grad" hidden>👨‍🍳 Cocinar paso a paso</button>
     <button id="rcpImport" class="grad" hidden>➕ Importar al recetario</button>
+    <button id="rcpVideo">▶️ Video</button>
+    <button id="rcpSub" hidden>🔄 Me falta un ingrediente</button>
     <button id="rcpPrompt">✨ Prompt de foto</button>
     <button id="rcpClose" class="ghost">Cerrar</button>
   </div>
@@ -1035,6 +1107,27 @@
     <button id="wheelClose" class="ghost">Cerrar</button>
   </div>
 </dialog>
+
+<div class="cook" id="cook" hidden>
+  <div class="cook-head">
+    <div style="flex:1;min-width:0">
+      <p class="ck-lbl">👨‍🍳 Cocinando</p>
+      <h3 id="ckName"></h3>
+    </div>
+    <button class="s-nav" id="ckClose">✕</button>
+  </div>
+  <p class="ck-step-n" id="ckStepN"></p>
+  <p class="ck-step" id="ckStep"></p>
+  <div class="ck-timer" id="ckTimerBox" hidden>
+    <span id="ckTimer"></span>
+    <button class="pill" id="ckTimerStop">⏹️</button>
+  </div>
+  <button class="pill" id="ckTimerStart" hidden></button>
+  <div class="cook-nav">
+    <button id="ckPrev">‹ Anterior</button>
+    <button id="ckNext" class="grad">Siguiente ›</button>
+  </div>
+</div>
 
 <div class="onboard" id="onboard" hidden>
   <div class="ob-card">
@@ -1377,6 +1470,24 @@ const PRECIOS_BASE = {
   "jamón crudo": 8000, "burrata": 7500, "queso parmesano": 7000, "huevo": 3500, "manteca": 2800,
   "salsa de tomate": 1800, "lentejas": 2200, "fruta": 3000
 };
+// Cantidades aproximadas por comida familiar (27) — kg/L/unidades
+const QTY_BASE = {
+  "papa": [1, "kg"], "batata": [0.8, "kg"], "boniato": [0.8, "kg"], "calabaza": [0.8, "kg"],
+  "zanahoria": [0.5, "kg"], "tomate": [0.5, "kg"], "cebolla": [0.3, "kg"], "carne picada": [0.8, "kg"],
+  "lomo": [1, "kg"], "bifes de lomo": [1, "kg"], "bife de chorizo": [1, "kg"], "pollo": [1.2, "kg"],
+  "supremas de pollo": [1, "kg"], "milanesas de pollo": [1, "kg"], "milanesas de carne": [1, "kg"],
+  "carré de cerdo": [1, "kg"], "salmón": [0.8, "kg"], "trucha": [0.8, "kg"], "merluza": [0.8, "kg"],
+  "arroz": [0.4, "kg"], "fideos": [0.5, "kg"], "huevo": [6, "u"], "crema": [0.2, "L"],
+  "mozzarella": [0.3, "kg"], "queso rallado": [0.1, "kg"], "hojas verdes": [1, "atado"], "lentejas": [0.4, "kg"]
+};
+function qtyDe(item, veces) {
+  const ent = Object.entries(QTY_BASE).find(([k]) => item.includes(k));
+  const val = QTY_BASE[item] || (ent && ent[1]);
+  if (!val) return null;
+  const [base, unidad] = val;
+  const total = base * veces;
+  return "≈" + (unidad === "u" ? Math.ceil(total) : (Math.round(total * 10) / 10).toLocaleString("es-AR")) + " " + unidad;
+}
 function precioDe(item) {
   if (state.precios[item] !== undefined) return state.precios[item];
   if (PRECIOS_BASE[item] !== undefined) return PRECIOS_BASE[item];
@@ -1468,9 +1579,10 @@ const ACC_LABEL = {
   whatsapp: "Compartió el menú", compras: "Tildó compras", semana: "Completó la semana",
   plato: "Agregó un plato", edito: "Editó un plato", receta: "Leyó una receta", foto: "Subió una foto",
   ayuda: "Consultó la ayuda", voto_cena: "Votó la cena de ayer", desafio: "Cumplió el desafío",
+  cocina: "Cocinó paso a paso", torneo: "Jugó el torneo", adivina: "Jugó a adivinar", backup: "Hizo un backup",
   repetir: "Repitió una semana", pdf: "Imprimió la grilla", calendario: "Mandó al calendario", voz: "Grabó nota de voz"
 };
-function logEvent(a) {
+function logEvent(a, det) {
   const u = state.currentUser || "?";
   const g = state.usage;
   const pu = g.u[u] = g.u[u] || { n: 0, acc: {}, last: 0, dias: {} };
@@ -1479,7 +1591,7 @@ function logEvent(a) {
   pu.dias[day] = (pu.dias[day] || 0) + 1;
   const keys = Object.keys(pu.dias).sort();
   while (keys.length > 30) delete pu.dias[keys.shift()];
-  g.ev.unshift({ t: Date.now(), u, a });
+  g.ev.unshift({ t: Date.now(), u, a, d: det || null });
   if (g.ev.length > 200) g.ev.length = 200;
   save();
 }
@@ -1518,7 +1630,7 @@ function sorpresaDay(tipo, i) {
 function ensureInRecetario(d) {
   let mine = byId(d.id);
   if (!mine) {
-    mine = { ...d, fans: d.fans || [], veto: false };
+    mine = { ...d, fans: d.fans || [], veto: false, reacts: {}, pendiente: !!d.pendiente };
     state.recetario.push(mine);
   }
   return mine;
@@ -1609,6 +1721,7 @@ function rerollFrom(tipo, i, dishes) {
   const pick = ensureInRecetario(weightedSample(c, 1)[0]);
   state.week[key][i] = { id: pick.id };
   if (tipo === "cena") ensureSides(i);
+  logEvent("otro", `${DIAS[i]}: ${pick.nombre}`);
   save(); render();
   return pick;
 }
@@ -1825,7 +1938,7 @@ function render() {
     $("#kidHi").textContent = `¡Hola ${m ? m.title : ""}! 🌟${r && r.n > 1 ? ` · 🔥 ${r.n} días votando` : ""}`;
   }
   renderSaludo(); renderRate(); renderDesafio(); renderFinde(); renderTips(); renderBatch(); renderHistorial();
-  renderSemaforo(); renderFechas(); renderQuincena();
+  renderSemaforo(); renderFechas(); renderQuincena(); renderDespensa();
   $("#adminBtn").hidden = !ADMIN_USERS.includes(state.currentUser) || !!state.kid.active;
   if (sheetDay !== null) renderSheet();
 }
@@ -1866,6 +1979,16 @@ const HELP_KB = [
   { k: /voz|audio|microfono|micrófono|🎤/, a: "En las observaciones de cada vianda está el 🎤: grabás la nota (máx. 20 s), se guarda el audio para escuchar con ▶️ y la transcripción queda escrita en la observación. Ideal para la Xime apurada a la mañana 😄." },
   { k: /calendario|calendar|agenda/, a: "El botón «📅 Al calendario» crea el calendario «MenuFam» en Google Calendar (separado de sus agendas) y carga la semana como eventos de día completo. Cada uno lo activa o esconde desde su Google Calendar." },
   { k: /pdf|imprimir|heladera|grilla/, a: "«🖨️ PDF heladera» arma la grilla de la semana estilo papel (como la de Éxito que usaban 😉) lista para imprimir o guardar como PDF y pegar en la heladera." },
+  { k: /torneo|campeon|campeón|mundial de platos/, a: "🏆 En Ajustes y extras está el Torneo del mes: los 8 platos más queridos se enfrentan 1 vs 1 (deciden entre todos tocando el favorito). El campeón sale más seguido en el sorteo todo el mes." },
+  { k: /chef de la semana|comodin|comodín/, a: "Cada semana un hijo es el chef 👨‍🍳 (rota solo): tiene derecho a elegir un plato comodín. Lo ven arriba en la pantalla de Semana." },
+  { k: /pin|fijar|siempre los viernes|clasico|clásico/, a: "📌 En el editor del día, el botón 📌 fija ese plato para ese día de la semana para siempre (ej: viernes = hamburguesas). El sorteo lo respeta. Tocás 📌 de nuevo y se libera." },
+  { k: /despensa|siempre tengo|no comprar/, a: "🏠 En Compras, tocá 🏠 en un ítem y va a la Despensa: no aparece más en la lista (sal, aceite, arroz…). Se saca desde la sección Despensa abajo de Compras." },
+  { k: /tope|gastar|limite|límite/, a: "🎯 En Compras → Tope semanal ponés un máximo de plata. La lista te dice si estás adentro o pasado, y qué plato es el más caro para cambiarlo." },
+  { k: /cocinar paso|timer|paso a paso|manos libres/, a: "👨‍🍳 En cualquier receta tocá «Cocinar paso a paso»: pantalla completa, un paso por vez, la pantalla no se apaga y si el paso dice '40 min' te ofrece el timer ⏱️." },
+  { k: /adivinar|adivina|juego de la cena/, a: "🎮 En el modo niño hay un botón «Adiviná»: le mostramos una pista y 3 opciones — si acierta qué hay de cena hoy, ¡confeti! Una vez por día." },
+  { k: /quincena|dos semanas|15 dias|15 días/, a: "🗓️ En Ajustes y extras activá «Planificar 2 semanas»: el dado arma esta semana Y la que viene (sin repetir platos), y la lista de compras suma las dos. Al tocar «Nueva semana», la planificada pasa a ser la actual." },
+  { k: /backup|respaldo|exportar datos|restaurar/, a: "💾 En el panel 📊 (Mike) están «Exportar backup» (baja un archivo con todo) y «Restaurar backup». Igual los datos viven seguros en el Drive." },
+  { k: /invitados|cuantos comen|cuántos comen|abuelos/, a: "👥 En el editor del día, el botón 👥 dice cuántos comen esa noche (si vienen los abuelos, ponés 7). Queda anotado en la semana y el mensaje del grupo." },
   { k: /hola|buenas|che|hey/, a: "¡Hola! 👋 Soy Menucito, el ayudante de MenuFam. Preguntame lo que quieras sobre la app: la ruleta, los votos, las viandas, las compras… o tocá una de las preguntas de abajo." },
   { k: /gracias|genial|joya|barbaro|bárbaro/, a: "¡De nada! 🍽️ Que aproveche. Si se traban con algo, acá estoy." }
 ];
@@ -1993,6 +2116,44 @@ function renderAdmin() {
     c.innerHTML = `<h4>${t}</h4><div class="big">${v}</div>`;
     gl.appendChild(c);
   }
+  // del año (41)
+  const ay = $("#admYear"); ay.innerHTML = "";
+  const conteo = {};
+  for (const h of state.historial) for (const n of [...h.resumen.cenas, ...h.resumen.viandas]) if (n) conteo[n] = (conteo[n] || 0) + 1;
+  const masRep = Object.entries(conteo).sort((a, b) => b[1] - a[1])[0];
+  const kcals = state.week.cenas.map(entryDish).filter(d => d && d.nut).map(d => d.nut[0]);
+  const yearCards = [
+    ["🥇 Más repetido", masRep ? `${masRep[0]} (${masRep[1]}×)` : "—"],
+    ["📚 Semanas archivadas", state.historial.length],
+    ["🔥 Kcal prom. (esta semana)", kcals.length ? Math.round(kcals.reduce((a, b) => a + b, 0) / kcals.length) : "—"],
+    ["🏆 Plato del mes", state.champ && byId(state.champ.id) ? byId(state.champ.id).nombre : "—"]
+  ];
+  for (const [t, v] of yearCards) {
+    const c = document.createElement("div");
+    c.className = "acard";
+    c.innerHTML = `<h4>${t}</h4><div class="big" style="font-size:15px">${v}</div>`;
+    ay.appendChild(c);
+  }
+  // nombres (43)
+  const fb = $("#famNamesBox"); fb.innerHTML = "";
+  for (const m of FAMILIA) {
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:8px;align-items:center";
+    const lbl = document.createElement("span");
+    lbl.className = "mini-avatar"; lbl.textContent = m.label;
+    const inp = document.createElement("input");
+    inp.type = "text"; inp.value = m.title; inp.style.flex = "1";
+    inp.addEventListener("change", () => {
+      const v = inp.value.trim();
+      if (!v) return;
+      state.famNames[m.k] = v;
+      aplicarPerfilLocal();
+      save(); render();
+      toast(`✔ ${v} guardado`);
+    });
+    row.appendChild(lbl); row.appendChild(inp);
+    fb.appendChild(row);
+  }
   // cuentas vinculadas
   const em = $("#admEmails"); em.innerHTML = "";
   const mails = Object.entries(state.emails);
@@ -2016,7 +2177,7 @@ function renderAdmin() {
   for (const e of state.usage.ev.slice(0, 30)) {
     const m = FAMILIA.find(f => f.k === e.u);
     const li = document.createElement("li");
-    li.innerHTML = `<span class="t">${fmtFecha(e.t)}</span><strong>${m ? m.title : e.u}</strong><span>${ACC_LABEL[e.a] || e.a}</span>`;
+    li.innerHTML = `<span class="t">${fmtFecha(e.t)}</span><strong>${m ? m.title : e.u}</strong><span>${ACC_LABEL[e.a] || e.a}${e.d ? ` — ${e.d}` : ""}</span>`;
     ev.appendChild(li);
   }
   if (!state.usage.ev.length) ev.innerHTML = "<li class='hint'>Sin movimientos todavía — a usar la app 💪</li>";
@@ -2345,6 +2506,38 @@ function calcBadges() {
     { e: "🌞", n: "Finde resuelto", d: "Planificaron un finde", ok: !!(state.week.finde.sab || state.week.finde.dom), meta: "Cargá el finde" }
   ];
 }
+$("#btnBackup").addEventListener("click", () => {
+  const json = JSON.stringify(state, null, 1);
+  logEvent("backup");
+  try {
+    const blob = new Blob([json], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "menufam-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a); a.click(); a.remove();
+    toast("⬇️ Backup descargado");
+  } catch (e) { copiar(json, "Backup copiado al portapapeles (pegalo en un archivo)"); }
+});
+$("#btnRestore").addEventListener("click", () => $("#restoreInput").click());
+$("#restoreInput").addEventListener("change", () => {
+  const f = $("#restoreInput").files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const data = JSON.parse(r.result);
+      if (!data.recetario || !data.week) throw new Error("no es un backup de MenuFam");
+      if (!confirm("¿Reemplazar TODOS los datos actuales con este backup?")) return;
+      state = migrate(data);
+      aplicarPerfilLocal();
+      save(); render();
+      toast("📥 Backup restaurado ✔");
+    } catch (e) { toast("Ese archivo no es un backup válido 😕"); }
+  };
+  r.readAsText(f);
+  $("#restoreInput").value = "";
+});
+
 const morePop = $("#morePop"), moreBtn = $("#moreBtn");
 moreBtn.addEventListener("click", e => {
   e.stopPropagation();
@@ -2454,6 +2647,21 @@ function fanRow(dish) {
       save(); render();
     });
     row.appendChild(b);
+  }
+  // reacciones 😍🤤😐🌶️ (33)
+  dish.reacts = dish.reacts || {};
+  for (const em of ["😍", "🤤", "😐", "🌶️"]) {
+    const r = document.createElement("button");
+    const list = dish.reacts[em] || [];
+    const mine = list.includes(state.currentUser);
+    r.className = "fan" + (mine ? " on" : "");
+    r.textContent = em + (list.length ? " " + list.length : "");
+    r.title = "Reaccionar";
+    r.addEventListener("click", () => {
+      dish.reacts[em] = mine ? list.filter(k => k !== state.currentUser) : [...list, state.currentUser];
+      save(); render();
+    });
+    row.appendChild(r);
   }
   const veto = document.createElement("button");
   veto.className = "fan veto" + (dish.veto ? " on" : "");
@@ -3106,6 +3314,214 @@ $("#addDishForm").addEventListener("submit", e => {
   }
 });
 
+// ── Modo cocina paso a paso (21) con timers y pantalla despierta ──
+let cook = { pasos: [], idx: 0, dish: null, wakeLock: null, timer: null };
+function pasosDe(receta) {
+  const partes = receta.split(/(?=\d+\))/).map(x => x.trim()).filter(x => x.length > 3);
+  return partes.length ? partes : [receta];
+}
+async function abrirCocina(d) {
+  cook.dish = d;
+  cook.pasos = pasosDe(recetaOf(d));
+  cook.idx = 0;
+  $("#ckName").textContent = `${emojiFor(d)} ${d.nombre}`;
+  pintarPaso();
+  $("#cook").hidden = false;
+  const rm = $("#recipeModal"); if (rm.open) rm.close();
+  try { cook.wakeLock = await navigator.wakeLock.request("screen"); } catch (e) { /* no soportado */ }
+  logEvent("cocina", d.nombre);
+}
+function pintarPaso() {
+  const paso = cook.pasos[cook.idx];
+  $("#ckStepN").textContent = `Paso ${cook.idx + 1} de ${cook.pasos.length}`;
+  $("#ckStep").textContent = paso.replace(/^\d+\)\s*/, "");
+  $("#ckPrev").disabled = cook.idx === 0;
+  $("#ckNext").textContent = cook.idx === cook.pasos.length - 1 ? "¡Listo! 🎉" : "Siguiente ›";
+  // timer del paso: detecta "40 min", "1 hora", "90 minutos"
+  pararTimer();
+  const m = paso.match(/(\d+)\s*(?:min|minutos)|(\d+(?:[.,]\d+)?)\s*hora/i);
+  const tb = $("#ckTimerStart");
+  if (m) {
+    const mins = m[1] ? parseInt(m[1], 10) : Math.round(parseFloat(m[2].replace(",", ".")) * 60);
+    tb.hidden = false;
+    tb.textContent = `⏱️ Poner timer de ${mins} min`;
+    tb.onclick = () => arrancarTimer(mins * 60);
+  } else tb.hidden = true;
+}
+function arrancarTimer(seg) {
+  pararTimer();
+  $("#ckTimerStart").hidden = true;
+  $("#ckTimerBox").hidden = false;
+  let resta = seg;
+  const pintar = () => { $("#ckTimer").textContent = String(Math.floor(resta / 60)).padStart(2, "0") + ":" + String(resta % 60).padStart(2, "0"); };
+  pintar();
+  cook.timer = setInterval(() => {
+    resta--;
+    pintar();
+    if (resta <= 0) {
+      pararTimer();
+      try { navigator.vibrate && navigator.vibrate([300, 150, 300, 150, 500]); } catch (e) {}
+      toast("⏰ ¡Timer listo! A la cocina 👨‍🍳");
+      confetti(50);
+    }
+  }, 1000);
+}
+function pararTimer() {
+  if (cook.timer) { clearInterval(cook.timer); cook.timer = null; }
+  $("#ckTimerBox").hidden = true;
+}
+function cerrarCocina() {
+  pararTimer();
+  $("#cook").hidden = true;
+  if (cook.wakeLock) { try { cook.wakeLock.release(); } catch (e) {} cook.wakeLock = null; }
+}
+$("#ckClose").addEventListener("click", cerrarCocina);
+$("#ckPrev").addEventListener("click", () => { if (cook.idx > 0) { cook.idx--; pintarPaso(); } });
+$("#ckNext").addEventListener("click", () => {
+  if (cook.idx < cook.pasos.length - 1) { cook.idx++; pintarPaso(); }
+  else { cerrarCocina(); confetti(90); toast(`👨‍🍳 ¡${cook.dish.nombre} al plato! Buen provecho`); }
+});
+$("#ckTimerStop").addEventListener("click", () => { pararTimer(); $("#ckTimerStart").hidden = false; });
+
+// ── Heladera (24): ¿qué cocino con lo que tengo? ──
+function abrirHeladera() {
+  const freq = {};
+  for (const d of state.recetario) for (const raw of (d.ing || "").split(",")) {
+    const it = raw.trim().toLowerCase();
+    if (it && !esBanned(it)) freq[it] = (freq[it] || 0) + 1;
+  }
+  const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 22).map(x => x[0]);
+  const sel = new Set();
+  const chips = $("#fridgeChips"); chips.innerHTML = "";
+  const res = $("#fridgeRes"); res.innerHTML = "<p class='hint'>Marcá lo que hay en casa 👆</p>";
+  const pintarRes = () => {
+    res.innerHTML = "";
+    if (!sel.size) { res.innerHTML = "<p class='hint'>Marcá lo que hay en casa 👆</p>"; return; }
+    const matches = state.recetario
+      .map(d => ({ d, n: [...sel].filter(x => norm(d.ing || "").includes(norm(x))).length }))
+      .filter(x => x.n > 0)
+      .sort((a, b) => b.n - a.n)
+      .slice(0, 8);
+    if (!matches.length) { res.innerHTML = "<p class='hint'>Nada coincide 😅 probá con otros.</p>"; return; }
+    for (const { d, n } of matches) {
+      const row = document.createElement("div");
+      row.className = "hist-item";
+      row.innerHTML = `<span>${emojiFor(d)}</span><span style="flex:1">${d.nombre}</span><span class="h-rep">✔ ${n}</span>`;
+      const ver = document.createElement("button");
+      ver.className = "pill"; ver.textContent = "📖";
+      ver.addEventListener("click", () => openRecipe(d));
+      row.appendChild(ver);
+      res.appendChild(row);
+    }
+  };
+  for (const it of top) {
+    const c = document.createElement("button");
+    c.className = "pchip"; c.textContent = it;
+    c.addEventListener("click", () => {
+      if (sel.has(it)) { sel.delete(it); c.classList.remove("on"); } else { sel.add(it); c.classList.add("on"); }
+      pintarRes();
+    });
+    chips.appendChild(c);
+  }
+  $("#fridgeModal").showModal();
+}
+
+// ── Torneo del mes 🏆 (31) ──
+function mesActual() { return new Date().toISOString().slice(0, 7); }
+function abrirTorneo() {
+  const t = state.torneo;
+  if (!t || t.mes !== mesActual()) {
+    const candidatos = [...state.recetario].sort((a, b) => b.fans.length - a.fans.length).slice(0, 8);
+    if (candidatos.length < 4) { toast("Necesitan más ❤️ para armar el torneo 😊"); return; }
+    state.torneo = { mes: mesActual(), ronda: candidatos.map(d => d.id), ganadores: [], idx: 0 };
+    save();
+  }
+  pintarTorneo();
+  $("#torneoModal").showModal();
+  logEvent("torneo");
+}
+function pintarTorneo() {
+  const t = state.torneo;
+  const body = $("#tnBody"); body.innerHTML = "";
+  if (state.champ && state.champ.mes === mesActual() && (!t || !t.ronda.length)) {
+    const c = byId(state.champ.id);
+    $("#tnSub").textContent = "¡Ya tenemos campeón este mes!";
+    body.innerHTML = `<p style="text-align:center;font-size:50px;margin:8px 0">🏆</p><p style="text-align:center;font-size:18px;font-weight:900">${c ? emojiFor(c) + " " + c.nombre : "—"}</p><p class="hint" style="text-align:center">Sale más seguido en el sorteo todo el mes.</p>`;
+    return;
+  }
+  const rondaNombre = t.ronda.length > 4 ? "Cuartos de final" : t.ronda.length > 2 ? "Semifinal" : "LA FINAL 🔥";
+  $("#tnSub").textContent = `${rondaNombre} — toquen el que más les gusta (deciden entre todos)`;
+  const a = byId(t.ronda[t.idx]), b2 = byId(t.ronda[t.idx + 1]);
+  if (!a || !b2) { state.torneo = null; save(); $("#torneoModal").close(); return; }
+  const match = document.createElement("div");
+  match.className = "tn-match";
+  const mk = d => {
+    const btn = document.createElement("button");
+    btn.className = "tn-card";
+    btn.innerHTML = `<span class="e">${emojiFor(d)}</span><span class="n">${d.nombre}</span>`;
+    btn.addEventListener("click", () => votarTorneo(d.id));
+    return btn;
+  };
+  match.appendChild(mk(a));
+  const vs = document.createElement("span"); vs.className = "tn-vs"; vs.textContent = "VS";
+  match.appendChild(vs);
+  match.appendChild(mk(b2));
+  body.appendChild(match);
+}
+function votarTorneo(ganadorId) {
+  const t = state.torneo;
+  t.ganadores.push(ganadorId);
+  t.idx += 2;
+  vib();
+  if (t.idx >= t.ronda.length) {
+    if (t.ganadores.length === 1) {
+      state.champ = { mes: mesActual(), id: ganadorId };
+      t.ronda = []; t.ganadores = []; t.idx = 0;
+      save();
+      confetti(150);
+      const c = byId(ganadorId);
+      toast(`🏆 ¡${c ? c.nombre : "?"} es el plato del mes!`);
+      pintarTorneo();
+      return;
+    }
+    t.ronda = t.ganadores; t.ganadores = []; t.idx = 0;
+  }
+  save();
+  pintarTorneo();
+}
+$("#tnClose") && $("#tnClose").addEventListener("click", () => $("#torneoModal").close());
+$("#btnTorneo").addEventListener("click", abrirTorneo);
+
+// ── Adiviná la cena 🎮 (34) ──
+function abrirAdivina() {
+  const i = todayIndex();
+  if (i === null || !state.week.cenas[i]) { toast("Hoy no hay cena cargada 😅"); return; }
+  const correcto = entryDish(state.week.cenas[i]);
+  if (!correcto) { toast("Hoy la cena es sorpresa escrita 😄"); return; }
+  const hoy = new Date().toISOString().slice(0, 10);
+  const yaJugo = state.adivina[state.kid.active] === hoy;
+  const otros = weightedSample(pool("cena").filter(d => d.id !== correcto.id), 2);
+  const opts = [correcto, ...otros].sort(() => Math.random() - 0.5);
+  $("#adPista").textContent = PROT_EMOJI[correcto.prot] + " ❓";
+  const box = $("#adOpts"); box.innerHTML = "";
+  if (yaJugo) box.innerHTML = "<p class='hint' style='text-align:center'>¡Ya jugaste hoy! Mañana de nuevo 😊</p>";
+  else for (const d of opts) {
+    const b = document.createElement("button");
+    b.textContent = d.nombre;
+    b.addEventListener("click", () => {
+      state.adivina[state.kid.active] = hoy;
+      save();
+      $("#adivinaModal").close();
+      logEvent("adivina");
+      if (d.id === correcto.id) { confetti(120); vib(); toast(`🎉 ¡SÍ! Hoy hay ${correcto.nombre}`); }
+      else toast(`😄 Nooo… ¡hoy hay ${correcto.nombre}!`);
+    });
+    box.appendChild(b);
+  }
+  $("#adivinaModal").showModal();
+}
+$("#adClose").addEventListener("click", () => $("#adivinaModal").close());
+
 // ── Cambiar plato: menú unificado ──
 let changeCtx = { tipo: "cena", i: 0 };
 function abrirCambiar(tipo, i) {
@@ -3141,6 +3557,20 @@ function openRecipe(d) {
     ${d.nut ? `<h5>Nutrición por porción</h5><p>🔥 ${d.nut[0]} kcal · 💪 ${d.nut[1]}g proteínas · 🍞 ${d.nut[2]}g carbos · 🥑 ${d.nut[3]}g grasas</p>` : ""}
     ${state.keto && d.keto ? `<h5>Keto Mike</h5><p>👉 ${d.keto}</p>` : ""}`;
   promptDish = d;
+  $("#rcpCook").hidden = !recetaOf(d);
+  $("#rcpCook").onclick = () => abrirCocina(d);
+  $("#rcpVideo").onclick = () => { logEvent("receta", d.nombre); window.open("https://www.youtube.com/results?search_query=" + encodeURIComponent("receta " + d.nombre), "_blank"); };
+  const subB = $("#rcpSub");
+  subB.hidden = !(typeof google !== "undefined" && google.script);
+  subB.onclick = () => {
+    const falta = (prompt(`¿Qué ingrediente te falta para ${d.nombre}?`) || "").trim();
+    if (!falta) return;
+    toast("🔄 Pensando un reemplazo…");
+    google.script.run
+      .withSuccessHandler(r => alert(`🔄 Sin ${falta}:\n\n${r}`))
+      .withFailureHandler(e => toast("No pude: " + (e.message || "")))
+      .sugerirSustituto(d.nombre, falta);
+  };
   const imp = $("#rcpImport");
   imp.hidden = !!byId(d.id);
   imp.onclick = () => {
@@ -3365,11 +3795,12 @@ function listaCompras() {
   const addIngs = txt => {
     for (const raw of (txt || "").split(",")) {
       const it = raw.trim().toLowerCase();
-      if (!it || esBanned(it)) continue; // lo que no nos gusta no se compra
+      if (!it || esBanned(it) || state.despensa.includes(it)) continue; // vetados y despensa no se compran
       items.set(it, (items.get(it) || 0) + 1);
     }
   };
   const week = [...state.week.cenas, ...state.week.viandas];
+  if (state.quincena && state.nextWeek) week.push(...state.nextWeek.cenas, ...state.nextWeek.viandas);
   for (const e of week) {
     const d = entryDish(e);
     if (d) addIngs(d.ing);
@@ -3396,7 +3827,16 @@ function renderShop() {
   for (const [cat, arr] of listaCompras()) {
     if (!arr.length) continue;
     const div = document.createElement("div");
-    const h = document.createElement("h4"); h.textContent = cat; div.appendChild(h);
+    const h = document.createElement("h4");
+    h.textContent = cat;
+    const cp = document.createElement("button");
+    cp.className = "pill"; cp.style.cssText = "font-size:10px;margin-left:8px;padding:3px 9px";
+    cp.textContent = "📋";
+    cp.title = "Copiar solo esta categoría";
+    const arrRef = arr;
+    cp.addEventListener("click", () => copiar(`${cat}\n` + arrRef.map(({ it, n }) => `• ${n > 1 ? `${it} (×${n})` : it}`).join("\n"), `${cat} copiado 📋`));
+    h.appendChild(cp);
+    div.appendChild(h);
     const ul = document.createElement("ul");
     for (const { it, n } of arr) {
       total++;
@@ -3408,7 +3848,8 @@ function renderShop() {
       const cb = document.createElement("input");
       cb.type = "checkbox"; cb.checked = checked.has(it);
       const sp = document.createElement("span");
-      sp.textContent = n > 1 ? `${it} (×${n})` : it;
+      const qty = qtyDe(it, n * ((state.quincena && state.nextWeek) ? 1 : 1));
+      sp.textContent = (n > 1 ? `${it} (×${n})` : it) + (qty ? ` · ${qty}` : "");
       sp.style.flex = "1";
       if (cb.checked) sp.className = "done";
       cb.addEventListener("change", () => {
@@ -3420,25 +3861,65 @@ function renderShop() {
       const pr = document.createElement("button");
       pr.className = "pill";
       pr.style.fontSize = "11px";
-      pr.textContent = precio !== null ? "$" + precio.toLocaleString("es-AR") : "$ ?";
+      // tendencia de precio (26)
+      const hist = state.preciosHist[it] || [];
+      let trend = "";
+      if (hist.length >= 2) {
+        const dif = Math.round((hist[hist.length - 1].v / hist[hist.length - 2].v - 1) * 100);
+        if (dif > 2) trend = ` ↑${dif}%`; else if (dif < -2) trend = ` ↓${Math.abs(dif)}%`;
+      }
+      pr.textContent = (precio !== null ? "$" + precio.toLocaleString("es-AR") : "$ ?") + trend;
       pr.title = "Tocá para corregir el precio estimado";
       pr.addEventListener("click", ev => {
         ev.preventDefault();
         const v = prompt(`Precio estimado de "${it}" ($):`, precio !== null ? precio : "");
         if (v === null) return;
         const num = parseInt(v.replace(/\D/g, ""), 10);
-        if (!isNaN(num)) { state.precios[it] = num; save(); renderShop(); }
+        if (!isNaN(num)) {
+          state.precios[it] = num;
+          const h = state.preciosHist[it] = state.preciosHist[it] || [];
+          h.push({ t: Date.now(), v: num });
+          if (h.length > 12) h.shift();
+          save(); renderShop();
+        }
       });
-      lab.appendChild(cb); lab.appendChild(sp); lab.appendChild(pr);
+      const casa = document.createElement("button");
+      casa.className = "pill"; casa.style.fontSize = "11px";
+      casa.textContent = "🏠"; casa.title = "Siempre lo tengo (va a la despensa y no aparece más)";
+      casa.addEventListener("click", ev => {
+        ev.preventDefault();
+        state.despensa.push(it);
+        save(); renderShop();
+        toast(`🏠 ${it}: a la despensa (no se compra más)`);
+      });
+      lab.appendChild(cb); lab.appendChild(sp); lab.appendChild(pr); lab.appendChild(casa);
       li.appendChild(lab); ul.appendChild(li);
     }
     div.appendChild(ul); cols.appendChild(div);
   }
   if (!total) cols.innerHTML = "<p class='hint' style='padding:0 2px'>Todavía no hay platos elegidos esta semana. Generá el menú con el 🎲 de abajo.</p>";
   $("#shopBar").style.width = total ? Math.round(done / total * 100) + "%" : "0%";
+  let topeTxt = "";
+  if (state.presupuestoTope) {
+    topeTxt = plata <= state.presupuestoTope
+      ? ` · 🎯 dentro del tope ($${state.presupuestoTope.toLocaleString("es-AR")}) ✅`
+      : ` · 🎯 excedido por $${(plata - state.presupuestoTope).toLocaleString("es-AR")} 🔴`;
+  }
   $("#shopMeta").textContent = total
-    ? `${done}/${total} en el changuito ${done === total && total > 0 ? "🎉 ¡listo!" : ""} · 💰 Presupuesto estimado: $${plata.toLocaleString("es-AR")}${sinPrecio ? ` (+${sinPrecio} sin precio)` : ""} — tocá un precio para corregirlo`
+    ? `${done}/${total} en el changuito ${done === total && total > 0 ? "🎉 ¡listo!" : ""} · 💰 $${plata.toLocaleString("es-AR")}${sinPrecio ? ` (+${sinPrecio} s/precio)` : ""}${topeTxt}`
     : "";
+  // sugerencia si excede (18): el plato más caro de la semana
+  const sugg = $("#topeSugg");
+  if (state.presupuestoTope && plata > state.presupuestoTope) {
+    let caro = null, costo = 0;
+    for (const e of state.week.cenas) {
+      const d = entryDish(e);
+      if (!d || !d.ing) continue;
+      const c = d.ing.split(",").reduce((a, x) => a + (precioDe(x.trim().toLowerCase()) || 0), 0);
+      if (c > costo) { costo = c; caro = d; }
+    }
+    if (caro) { sugg.hidden = false; sugg.textContent = `💸 Lo más caro: ${caro.nombre} (≈$${costo.toLocaleString("es-AR")}) — cambiándolo bajás el total`; }
+  } else sugg.hidden = true;
   if (total > 0 && done === total) confetti(50);
 }
 function textoCompras() {
@@ -3485,6 +3966,9 @@ document.querySelectorAll("#writeSeg button").forEach(b => b.addEventListener("c
   document.querySelectorAll("#writeSeg button").forEach(x => x.classList.toggle("on", x === b));
 }));
 
+$("#btnHeladera").addEventListener("click", abrirHeladera);
+$("#btnAdivina").addEventListener("click", abrirAdivina);
+$("#fridgeClose").addEventListener("click", () => $("#fridgeModal").close());
 $("#quincenaToggle").addEventListener("change", e => {
   state.quincena = e.target.checked;
   if (!state.quincena) state.nextWeek = null;
@@ -3599,6 +4083,31 @@ $("#btnWhatsApp").addEventListener("click", () => {
   window.open("https://wa.me/?text=" + encodeURIComponent(txt), "_blank");
 });
 $("#btnCopyShop").addEventListener("click", () => copiar(textoCompras(), "Lista de compras copiada 🛒"));
+$("#btnTope").addEventListener("click", () => {
+  const v = prompt("Tope de presupuesto semanal ($). Vacío = sin tope:", state.presupuestoTope || "");
+  if (v === null) return;
+  const num = parseInt(v.replace(/\D/g, ""), 10);
+  state.presupuestoTope = isNaN(num) || !num ? null : num;
+  save(); renderShop();
+  toast(state.presupuestoTope ? `🎯 Tope: $${state.presupuestoTope.toLocaleString("es-AR")}` : "Sin tope");
+});
+$("#btnShareShop").addEventListener("click", async () => {
+  const txt = textoCompras();
+  if (navigator.share) { try { await navigator.share({ title: "Compras MenuFam", text: txt }); logEvent("whatsapp"); } catch (e) {} }
+  else copiar(txt, "Copiada — pegala en Keep o donde quieras 📤");
+});
+function renderDespensa() {
+  const box = $("#despChips"); box.innerHTML = "";
+  $("#despCount").textContent = state.despensa.length;
+  for (const it of state.despensa) {
+    const c = document.createElement("button");
+    c.className = "fan on"; c.textContent = `🏠 ${it} ✕`;
+    c.title = "Sacarlo de la despensa (vuelve a la lista)";
+    c.addEventListener("click", () => { state.despensa = state.despensa.filter(x => x !== it); save(); render(); });
+    box.appendChild(c);
+  }
+  if (!state.despensa.length) box.innerHTML = "<span class='hint'>Tocá 🏠 en un ítem de la lista para que no aparezca más.</span>";
+}
 $("#btnWhatsAppTodo").addEventListener("click", () => {
   logEvent("whatsapp");
   const txt = textoCenas() + "\n\n" + textoViandas() + "\n\n" + textoCompras();
