@@ -807,6 +807,7 @@
           <div class="conf" style="margin:8px 0 0">
             <label>📆 Semana del <input type="date" id="weekDate" aria-label="Lunes de la semana"></label>
             <label class="switch"><input type="checkbox" id="ketoToggle"> Keto Mike</label>
+            <label class="switch"><input type="checkbox" id="sndToggle"> 🔊 Sonidos</label>
             <label style="width:100%">🎲 El sorteo usa:
               <select id="fuenteSel" style="margin-top:5px">
                 <option value="casa">🏠 Solo nuestro recetario</option>
@@ -834,6 +835,7 @@
           <div class="main-actions" style="margin:14px 0 0">
             <button id="btnHeladera">🧊 ¿Qué cocino con lo que tengo?</button>
             <button id="btnTorneo">🏆 Torneo del mes</button>
+            <button id="btnCalorias">🧮 Mis calorías</button>
           </div>
           <div class="desafio" id="desafioCard" style="margin:12px 0 0">
             <span style="font-size:22px">🎯</span>
@@ -1017,10 +1019,48 @@
 
 <dialog id="fridgeModal">
   <h3 style="margin:0 0 4px;font-size:18px;font-weight:900">🧊 ¿Qué hay en casa?</h3>
-  <p class="hint" style="margin:0 0 10px">Marcá ingredientes y te digo qué platos salen.</p>
-  <div class="chips-row" id="fridgeChips" style="flex-wrap:wrap;max-height:150px;overflow-y:auto"></div>
+  <p class="hint" style="margin:0 0 10px">Marcá ingredientes (o sacá una foto de la heladera 📷) y te digo qué sale.</p>
+  <div style="display:flex;gap:6px;margin:0 0 8px">
+    <input type="text" id="fridgeOtro" placeholder="Otro ingrediente… (Enter)" autocomplete="off" style="flex:1;min-width:0">
+    <button id="fridgeFotoBtn" class="pill" type="button">📷 Foto</button>
+  </div>
+  <input type="file" id="fridgeFoto" accept="image/*" capture="environment" hidden>
+  <div class="chips-row" id="fridgeChips" style="flex-wrap:wrap;max-height:140px;overflow-y:auto"></div>
+  <div class="chips-row" id="fridgeOpts" style="flex-wrap:wrap;margin-top:8px" hidden>
+    <button class="pchip" data-o="rapida" type="button">⚡ Rápida (-30 min)</button>
+    <button class="pchip" data-o="airfryer" type="button">🍟 Airfryer</button>
+    <button class="pchip" data-o="liviana" type="button">🥗 Liviana</button>
+  </div>
+  <button id="fridgeIA" class="grad" style="width:100%;margin-top:8px" hidden>🪄 Inventame una receta con esto</button>
   <div id="fridgeRes" style="margin-top:10px;max-height:220px;overflow-y:auto"></div>
   <div class="wheel-actions" style="margin-top:12px"><button id="fridgeClose" class="ghost">Cerrar</button></div>
+</dialog>
+
+<dialog id="calModal">
+  <h3 style="margin:0 0 4px;font-size:18px;font-weight:900">🧮 ¿Cuántas calorías necesito?</h3>
+  <p class="hint" style="margin:0 0 10px">Para comparar con las cenas de la semana.</p>
+  <div class="seg" id="calSexo">
+    <button data-s="f" class="on" type="button">👩 Mujer</button>
+    <button data-s="m" type="button">👨 Varón</button>
+    <button data-s="v" type="button">🧛</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:10px">
+    <label style="flex:1;font-size:13px">Edad<input type="number" id="calEdad" value="38" min="1" max="120" style="width:100%;margin-top:4px"></label>
+    <label style="flex:1;font-size:13px">Peso (kg)<input type="number" id="calPeso" value="80" min="10" max="300" style="width:100%;margin-top:4px"></label>
+    <label style="flex:1;font-size:13px">Altura (cm)<input type="number" id="calAltura" value="175" min="80" max="230" style="width:100%;margin-top:4px"></label>
+  </div>
+  <label style="display:block;font-size:13px;margin-top:10px">Actividad
+    <select id="calAct" style="width:100%;margin-top:4px">
+      <option value="1.2">🛋️ Sedentario (oficina)</option>
+      <option value="1.375">🚶 Ligera (1-3 días de ejercicio)</option>
+      <option value="1.55" selected>🏃 Moderada (3-5 días)</option>
+      <option value="1.725">🏋️ Alta (6-7 días)</option>
+      <option value="1.9">🔥 Muy alta (físico intenso)</option>
+    </select>
+  </label>
+  <button id="calGo" class="grad" style="width:100%;margin-top:12px">🧮 Calcular</button>
+  <div id="calRes" style="margin-top:10px"></div>
+  <div class="wheel-actions" style="margin-top:12px"><button id="calClose" class="ghost">Cerrar</button></div>
 </dialog>
 
 <dialog id="changeModal">
@@ -1381,6 +1421,35 @@ function nutPills(dish, inset) {
   const n = dish.nut;
   if (!n) return "";
   return `<div class="nut${inset ? " inset" : ""}"><span>🔥 ${n[0]} kcal</span><span>💪 ${n[1]}g prot</span><span>🍞 ${n[2]}g carb</span><span>🥑 ${n[3]}g grasa</span></div>`;
+}
+
+// ── Tiempo, dificultad y costo estimados por plato (idea de que-comemos-hoy) ──
+function tiempoDe(d) {
+  if (d.min) return d.min;
+  const n = norm(d.nombre + " " + (d.receta || "").slice(0, 80));
+  if (/guiso|estofado|pastel|lasana|lasaña|canelon|relleno|pascualina|chupin|locro|bragado|risotto/.test(n)) return 60;
+  if (/horno|milanesa|tarta|pizza|budin|pan de carne|empanada|suprema|matambre/.test(n)) return 45;
+  if (/wok|salteado|omelette|tortilla|revuelto|ensalada|hamburguesa|sandwich|fajita|panqueque/.test(n)) return 25;
+  return 35;
+}
+function difDe(d) {
+  const n = norm(d.nombre);
+  const nIng = (d.ing || "").split(",").filter(x => x.trim()).length;
+  if (/canelon|lasana|lasaña|noqui|ñoqui|relleno|pascualina|risotto|chupin|souffle/.test(n) || nIng >= 9) return ["🟡", "media"];
+  return ["🟢", "fácil"];
+}
+function costoDe(d) {
+  let total = 0, alguno = false;
+  for (const raw of (d.ing || "").split(",")) {
+    const p = precioDe(raw.trim().toLowerCase());
+    if (p) { total += p; alguno = true; }
+  }
+  return alguno ? total : null;
+}
+function metaChips(d) {
+  const [de, dl] = difDe(d);
+  const c = costoDe(d);
+  return [`⏱ ~${tiempoDe(d)} min`, `${de} ${dl}`, c ? `💰 ≈$${c.toLocaleString("es-AR")}` : null].filter(Boolean);
 }
 
 // ── Estado ──
@@ -1832,8 +1901,28 @@ function todayIndex() {
   return (dow >= 1 && dow <= 5) ? dow - 1 : null;
 }
 
+// ── ⭐ Plato del día: una sugerencia distinta cada día (idea de que-comemos-hoy) ──
+function platoDelDia() {
+  const cands = catalogoNuevos().length ? catalogoNuevos() : state.recetario.filter(d => !d.veto);
+  if (!cands.length) return null;
+  const hoy = new Date().toISOString().slice(0, 10);
+  let h = 0;
+  for (const ch of hoy) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return cands[h % cands.length];
+}
+
 function renderStories() {
   const box = $("#stories"); box.innerHTML = "";
+  const pdd = platoDelDia();
+  if (pdd) {
+    const b = document.createElement("button");
+    b.className = "story";
+    b.setAttribute("aria-label", "Plato del día: " + pdd.nombre);
+    b.title = pdd.nombre;
+    b.innerHTML = `<div class="ring"><div class="core">⭐</div></div><div class="lbl">DEL DÍA</div>`;
+    b.addEventListener("click", () => { openRecipe(pdd); logEvent("platoDia", pdd.nombre); });
+    box.appendChild(b);
+  }
   const ti = todayIndex();
   for (let i = 0; i < 5; i++) {
     const cena = state.week.cenas[i], via = state.week.viandas[i];
@@ -1986,6 +2075,10 @@ const HELP_KB = [
   { k: /chef de la semana|comodin|comodín/, a: "Cada semana un hijo es el chef 👨‍🍳 (rota solo): tiene derecho a elegir un plato comodín. Lo ven arriba en la pantalla de Semana." },
   { k: /pin|fijar|siempre los viernes|clasico|clásico/, a: "📌 En el editor del día, el botón 📌 fija ese plato para ese día de la semana para siempre (ej: viernes = hamburguesas). El sorteo lo respeta. Tocás 📌 de nuevo y se libera." },
   { k: /despensa|siempre tengo|no comprar/, a: "🏠 En Compras, tocá 🏠 en un ítem y va a la Despensa: no aparece más en la lista (sal, aceite, arroz…). Se saca desde la sección Despensa abajo de Compras." },
+  { k: /que cocino|qué cocino|con lo que tengo|escanear|inventar|invento|🪄/, a: "🧊 En Ajustes y extras → «¿Qué cocino con lo que tengo?»: marcá ingredientes (o sacá una 📷 foto de la heladera y la IA los detecta solos) y te muestro qué platos salen, con % de coincidencia y qué te falta. Con 🪄 la IA inventa una receta nueva con eso — podés pedirla ⚡ rápida, 🍟 en airfryer o 🥗 liviana." },
+  { k: /plato del dia|plato del día|sugerencia del dia|sugerencia del día|⭐/, a: "⭐ La primera burbuja de las historias es el Plato del día: una sugerencia distinta cada día (da prioridad a recetas argentinas que todavía no probaron). Tocala para ver la receta, y si les gusta la importás o la mandás a un día." },
+  { k: /sonido|ruido|beep|🔊|silenciar|mute/, a: "🔊 En Ajustes y extras está el switch de Sonidos: popcito al dar ❤️ y fanfarria con cada confeti. Es por teléfono: cada uno lo prende o apaga en su dispositivo, no afecta al resto." },
+  { k: /mis calorias|mis calorías|cuantas calorias|cuántas calorías|calculadora|metabolismo|🧮/, a: "🧮 En Ajustes y extras → «Mis calorías»: con edad, peso, altura y actividad calculás cuántas calorías necesitás por día, y te comparo con el promedio de las cenas de la semana. Bonus: probá el modo 🧛 😄." },
   { k: /tope|gastar|limite|límite/, a: "🎯 En Compras → Tope semanal ponés un máximo de plata. La lista te dice si estás adentro o pasado, y qué plato es el más caro para cambiarlo." },
   { k: /cocinar paso|timer|paso a paso|manos libres/, a: "👨‍🍳 En cualquier receta tocá «Cocinar paso a paso»: pantalla completa, un paso por vez, la pantalla no se apaga y si el paso dice '40 min' te ofrece el timer ⏱️." },
   { k: /adivinar|adivina|juego de la cena/, a: "🎮 En el modo niño hay un botón «Adiviná»: le mostramos una pista y 3 opciones — si acierta qué hay de cena hoy, ¡confeti! Una vez por día." },
@@ -3015,6 +3108,7 @@ function renderFeed() {
         ${d.lados ? `<p class="f-sub">🥗 ${d.lados}</p>` : ""}
         ${d.chicos ? `<p class="f-sub">${d.tipo === "cena" ? "👧 Chicos:" : "🥣"} ${d.chicos}</p>` : ""}
         ${ingsBanned(d).length ? `<p class="f-sub">🚫 Sin ${ingsBanned(d).join(" ni ")} (no nos gusta)</p>` : ""}
+        <p class="f-sub">${metaChips(d).join(" · ")}</p>
         ${nutPills(d)}
         ${state.keto && d.tipo === "cena" && d.keto ? `<p class="f-keto">👉 Mike: ${d.keto}</p>` : ""}
       </div>`;
@@ -3162,7 +3256,7 @@ function toggleLike(d, card, ev) {
   const on = d.fans.includes(me);
   if (!on && !kidPuedeLikear()) return;
   d.fans = on ? d.fans.filter(k => k !== me) : [...d.fans, me];
-  if (!on) { heartBurst(card, ev); vib(); logEvent("like"); checkVotaronTodos(); }
+  if (!on) { heartBurst(card, ev); vib(); beep("pop"); logEvent("like"); checkVotaronTodos(); }
   save();
   render();
 }
@@ -3394,6 +3488,50 @@ $("#ckNext").addEventListener("click", () => {
 $("#ckTimerStop").addEventListener("click", () => { pararTimer(); $("#ckTimerStart").hidden = false; });
 
 // ── Heladera (24): ¿qué cocino con lo que tengo? ──
+let fridgeSel = new Set();
+function fridgeChip(it, on) {
+  const c = document.createElement("button");
+  c.className = "pchip" + (on ? " on" : ""); c.type = "button"; c.textContent = it;
+  if (on) fridgeSel.add(it);
+  c.addEventListener("click", () => {
+    if (fridgeSel.has(it)) { fridgeSel.delete(it); c.classList.remove("on"); } else { fridgeSel.add(it); c.classList.add("on"); beep("click"); }
+    pintarFridge();
+  });
+  $("#fridgeChips").appendChild(c);
+}
+function pintarFridge() {
+  const res = $("#fridgeRes"); res.innerHTML = "";
+  $("#fridgeIA").hidden = !fridgeSel.size;
+  $("#fridgeOpts").hidden = !fridgeSel.size;
+  if (!fridgeSel.size) { res.innerHTML = "<p class='hint'>Marcá lo que hay en casa 👆 (lo de la despensa 🏠 ya está marcado)</p>"; return; }
+  // Como que-comemos-hoy: % de coincidencia por plato + qué te falta
+  const matches = state.recetario
+    .filter(d => !d.veto)
+    .map(d => {
+      const ings = (d.ing || "").split(",").map(x => x.trim().toLowerCase()).filter(x => x && !esBanned(x));
+      if (!ings.length) return null;
+      const tengo = ings.filter(x => [...fridgeSel].some(s => norm(x).includes(norm(s)) || norm(s).includes(norm(x))));
+      const faltan = ings.filter(x => !tengo.includes(x));
+      return { d, pct: Math.round((tengo.length / ings.length) * 100), tengo: tengo.length, faltan };
+    })
+    .filter(x => x && x.tengo > 0)
+    .sort((a, b) => b.pct - a.pct || b.tengo - a.tengo)
+    .slice(0, 8);
+  if (!matches.length) { res.innerHTML = "<p class='hint'>Nada coincide 😅 probá con otros o tocá 🪄 para inventar una receta.</p>"; return; }
+  for (const { d, pct, faltan } of matches) {
+    const row = document.createElement("div");
+    row.className = "hist-item";
+    const faltaTxt = faltan.length
+      ? `Te falta: ${faltan.slice(0, 3).join(", ")}${faltan.length > 3 ? ` +${faltan.length - 3}` : ""}`
+      : "¡Tenés todo! 🎉";
+    row.innerHTML = `<span>${emojiFor(d)}</span><span style="flex:1;min-width:0"><span style="display:block">${d.nombre}</span><span class="hint" style="display:block;font-size:11px">${faltaTxt}</span></span><span class="h-rep" style="${pct >= 80 ? "color:var(--ok,#80ED99)" : ""}">${pct}%</span>`;
+    const ver = document.createElement("button");
+    ver.className = "pill"; ver.textContent = "📖";
+    ver.addEventListener("click", () => openRecipe(d));
+    row.appendChild(ver);
+    res.appendChild(row);
+  }
+}
 function abrirHeladera() {
   const freq = {};
   for (const d of state.recetario) for (const raw of (d.ing || "").split(",")) {
@@ -3401,40 +3539,120 @@ function abrirHeladera() {
     if (it && !esBanned(it)) freq[it] = (freq[it] || 0) + 1;
   }
   const top = Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 22).map(x => x[0]);
-  const sel = new Set();
-  const chips = $("#fridgeChips"); chips.innerHTML = "";
-  const res = $("#fridgeRes"); res.innerHTML = "<p class='hint'>Marcá lo que hay en casa 👆</p>";
-  const pintarRes = () => {
-    res.innerHTML = "";
-    if (!sel.size) { res.innerHTML = "<p class='hint'>Marcá lo que hay en casa 👆</p>"; return; }
-    const matches = state.recetario
-      .map(d => ({ d, n: [...sel].filter(x => norm(d.ing || "").includes(norm(x))).length }))
-      .filter(x => x.n > 0)
-      .sort((a, b) => b.n - a.n)
-      .slice(0, 8);
-    if (!matches.length) { res.innerHTML = "<p class='hint'>Nada coincide 😅 probá con otros.</p>"; return; }
-    for (const { d, n } of matches) {
-      const row = document.createElement("div");
-      row.className = "hist-item";
-      row.innerHTML = `<span>${emojiFor(d)}</span><span style="flex:1">${d.nombre}</span><span class="h-rep">✔ ${n}</span>`;
-      const ver = document.createElement("button");
-      ver.className = "pill"; ver.textContent = "📖";
-      ver.addEventListener("click", () => openRecipe(d));
-      row.appendChild(ver);
-      res.appendChild(row);
-    }
-  };
-  for (const it of top) {
-    const c = document.createElement("button");
-    c.className = "pchip"; c.textContent = it;
-    c.addEventListener("click", () => {
-      if (sel.has(it)) { sel.delete(it); c.classList.remove("on"); } else { sel.add(it); c.classList.add("on"); }
-      pintarRes();
-    });
-    chips.appendChild(c);
-  }
+  fridgeSel = new Set();
+  $("#fridgeChips").innerHTML = "";
+  $("#fridgeOpts").querySelectorAll(".pchip").forEach(b => b.classList.remove("on"));
+  // lo que está en la despensa ya lo tenés en casa
+  for (const it of [...new Set([...state.despensa, ...top])]) fridgeChip(it, state.despensa.includes(it));
+  pintarFridge();
   $("#fridgeModal").showModal();
+  logEvent("heladera");
 }
+$("#fridgeOtro").addEventListener("keydown", ev => {
+  if (ev.key !== "Enter") return;
+  ev.preventDefault();
+  const it = $("#fridgeOtro").value.trim().toLowerCase();
+  if (!it) return;
+  $("#fridgeOtro").value = "";
+  const ya = [...$("#fridgeChips").querySelectorAll(".pchip")].find(c => c.textContent === it);
+  if (ya) { if (!fridgeSel.has(it)) ya.click(); }
+  else { fridgeChip(it, true); pintarFridge(); }
+});
+$("#fridgeOpts").querySelectorAll(".pchip").forEach(b =>
+  b.addEventListener("click", () => b.classList.toggle("on")));
+$("#fridgeFotoBtn").addEventListener("click", () => {
+  if (typeof google === "undefined" || !google.script) { toast("El escaneo de fotos funciona en la app de la familia (Apps Script)"); return; }
+  $("#fridgeFoto").click();
+});
+$("#fridgeFoto").addEventListener("change", () => {
+  const f = $("#fridgeFoto").files[0];
+  $("#fridgeFoto").value = "";
+  if (!f) return;
+  const img = new Image();
+  img.onload = () => {
+    const MAX = 1024;
+    const esc = Math.min(1, MAX / Math.max(img.width, img.height));
+    const cv = document.createElement("canvas");
+    cv.width = Math.round(img.width * esc); cv.height = Math.round(img.height * esc);
+    cv.getContext("2d").drawImage(img, 0, 0, cv.width, cv.height);
+    URL.revokeObjectURL(img.src);
+    toast("👀 Mirando qué hay en la foto…");
+    google.script.run
+      .withSuccessHandler(json => {
+        try {
+          const r = JSON.parse(json);
+          const nuevos = (r.ingredientes || []).map(x => String(x).trim().toLowerCase()).filter(x => x && !esBanned(x));
+          if (!nuevos.length) { toast("No vi comida en la foto 😅 probá con otra"); return; }
+          const yaChips = new Set([...$("#fridgeChips").querySelectorAll(".pchip")].map(c => c.textContent));
+          for (const it of nuevos) {
+            if (yaChips.has(it)) {
+              if (!fridgeSel.has(it)) [...$("#fridgeChips").querySelectorAll(".pchip")].find(c => c.textContent === it).click();
+            } else fridgeChip(it, true);
+          }
+          pintarFridge();
+          beep("tada");
+          toast(`📷 Vi: ${nuevos.slice(0, 6).join(", ")}${nuevos.length > 6 ? "…" : ""}`);
+        } catch (e) { toast("No pude leer la foto, probá de nuevo"); }
+      })
+      .withFailureHandler(e => toast("📷 " + (e && e.message ? e.message : "No pude escanear la foto")))
+      .escanearHeladera(cv.toDataURL("image/jpeg", 0.8));
+  };
+  img.src = URL.createObjectURL(f);
+});
+$("#fridgeIA").addEventListener("click", () => {
+  if (typeof google === "undefined" || !google.script) { toast("Inventar recetas funciona en la app de la familia (Apps Script)"); return; }
+  if (!fridgeSel.size) return;
+  const opts = {};
+  $("#fridgeOpts").querySelectorAll(".pchip.on").forEach(b => opts[b.dataset.o] = true);
+  $("#fridgeIA").disabled = true; $("#fridgeIA").textContent = "🪄 Inventando…";
+  const listo = () => { $("#fridgeIA").disabled = false; $("#fridgeIA").textContent = "🪄 Inventame una receta con esto"; };
+  google.script.run
+    .withSuccessHandler(json => {
+      listo();
+      try {
+        const r = JSON.parse(json);
+        const ing = (r.ing || [...fridgeSel].join(", ")).toLowerCase();
+        const prot = ing.includes("pollo") ? "pollo" : ing.includes("cerdo") ? "cerdo"
+          : /merluza|pescado|salm|atun|atún|trucha/.test(ing) ? "pescado"
+          : /carne|lomo|bife|milanesa/.test(ing) ? "carne"
+          : /fideo|ñoqui|raviol|pasta/.test(ing) ? "pasta" : "veggie";
+        const d = { id: "ia" + Date.now(), tipo: "cena", prot, nombre: r.nombre || "Invento del chef",
+          lados: r.lados || "", chicos: "", keto: r.keto || "", ing, receta: r.receta || "",
+          nut: Array.isArray(r.nut) && r.nut.length === 4 ? r.nut : null, src: "Chef IA de la casa" };
+        beep("tada");
+        openRecipe(d);
+        logEvent("recetaIA", d.nombre);
+      } catch (e) { toast("No pude leer la receta, probá de nuevo"); }
+    })
+    .withFailureHandler(e => { listo(); toast("🪄 " + (e && e.message ? e.message : "No pude inventar, probá de nuevo")); })
+    .recetaConIngredientes([...fridgeSel].join(", "), opts);
+});
+
+// ── 🧮 Calculadora de calorías (con huevo de pascua 🧛) ──
+let calSexo = "f";
+$("#calSexo").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+  calSexo = b.dataset.s;
+  $("#calSexo").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+  beep("click");
+}));
+$("#btnCalorias").addEventListener("click", () => { $("#calRes").innerHTML = ""; $("#calModal").showModal(); logEvent("calorias"); });
+$("#calClose").addEventListener("click", () => $("#calModal").close());
+$("#calGo").addEventListener("click", () => {
+  const p = +$("#calPeso").value, alt = +$("#calAltura").value, ed = +$("#calEdad").value, act = +$("#calAct").value;
+  if (!p || !alt || !ed) { toast("Completá edad, peso y altura 😊"); return; }
+  const esVamp = calSexo === "v";
+  // Mifflin-St Jeor (la misma que usan las apps serias; el vampiro no cuenta como seria)
+  const bmr = esVamp
+    ? (10 * p + 6.25 * alt - 5 * ed + 166) * 0.7
+    : 10 * p + 6.25 * alt - 5 * ed + (calSexo === "m" ? 5 : -161);
+  const diario = Math.round(bmr * act);
+  const cenas = state.week.cenas.map(entryDish).filter(d => d && d.nut);
+  const prom = cenas.length ? Math.round(cenas.reduce((s, d) => s + d.nut[0], 0) / cenas.length) : null;
+  beep("tada");
+  $("#calRes").innerHTML = esVamp
+    ? `<div class="hist-item" style="flex-direction:column;align-items:flex-start;gap:4px"><span style="font-size:30px">🧛🩸</span><strong>${diario} cal por noche</strong><span class="hint">≈ medio litro de sangre O−. Dormí de día, cená de noche y ni te acerques al ajo del tuco 😄</span></div>`
+    : `<div class="hist-item" style="flex-direction:column;align-items:flex-start;gap:4px"><strong style="font-size:21px">🔥 ${diario} kcal por día</strong><span class="hint">Metabolismo basal: ${Math.round(bmr)} kcal · estimación casera, no reemplaza al nutricionista</span>${prom ? `<span class="hint">🍽 Las cenas de esta semana promedian <strong>${prom} kcal</strong> ≈ ${Math.round((prom / diario) * 100)}% de tu día${state.keto ? " (con la versión keto de Mike aparte 😉)" : ""}</span>` : ""}</div>`;
+});
 
 // ── Torneo del mes 🏆 (31) ──
 function mesActual() { return new Date().toISOString().slice(0, 7); }
@@ -3553,7 +3771,8 @@ function openRecipe(d) {
     d.tipo === "cena" ? "🍽 Cena" : "🧺 Vianda",
     PROT_LABEL[d.prot],
     d.src ? `🇦🇷 ${d.src}` : null,
-    d.nut ? `🔥 ${d.nut[0]} kcal` : null
+    d.nut ? `🔥 ${d.nut[0]} kcal` : null,
+    ...metaChips(d)
   ].filter(Boolean).join(" · ");
   const banned = ingsBanned(d);
   const ings = (d.ing || "").split(",").map(x => x.trim()).filter(Boolean);
@@ -3706,7 +3925,41 @@ $("#wheelApply").addEventListener("click", () => {
 $("#wheelClose").addEventListener("click", () => $("#wheelModal").close());
 
 // ── Confetti 🎉 ──
+// ── Sonidos 🔊 (WebAudio, sin archivos; apagables en Ajustes, por dispositivo) ──
+let sndCtx = null;
+function beep(tipo) {
+  try {
+    if (localStorage.getItem("menufamSnd") === "0") return;
+    sndCtx = sndCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (sndCtx.state === "suspended") sndCtx.resume();
+    const o = sndCtx.createOscillator(), g = sndCtx.createGain();
+    o.connect(g); g.connect(sndCtx.destination);
+    const t = sndCtx.currentTime;
+    if (tipo === "pop") {
+      o.type = "sine";
+      o.frequency.setValueAtTime(880, t);
+      o.frequency.exponentialRampToValueAtTime(440, t + 0.08);
+      g.gain.setValueAtTime(0.12, t);
+      g.gain.exponentialRampToValueAtTime(0.01, t + 0.09);
+      o.start(t); o.stop(t + 0.1);
+    } else if (tipo === "tada") {
+      o.type = "triangle";
+      [523, 659, 784, 1047].forEach((f, i) => o.frequency.setValueAtTime(f, t + i * 0.09));
+      g.gain.setValueAtTime(0.13, t);
+      g.gain.exponentialRampToValueAtTime(0.01, t + 0.42);
+      o.start(t); o.stop(t + 0.45);
+    } else { // click
+      o.type = "sine";
+      o.frequency.setValueAtTime(640, t);
+      g.gain.setValueAtTime(0.07, t);
+      g.gain.exponentialRampToValueAtTime(0.01, t + 0.05);
+      o.start(t); o.stop(t + 0.06);
+    }
+  } catch (e) { /* sin audio */ }
+}
+
 function confetti(n) {
+  beep("tada");
   if (REDUCED) return;
   const cv = $("#confetti"), ctx = cv.getContext("2d");
   cv.hidden = false;
@@ -4082,6 +4335,12 @@ $("#btnDone").addEventListener("click", () => {
 });
 $("#weekDate").addEventListener("change", e => { state.week.monday = e.target.value; save(); });
 $("#ketoToggle").addEventListener("change", e => { state.keto = e.target.checked; save(); render(); });
+// Sonidos: preferencia por dispositivo (no se sincroniza)
+try { $("#sndToggle").checked = localStorage.getItem("menufamSnd") !== "0"; } catch (e) {}
+$("#sndToggle").addEventListener("change", e => {
+  try { localStorage.setItem("menufamSnd", e.target.checked ? "1" : "0"); } catch (err) {}
+  if (e.target.checked) beep("tada");
+});
 $("#fuenteSel").addEventListener("change", e => {
   state.fuente = e.target.value;
   save();

@@ -12,6 +12,8 @@ App para armar el menú semanal de la familia: **cenas** de lunes a viernes y **
 >
 > Las versiones 6-8 suman: recetas paso a paso con opción de importar, edición de platos, lista de ingredientes "no nos gusta" (aceitunas, roquefort y queso azul de fábrica 😄), botones 🇦🇷/🏠 por día, y la **estructura completa de la cena**: principal siempre una carne (vaca, cerdo, pollo o pescado) + ensaladas (una o dos, la verde va siempre) + un complemento (burrata, palta, tarta, tortilla, omelette de claras, budín…) que rota sin repetirse en días seguidos.
 
+> La versión 23 adopta lo mejor de la app "Que Comemos Hoy" (que-comemoshoy.netlify.app): **heladera 2.0** con % de coincidencia por plato y "te falta…", **escaneo de la heladera por foto 📷** (la IA detecta los ingredientes), **🪄 inventar una receta** con lo que hay (opciones rápida / airfryer / liviana), chips de **⏱ tiempo, dificultad y 💰 costo estimado** en cada plato, **⭐ Plato del día** en las historias, **🔊 sonidos** apagables y la **🧮 calculadora de calorías** (con modo 🧛) que compara con las cenas de la semana.
+
 ## Qué hace
 
 - 🎲 **Genera el menú de la semana** con reglas de variedad: no repite proteína dos días seguidos, máximo dos veces la misma proteína por semana, pescado una vez, y evita los platos de la semana pasada.

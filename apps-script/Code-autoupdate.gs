@@ -157,6 +157,63 @@ function generarReceta(nombre, tipo) {
   return data.candidates[0].content.parts[0].text;
 }
 
+// Inventa una receta con los ingredientes que hay en casa (heladera 🪄).
+function recetaConIngredientes(ingredientes, opciones) {
+  var key = geminiKey_();
+  if (!key) throw new Error('Falta la GEMINI_API_KEY para inventar recetas.');
+  var o = opciones || {};
+  var prompt = 'Sos un cocinero argentino. En casa hay estos ingredientes: ' + ingredientes + '. ' +
+    'Inventá UNA cena familiar rica y realista usando principalmente esos ingredientes (podés sumar básicos: sal, aceite, condimentos, huevo). ' +
+    (o.rapida ? 'Tiene que estar lista en menos de 30 minutos. ' : '') +
+    (o.airfryer ? 'Tiene que poder hacerse en airfryer (freidora de aire). ' : '') +
+    (o.liviana ? 'Tiene que ser liviana / baja en calorías. ' : '') +
+    'Devolvé SOLO un JSON válido, sin texto extra, con estas claves: ' +
+    '"nombre" (nombre atractivo y corto del plato), ' +
+    '"lados" (acompañamiento sugerido, string corto), ' +
+    '"ing" (ingredientes separados por coma, en minúscula), ' +
+    '"receta" (preparación paso a paso numerada 1) 2) 3)... en un solo string), ' +
+    '"keto" (ajuste keto/low-carb en un string corto), ' +
+    '"nut" (array de 4 enteros: calorías, proteínas g, carbohidratos g, grasas g por porción). ' +
+    'Español rioplatense.';
+  var res = UrlFetchApp.fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + key,
+    { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { responseMimeType: 'application/json' }
+      }) }
+  );
+  var data = JSON.parse(res.getContentText());
+  if (res.getResponseCode() !== 200) {
+    throw new Error((data.error && data.error.message) || 'Error de Gemini (' + res.getResponseCode() + ')');
+  }
+  return data.candidates[0].content.parts[0].text;
+}
+
+// Lee una foto de la heladera/alacena y devuelve los ingredientes que ve.
+function escanearHeladera(imagenBase64) {
+  var key = geminiKey_();
+  if (!key) throw new Error('Falta la GEMINI_API_KEY para escanear fotos.');
+  var m = String(imagenBase64).match(/^data:(image\/[\w.+-]+);base64,(.+)$/);
+  if (!m) throw new Error('Foto inválida, probá de nuevo');
+  var res = UrlFetchApp.fetch(
+    'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' + key,
+    { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({
+        contents: [{ parts: [
+          { inlineData: { mimeType: m[1], data: m[2] } },
+          { text: 'Mirá esta foto de una heladera, alacena o mesada y devolvé SOLO un JSON válido así: {"ingredientes":["tomate","huevo","queso"]} con los alimentos que se ven, en español, minúscula, nombres simples y genéricos. Máximo 20. Si no se ve comida, devolvé {"ingredientes":[]}.' }
+        ] }],
+        generationConfig: { responseMimeType: 'application/json' }
+      }) }
+  );
+  var data = JSON.parse(res.getContentText());
+  if (res.getResponseCode() !== 200) {
+    throw new Error((data.error && data.error.message) || 'Error de Gemini (' + res.getResponseCode() + ')');
+  }
+  return data.candidates[0].content.parts[0].text;
+}
+
 // ═══════════════ Telegram: recordatorio de la cena de mañana ═══════════════
 // 1) Hablale a @BotFather en Telegram → /newbot → copiá el TOKEN acá.
 // 2) Agregá el bot al grupo familiar (o hablale directo), mandá un mensaje,
