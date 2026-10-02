@@ -168,7 +168,9 @@
     border: 1px solid var(--line); border-left: 3px solid var(--stat);
     border-radius: 0 12px 12px 0; color: var(--ink);
   }
-  .write-btn { display: block; width: calc(100% - 32px); margin: 12px 16px 0; padding: 13px; font-size: 15px; }
+  .write-btn { display: block; width: calc(100% - 32px); margin: 12px 16px 0; padding: 11px; font-size: 14px; font-weight: 700; background: transparent; border: 1.5px dashed var(--line); color: var(--muted); }
+  .empty-card .e-alt { display: block; margin: 10px auto 0; background: none; border: none; color: var(--muted); font-size: 13.5px; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; padding: 6px; }
+  body.week-empty #weekBody, body.week-empty .write-btn { display: none; }
   .main-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 16px 6px; }
   .main-actions button { width: 100%; padding: 13px 8px; font-size: 14.5px; }
   dialog#shareModal { border: 1px solid var(--line); border-radius: 22px; background: var(--shell); color: var(--ink); padding: 18px; width: 340px; max-width: 92vw; }
@@ -387,6 +389,7 @@
   .export-bar { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 16px 16px 6px; }
   .export-bar button { width: 100%; padding: 10px 8px; }
   .export-bar .spacer { display: none; }
+  .shop-empty .export-bar, .shop-empty .shop-progress, .shop-empty .extra { display: none; }
 
   /* ── Feed Descubrir (TikTok) ── */
   #tab-descubrir { position: relative; }
@@ -535,9 +538,10 @@
     width: 100%; max-width: 520px; z-index: 46;
     background: var(--shell); border-radius: 22px 22px 0 0; border: 1px solid var(--line); border-bottom: none;
     padding: 10px 16px calc(18px + env(safe-area-inset-bottom, 0px));
-    transition: transform .25s ease; max-height: 86dvh; overflow-y: auto;
+    transition: transform .25s ease, visibility 0s linear .25s; max-height: 86dvh; overflow-y: auto;
+    visibility: hidden;
   }
-  .sheet.open { transform: translate(-50%, 0); }
+  .sheet.open { transform: translate(-50%, 0); visibility: visible; transition: transform .25s ease; }
   .sheet .handle { width: 42px; height: 4px; border-radius: 99px; background: var(--line); margin: 2px auto 10px; }
   .sheet-head { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
   .sheet-head h3 { margin: 0; font-size: 19px; font-weight: 900; flex: 1; text-align: center; }
@@ -760,19 +764,20 @@
       <p class="saludo" id="chefLine" style="margin-top:2px"></p>
       <p class="saludo" id="climaLine" hidden style="margin-top:2px"></p>
       <div class="stories" id="stories"></div>
-      <div class="empty-card" id="emptyCard" hidden>
-        <span class="e-emoji">🍽️</span>
-        <h3>¿Qué comemos esta semana?</h3>
-        <p>Un toque y armamos cenas y viandas para los 5 días — después ajustan entre todos.</p>
-        <button class="grad" id="emptyGo">🎲 ¡Armar la semana!</button>
-      </div>
-      <div class="next-hint" id="nextHint" hidden></div>
-      <button class="grad write-btn" id="btnEscribir">✍️ Escribir lo que quiero cocinar</button>
       <div class="hero" id="hero" hidden>
         <p class="h-label" id="heroLabel"></p>
         <div class="h-row"><span class="h-emoji" id="heroCenaEmoji"></span><div><p class="h-kind">Cena</p><p class="h-name" id="heroCenaName"></p></div></div>
         <div class="h-row"><span class="h-emoji" id="heroViandaEmoji"></span><div><p class="h-kind">Vianda</p><p class="h-name" id="heroViandaName"></p></div></div>
       </div>
+      <div class="empty-card" id="emptyCard" hidden>
+        <span class="e-emoji">🍽️</span>
+        <h3>¿Qué comemos esta semana?</h3>
+        <p>Un toque y armamos cenas y viandas para los 5 días — después ajustan entre todos.</p>
+        <button class="grad" id="emptyGo">🎲 ¡Armar la semana!</button>
+        <button class="e-alt" id="emptyWrite">✍️ Prefiero elegir yo los platos</button>
+      </div>
+      <div class="next-hint" id="nextHint" hidden></div>
+      <button class="write-btn" id="btnEscribir">✍️ Escribir lo que quiero cocinar</button>
 
       <div class="rate-card" id="rateCard" hidden>
         <span class="rc-emoji" id="rateEmoji"></span>
@@ -783,8 +788,7 @@
         <button class="rc-heart" id="rateBtn" aria-label="Me gustó">🤍</button>
       </div>
 
-      <div class="next-hint" id="nextHint" hidden></div>
-
+      <div id="weekBody">
       <h2 class="sec pad">🍽 Cenas</h2>
       <div class="rows" id="rowsCenas"></div>
 
@@ -794,6 +798,7 @@
       <div class="main-actions">
         <button class="grad" id="btnShareMenu">📤 Compartir menú</button>
         <button id="btnDone">✅ ¡Semana lista!</button>
+      </div>
       </div>
 
       <details class="extra">
@@ -916,6 +921,7 @@
         <input name="nut" placeholder="Nutrición: kcal, proteínas, carbos, grasas (ej: 650, 45, 40, 28)" class="full" type="text" inputmode="numeric">
         <textarea name="receta" placeholder="Receta paso a paso (opcional)" class="full" rows="3" style="font:inherit;font-size:14px;color:var(--ink);background:var(--paper, var(--card-2));background:var(--card-2);border:1px solid var(--line);border-radius:12px;padding:8px 10px"></textarea>
         <button type="submit" class="grad" id="addDishBtn">＋ Agregar</button>
+        <button type="button" class="full ghost" id="delDishBtn" hidden style="color:var(--like)">🗑️ Sacar del recetario</button>
       </form>
       </details>
 
@@ -1020,7 +1026,7 @@
 <dialog id="changeModal">
   <h3 id="changeTitle" style="margin:0 0 12px;font-size:18px;font-weight:900"></h3>
   <div style="display:flex;flex-direction:column;gap:8px">
-    <button id="chgOtro">🔁 Otro plato de casa</button>
+    <button id="chgOtro">🏠 Otro plato de nuestro recetario</button>
     <button id="chgArg">🇦🇷 Receta argentina nueva</button>
     <button id="chgRuleta">🎡 Ruleta (que elijan los chicos)</button>
     <button id="chgEscribir" class="grad">✍️ Escribir uno yo</button>
@@ -1843,8 +1849,8 @@ function renderStories() {
 
 function renderHero() {
   const hero = $("#hero");
-  const i = todayIndex();
-  if (i === null) { hero.hidden = true; return; }
+  const finde = todayIndex() === null;
+  const i = finde ? 0 : todayIndex();
   const cenaN = entryName(state.week.cenas[i]);
   const viaN = entryName(state.week.viandas[i]);
   if (!cenaN && !viaN) { hero.hidden = true; return; }
@@ -1856,7 +1862,7 @@ function renderHero() {
   } else {
     hero.style.background = PROT_GRAD[prot] || PROT_GRAD.custom;
   }
-  $("#heroLabel").textContent = `¿Qué toca hoy? · ${DIAS[i]}`;
+  $("#heroLabel").textContent = finde ? "Se viene el lunes" : `¿Qué toca hoy? · ${DIAS[i]}`;
   $("#heroCenaEmoji").textContent = entryEmoji(state.week.cenas[i]) || "🤷";
   $("#heroCenaName").textContent = cenaN || "Sin plan — ¡girá la ruleta!";
   $("#heroViandaEmoji").textContent = entryEmoji(state.week.viandas[i]) || "🤷";
@@ -1886,17 +1892,14 @@ function rowFor(tipo, i) {
       ${d ? `<span class="chip ${d.prot}">${PROT_LABEL[d.prot]}</span>` : ""}
     </span>
     ${likes ? `<span class="r-likes">❤️ ${likes}</span>` : ""}`;
-  const arB = document.createElement("button");
-  arB.className = "act"; arB.textContent = "🇦🇷";
-  arB.title = `Receta argentina nueva para el ${DIAS[i]}`;
-  arB.addEventListener("click", ev => { ev.stopPropagation(); sorpresaDay(tipo, i); });
-  const casaB = document.createElement("button");
-  casaB.className = "act"; casaB.textContent = "🏠";
-  casaB.title = `Volver a un plato de nuestro recetario el ${DIAS[i]}`;
-  casaB.addEventListener("click", ev => { ev.stopPropagation(); casaDay(tipo, i); });
+  const chB = document.createElement("button");
+  chB.className = "act"; chB.textContent = e ? "🔄" : "🎲";
+  chB.title = e ? `Cambiar ${tipo} del ${DIAS[i]}` : `Sortear ${tipo} del ${DIAS[i]}`;
+  chB.setAttribute("aria-label", chB.title);
+  chB.addEventListener("click", ev => { ev.stopPropagation(); e ? abrirCambiar(tipo, i) : rerollDay(tipo, i); });
   const go = document.createElement("span");
   go.className = "r-go"; go.textContent = "›";
-  row.appendChild(arB); row.appendChild(casaB); row.appendChild(go);
+  row.appendChild(chB); row.appendChild(go);
   if (!state.kid.active) {
     row.addEventListener("click", () => openSheet(i, tipo));
     row.addEventListener("keydown", ev => { if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); openSheet(i, tipo); } });
@@ -1949,8 +1952,8 @@ const HELP_KB = [
   { k: /ruleta|girar|🎡/, a: "La ruleta 🎡 está en el editor de cada día (tocá el día y vas a ver el botón). Gira entre platos candidatos que respetan las reglas de variedad — ideal para que elijan Fran, Luca y Martu. Si sale algo que no va, tocá «Otra vez»." },
   { k: /vota|voto|corazon|like|❤|me gusta|favorito/, a: "Cada uno elige su perfil arriba (M, X, F, L, Mt) y da ❤️ a sus platos favoritos — en el feed Descubrir (doble tap como Instagram 😉) o en el editor del día. Los platos con más corazones salen más seguido en el sorteo: la app aprende los gustos de la familia." },
   { k: /perfil|quien|quién|usuario|avatar/, a: "Arriba a la derecha están los perfiles: M (Mike), X (Xime), F (Fran), L (Luca) y Mt (Martu). Tocá el tuyo antes de votar así los corazones quedan a tu nombre." },
-  { k: /sorpresa|nueva|argentin|catalogo|catálogo|🇦🇷/, a: "Las recetas nuevas salen de los recetarios argentinos más populares (Cookpad, Essen, La Paulina…). Tres formas de probarlas: el botón 🇦🇷 en cada día (sorpresa solo para ese día), el selector «El sorteo usa» en Semana (para toda la semana), o el filtro «🇦🇷 Nuevas» en Descubrir para verlas una por una con su receta." },
-  { k: /casa|volver|recetario nuestro|🏠/, a: "El botón 🏠 de cada día vuelve a un plato del recetario familiar de siempre. Es el opuesto del 🇦🇷: uno trae novedades, el otro vuelve a lo conocido." },
+  { k: /sorpresa|nueva|argentin|catalogo|catálogo|🇦🇷/, a: "Las recetas nuevas salen de los recetarios argentinos más populares (Cookpad, Essen, La Paulina…). Tres formas de probarlas: el botón 🔄 de cada día → «🇦🇷 Receta argentina nueva» (sorpresa solo para ese día), el selector «El sorteo usa» en Semana (para toda la semana), o el filtro «🇦🇷 Nuevas» en Descubrir para verlas una por una con su receta." },
+  { k: /cambiar un plato|cambio un plato|casa|volver|recetario nuestro|🏠|🔄/, a: "Tocá 🔄 en cualquier día y elegí «🏠 Otro plato de nuestro recetario» para volver a lo conocido, o «🇦🇷 Receta argentina nueva» para probar algo distinto. En un día vacío, el 🎲 sortea solo ese día." },
   { k: /receta|paso a paso|como se hace|cómo se hace|preparar|cocinar|📖/, a: "Los platos del catálogo argentino traen la receta paso a paso: tocá 📖 en el feed, en el editor del día o en el Recetario. Desde ahí también podés importarla al recetario familiar." },
   { k: /keto|mike come|dieta/, a: "Activá «Keto Mike» en la pestaña Semana y cada cena muestra la versión keto de Mike (350 g de proteína, sin puré ni papas, ensalada grande). También sale en el mensaje de WhatsApp." },
   { k: /vianda|cole|colegio|chicos comen/, a: "Las viandas del cole son la sección 🧺: un plato por día para Fran, Luca y Martu, con las variantes de Martu (puré y lentejas 😄) y observaciones para quien las prepara («calentar la carne a la mañana»). Se generan con el 🎲 igual que las cenas." },
@@ -1992,7 +1995,7 @@ const HELP_KB = [
   { k: /hola|buenas|che|hey/, a: "¡Hola! 👋 Soy Menucito, el ayudante de MenuFam. Preguntame lo que quieras sobre la app: la ruleta, los votos, las viandas, las compras… o tocá una de las preguntas de abajo." },
   { k: /gracias|genial|joya|barbaro|bárbaro/, a: "¡De nada! 🍽️ Que aproveche. Si se traban con algo, acá estoy." }
 ];
-const HELP_CHIPS = ["¿Cómo genero el menú?", "¿Cómo funciona la ruleta?", "¿Cómo votan los chicos?", "¿Dónde se guardan los datos?", "¿Qué es el 🇦🇷 de cada día?"];
+const HELP_CHIPS = ["¿Cómo genero el menú?", "¿Cómo funciona la ruleta?", "¿Cómo votan los chicos?", "¿Dónde se guardan los datos?", "¿Cómo cambio un plato?"];
 const HELP_FALLBACK = "Mmm, esa no la tengo 🤔. Probá preguntarme por: el sorteo 🎲, la ruleta 🎡, los votos ❤️, las recetas nuevas 🇦🇷, las viandas 🧺, la lista de compras 🛒, el modo keto, los temas de color, las fotos 📷 o dónde se guardan los datos.";
 
 function helpAnswer(txt) {
@@ -2224,7 +2227,7 @@ function vib() { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e)
 function renderSaludo() {
   const m = FAMILIA.find(f => f.k === state.currentUser);
   const hoy = new Date().toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" });
-  $("#saludo").innerHTML = `¡Hola <strong>${m ? m.title : ""}</strong>! 👋 <span style="text-transform:capitalize">${hoy}</span> <span style="opacity:.6">· ¿no sos vos? tocá acá</span>`;
+  $("#saludo").innerHTML = `¡Hola <strong>${m ? m.title : ""}</strong>! 👋 <span style="text-transform:capitalize">${hoy}</span> <span style="opacity:.6;text-decoration:underline;text-underline-offset:2px">cambiar</span>`;
   $("#saludo").style.cursor = "pointer";
   const chef = chefSemana();
   $("#chefLine").innerHTML = `👨‍🍳 Chef de la semana: <strong>${chef.title}</strong> — elige un plato comodín`;
@@ -2232,6 +2235,7 @@ function renderSaludo() {
   const filled = [...state.week.cenas, ...state.week.viandas].filter(e => e && (e.id || e.custom)).length;
   const empty = $("#emptyCard"), hint = $("#nextHint");
   empty.hidden = filled > 0;
+  document.body.classList.toggle("week-empty", filled === 0);
   if (filled === 0) { hint.hidden = true; return; }
   let txt = null;
   if (filled < 10) txt = `👇 Faltan ${10 - filled} platos: tocá los días vacíos, o 🎲 para completar`;
@@ -3211,6 +3215,8 @@ function startEdit(d) {
   $("#editBanner").hidden = false;
   $("#editName").textContent = d.nombre;
   $("#addDishBtn").textContent = "💾 Guardar cambios";
+  $("#delDishBtn").hidden = false;
+  f.closest("details").open = true;
   f.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 function cancelEdit() {
@@ -3218,7 +3224,17 @@ function cancelEdit() {
   $("#addDishForm").reset();
   $("#editBanner").hidden = true;
   $("#addDishBtn").textContent = "＋ Agregar";
+  $("#delDishBtn").hidden = true;
 }
+$("#delDishBtn").addEventListener("click", () => {
+  const d = byId(editingId);
+  if (!d || !confirm(`¿Sacar “${d.nombre}” del recetario?`)) return;
+  state.recetario = state.recetario.filter(x => x.id !== d.id);
+  for (const k of ["cenas", "viandas"]) state.week[k] = state.week[k].map(e => (e && e.id === d.id) ? null : e);
+  cancelEdit();
+  save(); render();
+  toast("Plato sacado del recetario 🗑️");
+});
 $("#editCancel").addEventListener("click", e => { e.preventDefault(); cancelEdit(); });
 
 let recQuery = "", recFilter = "todos";
@@ -3264,12 +3280,6 @@ function renderRecetario() {
     acts.appendChild(mk(d.img ? "🖼️" : "📷", d.img ? "Cambiar foto" : "Poner foto", () => {
       if (d.img && confirm(`¿Sacar la foto de “${d.nombre}”? (Cancelar = elegir otra)`)) { delete d.img; save(); render(); return; }
       photoTarget = d; $("#photoInput").click();
-    }));
-    acts.appendChild(mk("✕", "Sacar del recetario", () => {
-      if (!confirm(`¿Sacar “${d.nombre}” del recetario?`)) return;
-      state.recetario = state.recetario.filter(x => x.id !== d.id);
-      for (const k of ["cenas", "viandas"]) state.week[k] = state.week[k].map(e => (e && e.id === d.id) ? null : e);
-      save(); render();
     }));
     card.appendChild(acts);
     grid.appendChild(card);
@@ -3897,7 +3907,8 @@ function renderShop() {
     }
     div.appendChild(ul); cols.appendChild(div);
   }
-  if (!total) cols.innerHTML = "<p class='hint' style='padding:0 2px'>Todavía no hay platos elegidos esta semana. Generá el menú con el 🎲 de abajo.</p>";
+  if (!total) cols.innerHTML = "<div class='empty-card' style='margin:4px 0 0'><span class='e-emoji'>🛒</span><h3>La lista se arma sola</h3><p>Cuando elijan los platos de la semana, acá aparecen los ingredientes agrupados por góndola.</p><button class='grad' onclick=\"document.querySelector('nav.tabbar [data-tab=semana]').click()\">🗓️ Ir a la semana</button></div>";
+  $("#tab-compras").classList.toggle("shop-empty", !total);
   $("#shopBar").style.width = total ? Math.round(done / total * 100) + "%" : "0%";
   let topeTxt = "";
   if (state.presupuestoTope) {
@@ -3991,6 +4002,7 @@ $("#btnShareMenu").addEventListener("click", () => {
 });
 $("#shareClose").addEventListener("click", () => $("#shareModal").close());
 $("#emptyGo").addEventListener("click", () => $("#btnGenerate").click());
+$("#emptyWrite").addEventListener("click", () => openSheet(todayIndex() ?? 0));
 $("#btnGenerate").addEventListener("click", () => {
   if (state.kid.active) { toast("Pedile a mamá o papá que genere el menú 😄"); return; }
   vib();
